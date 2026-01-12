@@ -30,6 +30,7 @@ import WebLinkManager from "./pages/admin/weblink/WebLinkManager";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import UserProfile from "./pages/user/UserProfile";
+import DocumentDetail from "./pages/home/DocumentDetail";
 
 const ClientLayout = () => {
   return (
@@ -73,6 +74,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="news/:id" element={<NewsDetail />} />
           <Route path="documents" element={<DocumentsPage />} />
+          <Route path="/documents/:id" element={<DocumentDetail />} />
         </Route>
 
         <Route path="/login" element={<LoginPage />} />

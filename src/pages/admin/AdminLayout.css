@@ -1,0 +1,253 @@
+/* --- ADMIN LAYOUT STYLE (BLUE-GREY & RED THEME) --- */
+:root {
+  --sidebar-width: 230px;
+  --sidebar-closed-width: 50px;
+  --header-height: 60px;
+
+  /* MÀU SẮC ĐỒNG BỘ */
+  --primary-color: #2c3e50; /* Header & Sidebar */
+
+  --sidebar-bg: #2c3e50; /* Sidebar nền chính */
+  --parent-bg: #2c3e50; /* Item cha nền trùng sidebar */
+  --parent-hover: #34495e; /* Hover sáng hơn chút */
+
+  --child-bg: #22303d; /* Menu con tối hơn */
+
+  --menu-text: #ecf0f1; /* Chữ trắng ngà */
+  --text-active: #ffffff; /* Chữ active trắng tinh */
+
+  /* --- CẬP NHẬT MÀU NHẤN: ĐỎ NHẠT (Soft Red) --- */
+  --active-accent: #e74c3c; /* Màu đỏ nhạt thay vì cam */
+}
+
+/* Reset */
+* {
+  margin: 0;
+
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background-color: #f4f6f9;
+}
+
+/* HEADER */
+.admin-header {
+  height: var(--header-height);
+  background-color: var(--primary-color);
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  position: relative;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.app-title {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+.menu-toggle {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px; /* Tăng khoảng cách giữa tên và nút logout */
+  font-size: 14px;
+}
+.logout-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+
+  /* --- CẬP NHẬT KÍCH THƯỚC NÚT --- */
+  padding: 6px 10px; /* Tăng vùng đệm để nút to hơn (Cũ: 4px 10px) */
+  font-size: 15px; /* Tăng kích thước Icon (Cũ: 12px) */
+
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* BODY */
+.main-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  margin-top: 2px; /* Khoảng cách với Header */
+}
+
+/* SIDEBAR */
+.sidebar {
+  background-color: var(--sidebar-bg);
+  width: var(--sidebar-width);
+  transition: width 0.3s ease;
+  overflow-y: auto;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Scrollbar sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+
+.sidebar.closed {
+  width: var(--sidebar-closed-width);
+}
+
+/* --- MENU STYLES --- */
+.sidebar-menu {
+  padding-top: 5px;
+}
+
+/* 1. Menu Cha */
+.menu-parent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  color: var(--menu-text);
+  background-color: var(--parent-bg);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.menu-parent:hover {
+  background-color: var(--parent-hover);
+  color: var(--text-active);
+}
+
+/* Active State Menu Cha */
+.menu-group.expanded .menu-parent,
+.menu-parent.active-parent {
+  background-color: #34495e;
+  color: #fff;
+  /* Viền nhấn màu đỏ nhạt */
+  border-left: 4px solid var(--active-accent);
+}
+
+.menu-parent-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.menu-icon {
+  font-size: 16px;
+  min-width: 20px;
+  text-align: center;
+  color: #bdc3c7;
+}
+.menu-parent:hover .menu-icon,
+.menu-group.expanded .menu-icon {
+  color: #fff;
+}
+
+.menu-arrow {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* 2. Menu Con */
+.menu-children {
+  background-color: var(--child-bg);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px 10px 48px;
+  color: #bdc3c7;
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.2s;
+  border-left: 4px solid transparent;
+}
+
+.menu-item:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Active Menu Con */
+.menu-item.active {
+  background-color: rgba(255, 255, 255, 0.08);
+  /* Chữ và icon chuyển sang màu đỏ nhạt */
+  color: var(--active-accent);
+  font-weight: 600;
+  /* Viền trái màu đỏ nhạt */
+  border-left-color: var(--active-accent);
+}
+
+.menu-item.active .menu-icon {
+  color: var(--active-accent);
+}
+
+/* SIDEBAR ĐÓNG */
+.sidebar.closed .menu-text,
+.sidebar.closed .menu-arrow {
+  display: none;
+}
+
+.sidebar.closed .menu-parent,
+.sidebar.closed .menu-item {
+  padding: 15px 0;
+  justify-content: center;
+}
+.sidebar.closed .menu-parent-content {
+  gap: 0;
+}
+.sidebar.closed .menu-item {
+  padding-left: 0;
+  border-left: none;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  flex: 1;
+  background-color: #f4f6f9;
+  padding: 0;
+  overflow-y: auto;
+}
+.content-container {
+  min-height: 100%;
+}

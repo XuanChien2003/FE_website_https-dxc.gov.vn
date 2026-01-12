@@ -5,7 +5,7 @@ import {
   FaCalendarAlt,
   FaAngleRight,
   FaListUl,
-  FaPlayCircle,
+  FaCaretRight, // <--- Đã đổi icon import
 } from "react-icons/fa";
 import "./HomePage.css";
 
@@ -78,10 +78,10 @@ const HomePage = () => {
         // 2.4. Điểm tin CĐS (CatID: 16)
         setNewsDigital(getNewsByCategory(16, 5));
 
-        // 2.5. Chính sách CĐS (CatID: 10) -> THEO YÊU CẦU CỦA BẠN
+        // 2.5. Chính sách CĐS (CatID: 10)
         setNewsPolicy(getNewsByCategory(10, 5));
 
-        // 3. Văn bản & Links (Vẫn giữ documents để hiển thị ở Sidebar)
+        // 3. Văn bản & Links
         setDocuments(resDocs.data || []);
         setWebLinks(resLinks.data || []);
       } catch (error) {
@@ -132,7 +132,7 @@ const HomePage = () => {
   // Component tin list (Grid dưới) - Dạng bullet point
   const NewsItemList = ({ news }) => (
     <div className="news-list-item">
-      <FaPlayCircle className="bullet-icon" />
+      <FaCaretRight className="bullet-icon" />
       <Link to={`/news/${news.NewsID}`}>{news.Title}</Link>
     </div>
   );
@@ -278,11 +278,10 @@ const HomePage = () => {
                 </div>
               </div>
 
-              {/* Box 4: CHÍNH SÁCH CHUYỂN ĐỔI SỐ (Sử dụng ID 10 từ bảng News) */}
+              {/* Box 4: CHÍNH SÁCH CHUYỂN ĐỔI SỐ */}
               <div className="category-box">
                 <h3 className="cat-title">Chính sách Chuyển đổi số</h3>
                 <div className="cat-content">
-                  {/* Vì là dữ liệu Tin tức (News), ta tái sử dụng component NewsItemSmall & NewsItemList */}
                   {newsPolicy.length > 0 && (
                     <NewsItemSmall news={newsPolicy[0]} />
                   )}
@@ -306,7 +305,7 @@ const HomePage = () => {
                   .filter((l) => l.IsShow)
                   .map((link) => (
                     <li key={link.LinkID}>
-                      <FaAngleRight className="link-arrow" />
+                      <FaCaretRight className="bullet-icon" />
                       <a href={link.Url} target="_blank" rel="noreferrer">
                         {link.Name}
                       </a>
@@ -317,19 +316,21 @@ const HomePage = () => {
 
             <div className="sidebar-box mt-20">
               <h3 className="sidebar-title orange">VĂN BẢN MỚI</h3>
-              {/* Sidebar vẫn giữ nguyên hiển thị Documents (Văn bản pháp quy) */}
               <div className="sidebar-content">
                 {documents.slice(0, 3).map((doc) => (
                   <div key={doc.DocID} className="sidebar-doc">
-                    <Link
-                      to={`/documents/${doc.DocID}`}
-                      className="doc-title-link"
-                      title={doc.Title}
-                    >
-                      {doc.Title}
-                    </Link>
-                    <div className="doc-meta-info">
-                      {doc.DocNumber} - {formatDate(doc.IssueDate)}
+                    <FaCaretRight className="sidebar-icon-red" />
+                    <div className="sidebar-doc-text">
+                      <Link
+                        to={`/documents/${doc.DocID}`}
+                        className="doc-title-link"
+                        title={doc.Title}
+                      >
+                        {doc.Title}
+                      </Link>
+                      <div className="doc-meta-info">
+                        {doc.DocNumber} - {formatDate(doc.IssueDate)}
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -127,8 +127,6 @@ const Header = () => {
               className="header-logo"
             />
 
-            {/* Đường kẻ ngăn cách (sẽ hiện bằng CSS) */}
-
             <div className="brand-divider"></div>
 
             <div className="brand-text">
@@ -169,8 +167,6 @@ const Header = () => {
                 </Link>
               </div>
             </li>
-
-            {/* --- MENU ĐỘNG TỪ API --- */}
 
             {menuTree.map((menu) => {
               const hasChildren = menu.children && menu.children.length > 0;

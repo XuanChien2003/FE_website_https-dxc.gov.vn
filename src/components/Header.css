@@ -1,4 +1,3 @@
-/* --- BIẾN MÀU SẮC --- */
 :root {
   --bg-header: #ffffff;
   --text-ministry: #205081; /* Xanh đậm sang trọng */
@@ -26,11 +25,18 @@
 .header-top {
   background-color: var(--bg-header);
   padding: 12px 0;
-  /* Thêm họa tiết chấm bi mờ rất nhẹ để nền bớt đơn điệu */
-  background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-  background-size: 20px 20px;
-}
+  padding-top: 45px;
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.291)),
+    /* 2. Ảnh nền (Đặt sau) */
+      url("../../public/futuristic-electric-circuit-landscape-glowing-600nw-2694866297.webp");
 
+  background-size: 100% auto;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* Thêm viền mờ dưới đáy cho đẹp */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
 .branding-container {
   display: flex;
   justify-content: space-between;
@@ -118,6 +124,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  justify-content: center;
 }
 
 .nav-item {

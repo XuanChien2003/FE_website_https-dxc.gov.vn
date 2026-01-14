@@ -31,6 +31,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import UserProfile from "./pages/user/UserProfile";
 import DocumentDetail from "./pages/home/DocumentDetail";
+import SignInSelection from "./pages/auth/SignInSelection";
 
 const ClientLayout = () => {
   return (
@@ -76,7 +77,7 @@ function App() {
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="/documents/:id" element={<DocumentDetail />} />
         </Route>
-
+        <Route path="/cms" element={<SignInSelection />} />
         <Route path="/login" element={<LoginPage />} />
 
         <Route

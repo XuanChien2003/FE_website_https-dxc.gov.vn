@@ -32,6 +32,7 @@ import Footer from "./components/Footer";
 import UserProfile from "./pages/user/UserProfile";
 import DocumentDetail from "./pages/home/DocumentDetail";
 import SignInSelection from "./pages/auth/SignInSelection";
+import NewsPage from "./pages/home/NewsPage";
 
 const ClientLayout = () => {
   return (
@@ -73,6 +74,7 @@ function App() {
       <Routes>
         <Route element={<ClientLayout />}>
           <Route index element={<HomePage />} />
+          <Route path="/news" element={<NewsPage />} />
           <Route path="news/:id" element={<NewsDetail />} />
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="/documents/:id" element={<DocumentDetail />} />

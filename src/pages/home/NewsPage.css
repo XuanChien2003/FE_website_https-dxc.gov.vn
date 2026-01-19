@@ -1,0 +1,204 @@
+:root {
+  --np-red: #be1e2d; /* Màu đỏ chủ đạo */
+  --np-bg-body: #fdfdfd; /* Nền trang */
+  --np-bg-card: #ffffff; /* Nền card */
+  --np-border: #e5e7eb; /* Viền nhạt */
+  --np-text-main: #333333;
+  --np-text-sub: #888888;
+}
+
+.np-wrapper {
+  background-color: var(--np-bg-body);
+  font-family: "Arial", sans-serif;
+  min-height: 100vh;
+  padding: 30px 0 60px;
+}
+
+.np-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.np-loading {
+  text-align: center;
+  padding: 50px;
+}
+
+/* --- TITLE --- */
+.np-page-title {
+  text-align: center;
+  color: var(--np-red);
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  text-transform: uppercase;
+}
+
+/* --- FILTERS (Xếp chồng) --- */
+.np-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+  background: #fff;
+  padding: 5px; /* Nếu muốn có khung bao quanh thì thêm border */
+}
+
+.np-select,
+.np-search {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid var(--np-border);
+  border-radius: 4px;
+  font-size: 14px;
+  color: #555;
+  outline: none;
+  background-color: #fff;
+}
+
+.np-select:focus,
+.np-search:focus {
+  border-color: #aaa;
+}
+
+/* --- GRID LAYOUT (3 Cột) --- */
+.np-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 cột bằng nhau */
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.np-no-result {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: #777;
+}
+
+/* --- CARD STYLE --- */
+.np-card {
+  background: var(--np-bg-card);
+  border: 1px solid var(--np-border);
+  border-radius: 8px; /* Bo góc */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.3s ease, transform 0.2s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.np-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+}
+
+.np-card-thumb {
+  display: block;
+  width: 100%;
+  height: 200px; /* Chiều cao ảnh cố định */
+  overflow: hidden;
+}
+
+.np-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.np-card:hover .np-card-thumb img {
+  transform: scale(1.05);
+}
+
+.np-card-body {
+  padding: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.np-card-title {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 700;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Giới hạn 3 dòng tiêu đề */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.np-card-title a {
+  color: var(--np-text-main);
+  text-decoration: none;
+}
+
+.np-card-title a:hover {
+  color: var(--np-red);
+}
+
+.np-card-date {
+  margin-top: auto; /* Đẩy ngày xuống đáy card */
+  font-size: 12px;
+  color: var(--np-text-sub);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* --- PAGINATION (Nút vuông) --- */
+.np-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.np-page-btn {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #333;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.np-page-btn.arrow {
+  color: #777;
+}
+
+.np-page-btn:hover:not(:disabled) {
+  background-color: #f0f0f0;
+}
+
+.np-page-btn.active {
+  background-color: var(--np-red); /* Màu đỏ khi active */
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(190, 30, 45, 0.4);
+}
+
+.np-page-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 992px) {
+  .np-grid {
+    grid-template-columns: repeat(2, 1fr); /* Tablet: 2 cột */
+  }
+}
+
+@media (max-width: 576px) {
+  .np-grid {
+    grid-template-columns: 1fr; /* Mobile: 1 cột */
+  }
+}

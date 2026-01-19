@@ -25,23 +25,23 @@ const Footer = () => {
           <div className="footer-contact-info">
             <p>
               <FaMapMarkerAlt className="footer-icon-gold" />
-              <strong>Địa chỉ:</strong> Số 20, ngõ 2 Hoa Lư, Hai Bà Trưng, Hà
+              <strong>Địa chỉ: </strong> Số 20, ngõ 2 Hoa Lư, Hai Bà Trưng, Hà
               Nội
             </p>
             <p className="footer-contact-row">
               <span className="contact-item">
                 <FaPhoneAlt className="footer-icon-gold" />
-                <strong>Điện thoại:</strong> 0243.9745845
+                <strong>Điện thoại: </strong> 0243.9745845
               </span>
               <span className="footer-sep">|</span>
               <span className="contact-item">
                 <FaFax className="footer-icon-gold" />
-                <strong>Fax:</strong> 0243.9745846
+                <strong>Fax: </strong> 0243.9745846
               </span>
             </p>
             <p>
               <FaEnvelope className="footer-icon-gold" />
-              <strong>Email:</strong> banbientap@bvhttdl.gov.vn
+              <strong>Email: </strong> banbientap@bvhttdl.gov.vn
             </p>
           </div>
         </div>

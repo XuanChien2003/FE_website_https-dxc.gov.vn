@@ -2,27 +2,25 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 import {
-  FaCalendarAlt,
-  FaAngleRight,
-  FaListUl,
-  FaCaretRight, // <--- Đã đổi icon import
+  FaFileAlt,
+  FaLink,
+  FaStar,
+  FaCaretRight,
+  FaAngleDoubleRight,
 } from "react-icons/fa";
 import "./HomePage.css";
 
 const HomePage = () => {
   const [slides, setSlides] = useState([]);
-
-  // Dữ liệu Top (1 tin to + 3 tin nhỏ bên cạnh)
   const [featuredNews, setFeaturedNews] = useState([]);
 
-  // Dữ liệu Grid bên dưới
+  // Data Grid
   const [newsActivityMinistry, setNewsActivityMinistry] = useState([]);
   const [newsActivityCenter, setNewsActivityCenter] = useState([]);
   const [newsDigital, setNewsDigital] = useState([]);
-
-  // STATE MỚI: Chính sách Chuyển đổi số (ID 10)
   const [newsPolicy, setNewsPolicy] = useState([]);
 
+  // Sidebar
   const [documents, setDocuments] = useState([]);
   const [webLinks, setWebLinks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,54 +36,40 @@ const HomePage = () => {
           api.get("/weblinks"),
         ]);
 
-        // 1. Slide
         let listSlides = resSlides.data || [];
         listSlides.sort(
           (a, b) => (a.DisplayOrder || 0) - (b.DisplayOrder || 0)
         );
         setSlides(listSlides);
 
-        // 2. Tin tức
         let allNews = resNews.data || [];
-        // Sắp xếp mới nhất lên đầu
         allNews.sort(
           (a, b) => new Date(b.PublishedDate) - new Date(a.PublishedDate)
         );
 
-        // --- HÀM HELPER: Lấy tin theo ID ---
         const getNewsByCategory = (catId, count, excludeIds = []) => {
           let filtered = allNews.filter((n) => n.CategoryID === catId);
           if (filtered.length < count) {
             const remaining = allNews.filter(
               (n) => n.CategoryID !== catId && !excludeIds.includes(n.NewsID)
             );
-            const needed = count - filtered.length;
-            filtered = [...filtered, ...remaining.slice(0, needed)];
+            filtered = [
+              ...filtered,
+              ...remaining.slice(0, count - filtered.length),
+            ];
           }
           return filtered.slice(0, count);
         };
 
-        // 2.1. Tin nổi bật (Top Layout) (CatID = 15)
-        const topNews = getNewsByCategory(15, 4);
-        setFeaturedNews(topNews);
-
-        // 2.2. Hoạt động CĐS của Bộ (CatID: 12)
+        setFeaturedNews(getNewsByCategory(15, 4));
         setNewsActivityMinistry(getNewsByCategory(12, 5));
-
-        // 2.3. Hoạt động CĐS của Trung tâm (CatID: 17)
         setNewsActivityCenter(getNewsByCategory(17, 5));
-
-        // 2.4. Điểm tin CĐS (CatID: 16)
         setNewsDigital(getNewsByCategory(16, 5));
-
-        // 2.5. Chính sách CĐS (CatID: 10)
         setNewsPolicy(getNewsByCategory(10, 5));
-
-        // 3. Văn bản & Links
         setDocuments(resDocs.data || []);
         setWebLinks(resLinks.data || []);
       } catch (error) {
-        console.error("Lỗi tải dữ liệu:", error);
+        console.error("Error loading data:", error);
       } finally {
         setLoading(false);
       }
@@ -101,211 +85,196 @@ const HomePage = () => {
 
   if (loading) return <div className="loading-state">Đang tải dữ liệu...</div>;
 
-  // --- Helpers render Top Section ---
-  const bigNews = featuredNews.length > 0 ? featuredNews[0] : null;
-  const subNews = featuredNews.length > 1 ? featuredNews.slice(1, 4) : [];
+  const bigNews = featuredNews[0];
+  const subNews = featuredNews.slice(1, 4);
 
-  // Component tin nhỏ (Grid dưới) - Có ảnh thumbnail
-  const NewsItemSmall = ({ news }) => {
-    if (!news) return null;
-    return (
-      <div className="news-item-sm">
-        <Link to={`/news/${news.NewsID}`} className="news-thumb-link">
-          <img
-            src={news.ImageLink || "https://via.placeholder.com/150"}
-            alt={news.Title}
-            className="news-thumb-sm"
-          />
-        </Link>
-        <div className="news-info-sm">
-          <h4 className="news-title-sm">
-            <Link to={`/news/${news.NewsID}`}>{news.Title}</Link>
-          </h4>
-          <span className="news-date">
-            <FaCalendarAlt /> {formatDate(news.PublishedDate)}
-          </span>
+  const SectionHeader = ({ title, linkTo }) => (
+    <div className="gov-section-header">
+      <h3 className="gov-section-title">
+        <span className="icon-star">
+          <FaStar />
+        </span>{" "}
+        {title}
+      </h3>
+    </div>
+  );
+
+  // Tin chính trong khối
+  const FirstNewsItem = ({ news }) => (
+    <div className="gov-first-news">
+      <Link to={`/news/${news.NewsID}`} className="gov-first-thumb">
+        <img
+          src={news.ImageLink || "https://via.placeholder.com/300x200"}
+          alt={news.Title}
+        />
+      </Link>
+      <div className="gov-first-body">
+        <h4 className="gov-first-title">
+          <Link to={`/news/${news.NewsID}`}>{news.Title}</Link>
+        </h4>
+        <p className="gov-summary">{news.Summary}</p>
+      </div>
+    </div>
+  );
+
+  // List tin bên dưới
+  const NewsListItem = ({ news }) => (
+    <div className="gov-news-item-list">
+      <FaCaretRight className="gov-bullet" />
+      <Link to={`/news/${news.NewsID}`} title={news.Title}>
+        {news.Title}{" "}
+        <span className="gov-date-sm">({formatDate(news.PublishedDate)})</span>
+      </Link>
+    </div>
+  );
+
+  const CategoryBlock = ({ title, data, linkTo }) => (
+    <div className="gov-box">
+      <SectionHeader title={title} linkTo={linkTo} />
+      <div className="gov-box-body">
+        {data.length > 0 && <FirstNewsItem news={data[0]} />}
+        <div className="gov-list-divider"></div>
+        <div className="gov-sub-list">
+          {data.slice(1).map((item) => (
+            <NewsListItem key={item.NewsID} news={item} />
+          ))}
         </div>
       </div>
-    );
-  };
-
-  // Component tin list (Grid dưới) - Dạng bullet point
-  const NewsItemList = ({ news }) => (
-    <div className="news-list-item">
-      <FaCaretRight className="bullet-icon" />
-      <Link to={`/news/${news.NewsID}`}>{news.Title}</Link>
     </div>
   );
 
   return (
-    <div className="home-wrapper">
+    <div className="home-wrapper gov-style">
       <div className="home-container">
-        {/* --- SECTION 1: TOP LAYOUT 3 CỘT --- */}
-        <div className="top-section-3cols">
-          {/* CỘT 1: TIN LỚN NHẤT */}
-          <div className="col-big-news">
-            {bigNews && (
-              <div className="big-news-wrapper">
-                <Link to={`/news/${bigNews.NewsID}`} className="big-thumb-link">
-                  <img
-                    src={
-                      bigNews.ImageLink || "https://via.placeholder.com/800x450"
-                    }
-                    alt={bigNews.Title}
-                    className="big-thumb-img"
-                  />
-                </Link>
-                <div className="big-news-info">
-                  <h2 className="big-title">
-                    <Link to={`/news/${bigNews.NewsID}`}>{bigNews.Title}</Link>
-                  </h2>
-                  <p className="big-summary">{bigNews.Summary}</p>
-                </div>
+        {/* --- SECTION 1: TOP NEWS & SLIDER --- */}
+        <div className="gov-top-section">
+          {/* Cột tin nổi bật (Trái) */}
+          <div className="gov-featured-col">
+            <div className="gov-box no-border">
+              <div className="gov-section-header-red">
+                <span>TIN NỔI BẬT</span>
               </div>
-            )}
-          </div>
-
-          {/* CỘT 2: 3 TIN NHỎ */}
-          <div className="col-sub-news">
-            {subNews.length > 0 ? (
-              subNews.map((news) => (
-                <div key={news.NewsID} className="sub-news-block">
-                  <h3 className="sub-title-top">
-                    <Link to={`/news/${news.NewsID}`}>{news.Title}</Link>
-                  </h3>
-                  <div className="sub-news-body">
+              <div className="gov-featured-content">
+                {bigNews && (
+                  <div className="gov-big-news">
                     <Link
-                      to={`/news/${news.NewsID}`}
-                      className="sub-thumb-link"
+                      to={`/news/${bigNews.NewsID}`}
+                      className="gov-big-thumb"
                     >
                       <img
                         src={
-                          news.ImageLink ||
-                          "https://via.placeholder.com/200x150"
+                          bigNews.ImageLink ||
+                          "https://via.placeholder.com/600x400"
                         }
-                        alt={news.Title}
-                        className="sub-thumb-img"
+                        alt={bigNews.Title}
                       />
                     </Link>
-                    <p className="sub-summary-text">{news.Summary}</p>
+                    <h2 className="gov-big-title">
+                      <Link to={`/news/${bigNews.NewsID}`}>
+                        {bigNews.Title}
+                      </Link>
+                    </h2>
+                    <p className="gov-big-summary">{bigNews.Summary}</p>
                   </div>
+                )}
+                <div className="gov-sub-featured">
+                  {subNews.map((news) => (
+                    <div key={news.NewsID} className="gov-sub-item-row">
+                      <Link
+                        to={`/news/${news.NewsID}`}
+                        className="gov-sub-thumb-sm"
+                      >
+                        <img src={news.ImageLink} alt={news.Title} />
+                      </Link>
+                      <Link
+                        to={`/news/${news.NewsID}`}
+                        className="gov-sub-title-sm"
+                      >
+                        {news.Title}
+                      </Link>
+                    </div>
+                  ))}
                 </div>
-              ))
-            ) : (
-              <div style={{ padding: 10 }}>Đang cập nhật tin...</div>
-            )}
+                <div className="gov-view-all-bottom">
+                  <Link to="/news" className="btn-view-all">
+                    Xem tất cả tin tức <FaAngleDoubleRight />
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* CỘT 3: BANNER */}
-          <div className="col-banners">
-            {slides.length > 0 ? (
-              slides.map((slide) => (
-                <div key={slide.SlideID} className="banner-vertical">
-                  <a
-                    href={slide.LinkUrl || "#"}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <img
-                      src={slide.ImageLink}
-                      alt={slide.Name}
-                      className="banner-v-img"
-                    />
-                  </a>
-                </div>
-              ))
-            ) : (
-              <div className="empty-box">Banner</div>
-            )}
+          {/* Cột Banner/Slide (Phải) - Giống trang nq57 thường banner bên phải hoặc trên cùng */}
+          <div className="gov-banner-col">
+            {slides.map((slide) => (
+              <a
+                key={slide.SlideID}
+                href={slide.LinkUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="gov-banner-link"
+              >
+                <img
+                  src={slide.ImageLink}
+                  alt={slide.Name}
+                  className="gov-banner-img"
+                />
+              </a>
+            ))}
           </div>
         </div>
 
         {/* --- SECTION 2: GRID CONTENT --- */}
-        <div className="main-content-grid">
-          <div className="left-column">
-            <div className="two-col-grid">
-              {/* Box 1 */}
-              <div className="category-box">
-                <h3 className="cat-title">Hoạt động CĐS của Bộ</h3>
-                <div className="cat-content">
-                  {newsActivityMinistry.length > 0 && (
-                    <NewsItemSmall news={newsActivityMinistry[0]} />
-                  )}
-                  <div className="sub-news-list">
-                    {newsActivityMinistry.slice(1).map((news) => (
-                      <NewsItemList key={news.NewsID} news={news} />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Box 2 */}
-              <div className="category-box">
-                <h3 className="cat-title">Hoạt động CĐS của Trung tâm</h3>
-                <div className="cat-content">
-                  {newsActivityCenter.length > 0 && (
-                    <NewsItemSmall news={newsActivityCenter[0]} />
-                  )}
-                  <div className="sub-news-list">
-                    {newsActivityCenter.slice(1).map((news) => (
-                      <NewsItemList key={news.NewsID} news={news} />
-                    ))}
-                  </div>
-                </div>
-              </div>
+        <div className="gov-main-grid">
+          <div className="gov-content-left">
+            <div className="gov-row-2">
+              <CategoryBlock
+                title="Hoạt động CĐS Bộ"
+                data={newsActivityMinistry}
+                linkTo="/bo-nganh"
+              />
+              <CategoryBlock
+                title="Hoạt động CĐS Trung tâm"
+                data={newsActivityCenter}
+                linkTo="/trung-tam"
+              />
             </div>
 
-            <div className="mid-banner">
+            {/* Banner giữa trang */}
+            <div className="gov-mid-banner">
               <img
                 src="https://dxc.gov.vn/SitePages/uploads/banners/banners.jpg"
                 alt="Banner"
               />
             </div>
 
-            <div className="two-col-grid">
-              {/* Box 3 */}
-              <div className="category-box">
-                <h3 className="cat-title">Điểm tin Chuyển đổi số</h3>
-                <div className="cat-content">
-                  {newsDigital.length > 0 && (
-                    <NewsItemSmall news={newsDigital[0]} />
-                  )}
-                  <div className="sub-news-list">
-                    {newsDigital.slice(1).map((news) => (
-                      <NewsItemList key={news.NewsID} news={news} />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Box 4: CHÍNH SÁCH CHUYỂN ĐỔI SỐ */}
-              <div className="category-box">
-                <h3 className="cat-title">Chính sách Chuyển đổi số</h3>
-                <div className="cat-content">
-                  {newsPolicy.length > 0 && (
-                    <NewsItemSmall news={newsPolicy[0]} />
-                  )}
-                  <div className="sub-news-list">
-                    {newsPolicy.slice(1).map((news) => (
-                      <NewsItemList key={news.NewsID} news={news} />
-                    ))}
-                  </div>
-                </div>
-              </div>
+            <div className="gov-row-2">
+              <CategoryBlock
+                title="Điểm tin Chuyển đổi số"
+                data={newsDigital}
+                linkTo="/diem-tin"
+              />
+              <CategoryBlock
+                title="Chính sách - Văn bản"
+                data={newsPolicy}
+                linkTo="/chinh-sach"
+              />
             </div>
           </div>
 
-          <div className="right-sidebar">
-            <div className="sidebar-box">
-              <h3 className="sidebar-title">
-                <FaListUl /> SẢN PHẨM - DỊCH VỤ
-              </h3>
-              <ul className="weblink-list">
+          {/* SIDEBAR RIGHT */}
+          <div className="gov-sidebar">
+            {/* Box Link */}
+            <div className="gov-box sidebar-box">
+              <div className="gov-section-header sidebar-header">
+                <span>LIÊN KẾT WEBSITE</span>
+              </div>
+              <ul className="gov-link-list">
                 {webLinks
                   .filter((l) => l.IsShow)
                   .map((link) => (
                     <li key={link.LinkID}>
-                      <FaCaretRight className="bullet-icon" />
+                      <FaLink className="icon-link" />
                       <a href={link.Url} target="_blank" rel="noreferrer">
                         {link.Name}
                       </a>
@@ -314,33 +283,35 @@ const HomePage = () => {
               </ul>
             </div>
 
-            <div className="sidebar-box mt-20">
-              <h3 className="sidebar-title orange">VĂN BẢN MỚI</h3>
-              <div className="sidebar-content">
-                {documents.slice(0, 3).map((doc) => (
-                  <div key={doc.DocID} className="sidebar-doc">
-                    <FaCaretRight className="sidebar-icon-red" />
-                    <div className="sidebar-doc-text">
-                      <Link
-                        to={`/documents/${doc.DocID}`}
-                        className="doc-title-link"
-                        title={doc.Title}
-                      >
-                        {doc.Title}
-                      </Link>
-                      <div className="doc-meta-info">
-                        {doc.DocNumber} - {formatDate(doc.IssueDate)}
-                      </div>
+            {/* Box Văn bản mới */}
+            <div className="gov-box sidebar-box mt-15">
+              <div className="gov-section-header sidebar-header">
+                <span>
+                  <FaFileAlt /> VĂN BẢN MỚI
+                </span>
+              </div>
+              <div className="gov-doc-list">
+                {documents.slice(0, 5).map((doc) => (
+                  <div key={doc.DocID} className="gov-doc-item">
+                    <Link
+                      to={`/documents/${doc.DocID}`}
+                      className="gov-doc-title"
+                    >
+                      {doc.Title}
+                    </Link>
+                    <div className="gov-doc-meta">
+                      Số: <b>{doc.DocNumber}</b> - NH:{" "}
+                      {formatDate(doc.IssueDate)}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="sidebar-banner">
+            <div className="gov-ad-banner mt-15">
               <img
                 src="https://dxc.gov.vn/SitePages/uploads/banners/MOI-TRUONG.jpg"
-                alt="Quảng cáo"
+                alt="QC"
               />
             </div>
           </div>

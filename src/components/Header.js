@@ -1,96 +1,72 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { FaSearch, FaBars, FaTimes, FaAngleDown } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom"; // <--- 1. Thêm useLocation
+import { FaSearch, FaBars, FaTimes, FaAngleDown, FaHome } from "react-icons/fa";
 import "./Header.css";
 import api from "../pages/services/api";
 
-// Component Đồng hồ
 const RealTimeClock = () => {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
-
     return () => clearInterval(timer);
   }, []);
 
   const days = [
     "Chủ nhật",
-
     "Thứ hai",
-
     "Thứ ba",
-
     "Thứ tư",
-
     "Thứ năm",
-
     "Thứ sáu",
-
     "Thứ bảy",
   ];
-
   const dayName = days[time.getDay()];
-
   const dateStr = `${time.getDate().toString().padStart(2, "0")}/${(
     time.getMonth() + 1
   )
-
     .toString()
-
     .padStart(2, "0")}/${time.getFullYear()}`;
-
   const timeStr = `${time.getHours().toString().padStart(2, "0")}:${time
-
     .getMinutes()
-
     .toString()
-
-    .padStart(2, "0")}:${time.getSeconds().toString().padStart(2, "0")}`;
+    .padStart(2, "0")}`;
 
   return (
-    <span>
-      {dayName} {dateStr}, {timeStr}
+    <span className="clock-text">
+      {dayName}, ngày {dateStr} | {timeStr}
     </span>
   );
 };
 
 const Header = () => {
   const [menuTree, setMenuTree] = useState([]);
-
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const [searchTerm, setSearchTerm] = useState("");
-
   const [mobileExpanded, setMobileExpanded] = useState({});
+
+  const location = useLocation(); // <--- 2. Lấy đường dẫn hiện tại
 
   useEffect(() => {
     const fetchMenus = async () => {
       try {
         const res = await api.get("/menus");
-
-        const activeMenus = res.data.filter((m) => m.IsShow);
-
+        const activeMenus = (res.data || []).filter((m) => m.IsShow);
         const tree = buildMenuTree(activeMenus);
-
         setMenuTree(tree);
       } catch (err) {
         console.error("Lỗi tải menu:", err);
       }
     };
-
     fetchMenus();
   }, []);
 
   const buildMenuTree = (list) => {
     const map = {};
-
     const tree = [];
-
     list.forEach((item) => {
       map[item.MenuID] = { ...item, children: [] };
     });
-
     list.forEach((item) => {
       if (item.ParentID && item.ParentID !== 0 && map[item.ParentID]) {
         map[item.ParentID].children.push(map[item.MenuID]);
@@ -98,50 +74,56 @@ const Header = () => {
         tree.push(map[item.MenuID]);
       }
     });
-
     return tree.sort((a, b) => (a.STT || 0) - (b.STT || 0));
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-
-    if (searchTerm.trim()) alert(`Tìm kiếm: ${searchTerm}`);
+    if (searchTerm.trim()) {
+      alert(`Tìm kiếm: ${searchTerm}`);
+    }
   };
 
   const toggleMobileSubmenu = (id, e) => {
     e.preventDefault();
-
     setMobileExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  // Hàm kiểm tra xem menu này có đang active không
+  const checkActive = (menu) => {
+    // 1. Nếu URL trùng khớp hoàn toàn
+    if (location.pathname === menu.Url) return true;
+
+    // 2. Nếu là menu cha, kiểm tra xem có con nào đang active không
+    if (menu.children && menu.children.length > 0) {
+      return menu.children.some((child) => child.Url === location.pathname);
+    }
+    return false;
   };
 
   return (
     <header className="site-header">
-      {/* 1. BRANDING - Đã chỉnh sửa đẹp hơn */}
-
-      <div className="header-top">
+      {/* 1. BRANDING */}
+      <div className="header-branding">
         <div className="container branding-container">
           <Link to="/" className="brand-box">
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Emblem_of_the_Socialist_Republic_of_Vietnam.svg/2021px-Emblem_of_the_Socialist_Republic_of_Vietnam.svg.png"
               alt="Quốc Huy"
-              className="header-logo"
+              className="brand-logo"
             />
-
-            <div className="brand-divider"></div>
-
-            <div className="brand-text">
-              <h2 className="ministry-name">BỘ VĂN HÓA, THỂ THAO VÀ DU LỊCH</h2>
-
-              <h1 className="portal-name">CHUYÊN TRANG CHUYỂN ĐỔI SỐ</h1>
-
-              <span className="ministry-en">
-                Ministry of Culture, Sports and Tourism
-              </span>
+            <div className="brand-info">
+              <h2 className="ministry-title">
+                BỘ VĂN HÓA, THỂ THAO VÀ DU LỊCH
+              </h2>
+              <h1 className="portal-title">
+                CỔNG THÔNG TIN ĐIỆN TỬ CHUYỂN ĐỔI SỐ
+              </h1>
             </div>
           </Link>
 
           <button
-            className="mobile-menu-btn"
+            className="mobile-toggle"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
@@ -150,46 +132,43 @@ const Header = () => {
       </div>
 
       {/* 2. NAVIGATION BAR */}
-
-      <nav className={`main-nav ${isMobileMenuOpen ? "open" : ""}`}>
+      <nav className={`gov-nav ${isMobileMenuOpen ? "open" : ""}`}>
         <div className="container">
-          <ul className="nav-list">
-            {/* --- MỤC TRANG CHỦ (CỐ ĐỊNH) --- */}
-
-            <li className="nav-item">
-              <div className="menu-link-wrapper">
-                <Link
-                  to="/"
-                  className="menu-link"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Trang chủ
-                </Link>
-              </div>
+          <ul className="gov-menu">
+            {/* Home Icon */}
+            <li
+              className={`gov-menu-item home-icon ${
+                location.pathname === "/" ? "active" : ""
+              }`}
+            >
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
+                <FaHome />
+              </Link>
             </li>
 
             {menuTree.map((menu) => {
               const hasChildren = menu.children && menu.children.length > 0;
-
               const isExpanded = mobileExpanded[menu.MenuID];
+              const isActive = checkActive(menu); // <--- 3. Kiểm tra Active
 
               return (
                 <li
                   key={menu.MenuID}
-                  className={`nav-item ${hasChildren ? "has-children" : ""}`}
+                  className={`gov-menu-item ${hasChildren ? "has-sub" : ""} ${
+                    isActive ? "active" : ""
+                  }`}
                 >
-                  <div className="menu-link-wrapper">
+                  <div className="menu-link-wrap">
                     <Link
                       to={menu.Url || "#"}
-                      className="menu-link"
+                      className="gov-link"
                       onClick={() => !hasChildren && setIsMobileMenuOpen(false)}
                     >
                       {menu.Title}
                     </Link>
-
                     {hasChildren && (
                       <span
-                        className="submenu-toggle"
+                        className="mobile-submenu-arrow"
                         onClick={(e) => toggleMobileSubmenu(menu.MenuID, e)}
                       >
                         <FaAngleDown />
@@ -198,11 +177,14 @@ const Header = () => {
                   </div>
 
                   {hasChildren && (
-                    <ul
-                      className={`submenu ${isExpanded ? "mobile-show" : ""}`}
-                    >
+                    <ul className={`gov-submenu ${isExpanded ? "show" : ""}`}>
                       {menu.children.map((child) => (
-                        <li key={child.MenuID}>
+                        <li
+                          key={child.MenuID}
+                          className={
+                            location.pathname === child.Url ? "active-sub" : ""
+                          }
+                        >
                           <Link
                             to={child.Url || "#"}
                             onClick={() => setIsMobileMenuOpen(false)}
@@ -217,49 +199,29 @@ const Header = () => {
               );
             })}
           </ul>
+
+          {/* Search Box */}
+          <div className="nav-search">
+            <form onSubmit={handleSearch}>
+              <input
+                type="text"
+                placeholder="Tìm kiếm..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <button type="submit">
+                <FaSearch />
+              </button>
+            </form>
+          </div>
         </div>
       </nav>
 
-      {/* 3. HERO BANNER */}
-
-      <div className="hero-banner">
-        <div className="container">
-          <img
-            src="https://sqhx-hanoi.mediacdn.vn/91579363132710912/2024/10/3/2bannerngang-17279503477582013927390.png"
-            alt="Banner Chuyển đổi số"
-            className="banner-img"
-            onError={(e) => {
-              e.target.style.display = "none";
-
-              e.target.parentElement.style.background =
-                "linear-gradient(90deg, #b91c1c, #d97706)";
-
-              e.target.parentElement.style.height = "100px";
-            }}
-          />
-        </div>
-      </div>
-
-      {/* 4. UTILITY BAR */}
-
-      <div className="info-bar">
-        <div className="container info-container">
-          <div className="time-display">
-            <RealTimeClock />
-          </div>
-
-          <form onSubmit={handleSearch} className="search-form-bottom">
-            <input
-              type="text"
-              placeholder="Tìm kiếm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-
-            <button type="button" onClick={handleSearch}>
-              <FaSearch />
-            </button>
-          </form>
+      {/* 3. DATE BAR */}
+      <div className="date-bar">
+        <div className="container date-container">
+          <RealTimeClock />
+          <div className="hotline">Hotline: 1900 xxxx</div>
         </div>
       </div>
     </header>

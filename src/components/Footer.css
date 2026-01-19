@@ -1,14 +1,23 @@
-/* Bao bọc toàn bộ Footer */
-.main-footer-wrapper {
-  background-color: #204e84; /* Xanh đậm */
-  color: #fff;
-  font-family: "Segoe UI", sans-serif;
-  margin-top: auto;
-  font-size: 13px; /* Giảm font cơ bản xuống 13px */
-  width: 100%;
+:root {
+  --gov-red: #be1e2d; /* Đỏ cờ */
+  --gov-red-dark: #8b121d; /* Đỏ mận */
+  --gov-yellow: #ffcd00; /* Vàng */
+  --gov-text-light: #f2f2f2;
 }
 
-/* Container riêng cho Footer */
+/* Bao bọc Footer */
+.main-footer-wrapper {
+  background-color: var(--gov-red); /* NỀN ĐỎ */
+  /* Gradient nhẹ cho có chiều sâu */
+  background-image: linear-gradient(to bottom, #be1e2d, #961623);
+  color: #fff;
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin-top: auto;
+  font-size: 13.5px;
+  width: 100%;
+  border-top: 4px solid var(--gov-yellow); /* Viền vàng trên cùng */
+}
+
 .footer-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -16,9 +25,9 @@
 }
 
 .main-footer-content {
-  padding: 25px 15px; /* GIẢM padding trên dưới (Cũ: 40px) */
+  padding: 30px 15px;
   display: flex;
-  gap: 30px; /* Giảm khoảng cách giữa 2 cột */
+  gap: 40px;
   align-items: flex-start;
 }
 
@@ -29,47 +38,55 @@
 
 .footer-brand-box {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 15px; /* Giảm margin (Cũ: 20px) */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-  padding-bottom: 15px; /* Giảm padding (Cũ: 20px) */
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 15px;
 }
 
 .footer-logo-img {
-  width: 45px; /* GIẢM kích thước logo (Cũ: 60px) */
+  width: 55px;
   height: auto;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+  margin-top: 2px;
+}
+
+.footer-brand-text {
+  display: flex;
+  flex-direction: column;
 }
 
 .footer-org-name {
-  font-size: 14px; /* Giảm font tiêu đề (Cũ: 16px) */
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.3;
-  margin: 0;
+  margin: 0 0 4px 0;
   text-transform: uppercase;
   color: #fff;
+  letter-spacing: 0.5px;
 }
 
-.footer-org-name span {
-  font-size: 12px; /* Giảm font sub-title (Cũ: 14px) */
-  color: #ffcc00; /* Vàng */
+.footer-sub-name {
+  font-size: 13px;
+  margin: 0;
+  color: var(--gov-yellow); /* Chữ vàng */
   font-weight: 600;
+  text-transform: uppercase;
 }
 
 /* Contact Info */
 .footer-contact-info p {
-  margin: 4px 0; /* GIẢM khoảng cách dòng (Cũ: 8px) -> Giúp footer ngắn lại */
+  margin: 6px 0;
   display: flex;
-  align-items: center;
-  color: #e2e8f0;
-  line-height: 1.4;
+  align-items: flex-start; /* Căn icon lên trên nếu text dài */
+  color: var(--gov-text-light);
+  line-height: 1.5;
 }
 
 .footer-icon-gold {
-  color: #ffcc00;
-  margin-right: 8px;
-  font-size: 13px;
+  color: var(--gov-yellow);
+  margin-right: 10px;
+  font-size: 14px;
+  margin-top: 3px; /* Căn chỉnh icon với dòng chữ */
   min-width: 16px;
 }
 
@@ -85,28 +102,27 @@
 }
 
 .footer-sep {
-  margin: 0 10px;
-  opacity: 0.5;
-  color: #fff;
-  font-size: 11px;
+  margin: 0 12px;
+  opacity: 0.6;
+  font-size: 12px;
 }
 
 /* --- CỘT 2: LINKS --- */
 .footer-col.links-col {
   flex: 1;
-  min-width: 220px;
+  min-width: 250px;
 }
 
 .footer-heading {
-  font-size: 14px; /* Giảm font tiêu đề cột (Cũ: 16px) */
+  font-size: 14px;
   text-transform: uppercase;
   margin-top: 0;
-  margin-bottom: 12px; /* Giảm khoảng cách dưới tiêu đề (Cũ: 20px) */
-  color: #ffcc00;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
-  padding-bottom: 5px;
-  display: inline-block;
+  margin-bottom: 15px;
+  color: var(--gov-yellow);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 8px;
   font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .footer-link-list {
@@ -116,9 +132,9 @@
 }
 
 .footer-link-list li {
-  margin-bottom: 6px; /* Giảm khoảng cách giữa các link (Cũ: 10px) */
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.1); /* Nét mảnh hơn */
-  padding-bottom: 4px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-bottom: 5px;
 }
 
 .footer-link-list li:last-child {
@@ -126,27 +142,34 @@
 }
 
 .footer-link-list a {
-  color: #e2e8f0;
+  color: var(--gov-text-light);
   text-decoration: none;
   transition: all 0.2s ease;
-  display: block;
-  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
 }
 
+/* Hover link -> Chữ vàng, dịch chuyển nhẹ */
 .footer-link-list a:hover {
-  color: #fff;
-  padding-left: 5px;
-  color: #ffcc00;
+  color: var(--gov-yellow);
+  transform: translateX(5px);
+}
+
+.footer-link-list svg {
+  font-size: 12px;
+  opacity: 0.7;
 }
 
 /* --- BOTTOM BAR --- */
 .main-footer-bottom {
-  background-color: #1a3c66;
+  background-color: rgba(0, 0, 0, 0.2); /* Làm tối hơn nền chút */
   text-align: center;
-  padding: 8px 0; /* Giảm độ cao thanh bản quyền (Cũ: 15px) */
+  padding: 10px 0;
   font-size: 12px;
-  color: #cbd5e1;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .main-footer-bottom p {
@@ -157,7 +180,7 @@
 @media (max-width: 768px) {
   .main-footer-content {
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
     padding: 20px 15px;
   }
 
@@ -168,7 +191,7 @@
   .footer-contact-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 6px;
   }
 
   .contact-item {
@@ -177,7 +200,7 @@
 
   .footer-col.links-col {
     width: 100%;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 20px;
   }
 }

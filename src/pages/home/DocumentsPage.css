@@ -1,86 +1,114 @@
 :root {
-  --primary: #2c5282;
-  --accent: #b91c1c;
-  --title-bg: #205081;
-  --text-main: #333;
-  --border-color: #ddd;
+  /* Đồng bộ biến màu với Home Page */
+  --gov-red: #be1e2d; /* Đỏ cờ */
+  --gov-red-dark: #8b121d; /* Đỏ đậm */
+  --gov-yellow: #ffcd00; /* Vàng sao */
+  --gov-text: #333333;
+  --gov-bg-body: #f7f7f7;
+  --gov-border: #e5e5e5;
+  --font-main: "Segoe UI", "Arial", sans-serif;
 }
 
-.doc-page-wrapper {
-  background-color: #fff;
-  font-family: "Segoe UI", Tahoma, sans-serif;
-  color: var(--text-main);
+/* --- CẤU TRÚC CHUNG --- */
+.doc-page-wrapper.gov-style {
+  background-color: var(--gov-bg-body);
+  font-family: var(--font-main);
+  color: var(--gov-text);
+  font-size: 14px;
   padding-bottom: 40px;
   padding-top: 25px;
+  min-height: 100vh;
 }
 
 .doc-page-container {
   display: grid;
   grid-template-columns: 3fr 1fr; /* Chia cột 75% - 25% */
   gap: 25px;
-  max-width: 1200px;
+  max-width: 1300px; /* Đồng bộ độ rộng với Home */
   margin: 0 auto;
-  padding: 0 15px;
+  padding: 0;
 }
 
-/* --- HEADER --- */
-.page-heading {
-  font-size: 20px;
-  color: var(--primary);
-  border-bottom: 2px solid var(--primary);
-  padding-bottom: 10px;
-  margin-bottom: 20px;
+/* --- COMPONENT STYLES TỪ HOMEPAGE (Dùng lại) --- */
+.gov-box {
+  background: #fff;
+  border: 1px solid var(--gov-border);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.gov-section-header-red,
+.sidebar-header {
+  background: var(--gov-red);
+  background: linear-gradient(to right, #be1e2d, #a01520);
+  color: #fff;
+  padding: 10px 15px;
+  border-top: 3px solid var(--gov-yellow);
+  font-weight: 700;
   text-transform: uppercase;
+  font-size: 15px;
   display: flex;
   align-items: center;
-  gap: 10px;
 }
 
-/* --- SEARCH BOX (GIỐNG ẢNH MẪU) --- */
+/* --- HEADER RIÊNG CHO DOCS --- */
+.doc-header-bar {
+  margin-bottom: 0; /* Dính liền với search box nếu muốn, hoặc cách ra */
+  border-radius: 4px 4px 0 0;
+}
+
+.doc-header-title {
+  display: flex;
+  align-items: center;
+}
+
+/* --- SEARCH BOX --- */
 .doc-search-box {
-  background: #f2f2f2;
-  padding: 15px;
-  border: 1px solid #e5e5e5;
-  margin-bottom: 20px;
-  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 25px;
+  background: #fff;
+  border-top: none; /* Nếu để dính liền với header đỏ */
+  border-radius: 0 0 4px 4px;
 }
 
 .search-row {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
-.search-row.top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.search-row:last-child {
+  margin-bottom: 0;
 }
-.search-row.top label {
-  font-weight: bold;
-  width: 70px;
-}
+
 .search-row.top .input-group {
-  flex-grow: 1;
   display: flex;
+  gap: 0;
 }
+
 .search-row.top input {
   flex-grow: 1;
-  padding: 6px 10px;
+  padding: 10px 15px;
   border: 1px solid #ccc;
   border-right: none;
   outline: none;
+  font-size: 14px;
 }
+.search-row.top input:focus {
+  border-color: var(--gov-red);
+}
+
 .btn-search-doc {
-  background: var(--primary);
+  background: var(--gov-red);
   color: white;
   border: none;
-  padding: 0 15px;
+  padding: 0 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s;
 }
 .btn-search-doc:hover {
-  background: var(--accent);
+  background: var(--gov-red-dark);
 }
 
 .search-row.grid-4 {
@@ -89,135 +117,147 @@
   gap: 15px;
 }
 
-.filter-item {
-  display: flex;
-  flex-direction: column;
-}
-.filter-item label {
-  font-size: 13px;
-  font-weight: bold;
-  margin-bottom: 4px;
-  color: #555;
-}
 .filter-item select {
-  padding: 5px;
+  padding: 8px;
   border: 1px solid #ccc;
-  border-radius: 3px;
+  border-radius: 2px;
   width: 100%;
   font-size: 13px;
+  color: #444;
+  outline: none;
+}
+.filter-item select:focus {
+  border-color: var(--gov-red);
 }
 
-/* --- TABLE --- */
+/* --- TABLE STYLE --- */
 .doc-table-wrapper {
-  overflow-x: auto;
+  background: #fff;
+  border: 1px solid var(--gov-border);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  overflow-x: auto; /* Cho phép cuộn ngang trên mobile nếu bảng quá rộng */
 }
+
 .doc-table-public {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-.doc-table-public th {
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-  padding: 10px;
-  color: #333;
-  font-weight: bold;
-  text-align: center;
-}
-.doc-table-public td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  vertical-align: middle;
-}
-.doc-table-public tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-.doc-table-public tbody tr:hover {
-  background-color: #f0f8ff;
+  border-collapse: collapse; /* Gộp viền để tạo nét mảnh đẹp */
+  font-size: 14px;
 }
 
-.doc-number {
-  color: var(--accent);
-  font-weight: 600;
+/* Style cho Header (Tiêu đề cột) */
+.doc-table-public th {
+  background-color: #f2f2f2; /* Màu nền xám nhạt */
+  color: #333;
+  font-weight: 700;
+  padding: 12px 10px;
   text-align: center;
+  white-space: nowrap;
+
+  /* THÊM VIỀN DỌC VÀ NGANG CHO HEADER */
+  border: 1px solid #dcdcdc;
 }
+
+/* Style cho các ô dữ liệu */
+.doc-table-public td {
+  padding: 10px 12px;
+  color: #333;
+  vertical-align: middle;
+
+  /* THÊM VIỀN DỌC VÀ NGANG CHO Ô DỮ LIỆU */
+  border: 1px solid #dcdcdc;
+}
+
+/* Hiệu ứng khi di chuột vào dòng */
+.doc-table-public tbody tr:hover {
+  background-color: #fcebeb; /* Màu hồng nhạt đặc trưng của style cũ */
+}
+
+/* Style riêng cho cột Số ký hiệu */
+.doc-number {
+  color: var(--gov-red);
+  font-weight: 600;
+  white-space: nowrap; /* Không cho xuống dòng số hiệu */
+}
+
+/* Style cho cột Trích yếu */
 .doc-abstract a {
   color: #333;
   text-decoration: none;
   font-weight: 500;
-  line-height: 1.4;
+  line-height: 1.5;
   display: block;
+  text-align: justify; /* Canh đều 2 bên nhìn văn bản đẹp hơn */
 }
 .doc-abstract a:hover {
-  color: var(--primary);
+  color: var(--gov-red);
+  text-decoration: underline;
 }
+
 .text-center {
   text-align: center;
 }
 
-/* --- SIDEBAR (Dùng lại style cũ + điều chỉnh) --- */
+/* --- SIDEBAR STYLE --- */
 .sidebar-box {
-  border: 1px solid #ddd;
-  background: #fdfdfd;
   margin-bottom: 20px;
+  background: #fff;
 }
-.sidebar-title {
-  background: var(--title-bg);
-  color: #fff;
-  padding: 10px;
-  margin: 0;
-  font-size: 15px;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.sidebar-title.orange {
-  background: #d97706;
+.mt-20 {
+  margin-top: 20px;
 }
 
-/* Danh sách link */
-.weblink-list {
+/* Link List (Tái sử dụng style Home) */
+.gov-link-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-.weblink-list li {
-  padding: 10px 15px;
-  border-bottom: 1px dashed #ddd;
+.gov-link-list li {
+  padding: 12px 15px;
+  border-bottom: 1px dashed #eee;
   display: flex;
-  gap: 8px;
-  font-size: 14px;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.2s;
 }
-.weblink-list a {
+.gov-link-list li:hover {
+  background-color: #f9f9f9;
+}
+.gov-link-list li:last-child {
+  border-bottom: none;
+}
+.gov-link-list a {
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
   text-decoration: none;
-  color: var(--primary);
-  font-weight: 500;
 }
-.weblink-list a:hover {
-  color: var(--accent);
+.gov-link-list a:hover {
+  color: var(--gov-red);
 }
 .link-arrow {
-  color: var(--accent);
+  color: #999;
   font-size: 12px;
 }
 
-/* Văn bản mới bên phải */
+/* Sidebar Docs */
 .sidebar-content {
-  padding: 10px;
+  padding: 10px 15px;
 }
 .sidebar-doc {
   margin-bottom: 15px;
-  border-bottom: 1px dashed #ddd;
+  border-bottom: 1px dashed #eee;
   padding-bottom: 10px;
 }
 .sidebar-doc:last-child {
   border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .doc-title-link {
   display: block;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #333;
   text-decoration: none;
@@ -226,38 +266,42 @@
   text-align: justify;
 }
 .doc-title-link:hover {
-  color: var(--primary);
+  color: var(--gov-red);
 }
 
 .doc-meta-info {
   font-size: 12px;
-  color: #777;
+  color: #666;
 }
 
-.sidebar-banner img {
-  width: 100%;
-}
-
-/* Pagination */
+/* --- PAGINATION --- */
 .pagination-public {
-  margin-top: 20px;
+  margin-top: 25px;
   display: flex;
   justify-content: center;
   gap: 5px;
 }
 .pagination-public button {
-  padding: 5px 10px;
+  padding: 6px 12px;
   border: 1px solid #ddd;
   background: #fff;
   cursor: pointer;
+  border-radius: 3px;
+  font-weight: 600;
+  color: #555;
+  transition: all 0.2s;
+}
+.pagination-public button:hover {
+  border-color: var(--gov-red);
+  color: var(--gov-red);
 }
 .pagination-public button.active {
-  background: var(--primary);
+  background: var(--gov-red);
   color: white;
-  border-color: var(--primary);
+  border-color: var(--gov-red);
 }
 
-/* Responsive */
+/* --- RESPONSIVE --- */
 @media (max-width: 992px) {
   .doc-page-container {
     grid-template-columns: 1fr;
@@ -266,15 +310,20 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
 @media (max-width: 600px) {
-  .search-row.top {
+  .search-row.top .input-group {
     flex-direction: column;
-    align-items: stretch;
   }
-  .search-row.top label {
-    margin-bottom: 5px;
+  .search-row.top input {
+    border-right: 1px solid #ccc;
+    margin-bottom: 10px;
   }
   .search-row.grid-4 {
     grid-template-columns: 1fr;
+  }
+  .btn-search-doc {
+    justify-content: center;
+    padding: 10px;
   }
 }

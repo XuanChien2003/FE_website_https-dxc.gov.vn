@@ -2,22 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import { toast } from "react-toastify";
-import {
-  FaSave,
-  FaFileAlt,
-  FaPen,
-  FaTimes,
-  FaCalendarAlt,
-} from "react-icons/fa";
-import {
-  MdBusiness,
-  MdPerson,
-  MdCategory,
-  MdLink,
-  MdDescription,
-  MdInfo,
-  MdTopic,
-} from "react-icons/md";
+import { FaSave, FaFileAlt, FaPen, FaTimes } from "react-icons/fa";
 import "./DocumentForm.css";
 
 const DocumentForm = () => {

@@ -96,6 +96,13 @@ const AdminLayout = () => {
 
   // --- CẤU HÌNH MENU ---
   const menuConfig = [
+    {
+      key: "users",
+      label: "Quản lý người dùng",
+      icon: <FaUser />,
+      path: "/admin/users",
+      isParent: false,
+    },
     // 1. QUẢN TRỊ BÀI VIẾT (Mặc định mở)
     {
       key: "articles",

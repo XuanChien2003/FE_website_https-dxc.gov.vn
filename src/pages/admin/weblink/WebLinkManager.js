@@ -12,10 +12,9 @@ import {
   FaGlobe,
   FaCheckCircle,
   FaTimesCircle,
-  FaImage,
 } from "react-icons/fa";
-import "../document/DocumentList.css"; // CSS Layout chung
-import "./WebLinkManager.css"; // CSS riêng
+import "../document/DocumentList.css";
+import "./WebLinkManager.css";
 
 const WebLinkManager = () => {
   const [links, setLinks] = useState([]);
@@ -26,7 +25,7 @@ const WebLinkManager = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editID, setEditID] = useState(null);
 
-  // Form Data
+  // Form Data (Giữ nguyên camelCase để gửi lên API)
   const [formData, setFormData] = useState({
     name: "",
     url: "",
@@ -47,8 +46,9 @@ const WebLinkManager = () => {
       const lower = searchTerm.toLowerCase();
       const results = links.filter(
         (item) =>
-          item.Name?.toLowerCase().includes(lower) ||
-          item.Url?.toLowerCase().includes(lower)
+          // FIX: Dùng item.Name và item.Url (khớp với DB)
+          (item.Name && item.Name.toLowerCase().includes(lower)) ||
+          (item.Url && item.Url.toLowerCase().includes(lower)),
       );
       setFilteredLinks(results);
     }
@@ -57,6 +57,7 @@ const WebLinkManager = () => {
   const fetchLinks = async () => {
     try {
       const res = await api.get("/weblinks");
+      // API trả về mảng các object có key viết hoa: LinkID, Name, Url...
       setLinks(res.data);
       setFilteredLinks(res.data);
     } catch (err) {
@@ -80,6 +81,7 @@ const WebLinkManager = () => {
   };
 
   const handleEdit = (item) => {
+    // FIX: Map dữ liệu từ DB (Viết hoa) sang Form (Viết thường)
     setFormData({
       name: item.Name,
       url: item.Url,
@@ -88,6 +90,7 @@ const WebLinkManager = () => {
       stt: item.STT,
       isShow: item.IsShow,
     });
+    // FIX: Dùng LinkID để sửa
     setEditID(item.LinkID);
     setIsEditing(true);
     setShowModal(true);
@@ -166,22 +169,32 @@ const WebLinkManager = () => {
             <tbody>
               {filteredLinks.length > 0 ? (
                 filteredLinks.map((item) => (
+                  // FIX: Key dùng LinkID
                   <tr key={item.LinkID}>
+                    {/* FIX: item.STT */}
                     <td className="text-center">{item.STT}</td>
                     <td className="text-center">
+                      {/* FIX: item.ImageLink */}
                       {item.ImageLink ? (
                         <img
                           src={item.ImageLink}
                           alt="logo"
                           className="link-logo-sm"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src =
+                              "https://via.placeholder.com/40?text=Logo";
+                          }}
                         />
                       ) : (
                         <FaGlobe size={24} color="#ccc" />
                       )}
                     </td>
+                    {/* FIX: item.Name */}
                     <td className="font-bold text-primary">{item.Name}</td>
                     <td>
                       <a
+                        // FIX: item.Url
                         href={item.Url}
                         target="_blank"
                         rel="noreferrer"
@@ -190,8 +203,10 @@ const WebLinkManager = () => {
                         {item.Url}
                       </a>
                     </td>
+                    {/* FIX: item.Description */}
                     <td>{item.Description}</td>
                     <td className="text-center">
+                      {/* FIX: item.IsShow */}
                       {item.IsShow ? (
                         <FaCheckCircle style={{ color: "green" }} />
                       ) : (
@@ -209,6 +224,7 @@ const WebLinkManager = () => {
                         </button>
                         <button
                           className="btn-icon btn-delete"
+                          // FIX: Xóa dùng LinkID
                           onClick={() => handleDelete(item.LinkID)}
                           title="Xóa"
                         >
@@ -230,7 +246,7 @@ const WebLinkManager = () => {
         </div>
       </div>
 
-      {/* MODAL FORM */}
+      {/* MODAL FORM - (Phần này giữ nguyên logic vì dùng formData) */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ width: "600px" }}>

@@ -31,8 +31,8 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import UserProfile from "./pages/user/UserProfile";
 import DocumentDetail from "./pages/home/DocumentDetail";
-import SignInSelection from "./pages/auth/SignInSelection";
 import NewsPage from "./pages/home/NewsPage";
+import UserManager from "./pages/admin/user/UserManager";
 
 const ClientLayout = () => {
   return (
@@ -79,7 +79,6 @@ function App() {
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="/documents/:id" element={<DocumentDetail />} />
         </Route>
-        <Route path="/cms" element={<SignInSelection />} />
         <Route path="/login" element={<LoginPage />} />
 
         <Route
@@ -90,7 +89,7 @@ function App() {
             </AdminRoute>
           }
         >
-          <Route index element={<Navigate to="news" replace />} />
+          <Route index element={<Navigate to="users" replace />} />
 
           <Route path="documents" element={<DocumentList />} />
           <Route path="documents/add" element={<DocumentForm />} />
@@ -111,6 +110,8 @@ function App() {
           <Route path="weblinks" element={<WebLinkManager />} />
 
           <Route path="profile" element={<UserProfile />} />
+
+          <Route path="users" element={<UserManager />} />
         </Route>
       </Routes>
     </BrowserRouter>

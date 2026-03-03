@@ -37,7 +37,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response && error.response.status === 401) {
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       console.log("Phiên đăng nhập hết hạn.");
       try{

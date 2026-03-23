@@ -15,7 +15,6 @@ import {
   FaFolderOpen,
   FaLink,
 } from "react-icons/fa";
-import "./MenuManager.css";
 
 const MenuManager = () => {
   const [menus, setMenus] = useState([]);
@@ -120,17 +119,17 @@ const MenuManager = () => {
   // --- RENDER NODE ---
   const renderTreeNodes = (nodes) => {
     return (
-      <ul className="tree-list">
+      <ul className="list-none p-0 m-0">
         {nodes.map((node) => {
           const hasChildren = node.children && node.children.length > 0;
           const isExpanded = !!expandedNodes[node.MenuID];
 
           return (
-            <li key={node.MenuID} className="tree-node">
-              <div className="tree-content">
+            <li key={node.MenuID} className="mb-[2px] relative">
+              <div className="flex items-center p-[6px_5px] rounded-[4px] transition-colors duration-100 cursor-default hover:bg-[#f1f5f9] group/item">
                 {/* 1. Toggle Icon */}
                 <span
-                  className={`toggle-icon ${hasChildren ? "clickable" : ""}`}
+                  className={`flex items-center justify-center w-[24px] h-[24px] rounded-[3px] mr-[5px] text-[#64748b] text-[14px] ${hasChildren ? "cursor-pointer hover:bg-[#e2e8f0] hover:text-[#2c5282]" : ""}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     if (hasChildren) toggleNode(node.MenuID);
@@ -138,17 +137,17 @@ const MenuManager = () => {
                 >
                   {hasChildren ? (
                     isExpanded ? (
-                      <FaMinusSquare className="ico-collapse" />
+                      <FaMinusSquare className="text-[#64748b]" />
                     ) : (
-                      <FaPlusSquare className="ico-expand" />
+                      <FaPlusSquare className="text-[#2c5282]" />
                     )
                   ) : (
-                    <span className="dot"></span>
+                    <span className="w-[6px] h-[6px] bg-[#cbd5e1] rounded-full"></span>
                   )}
                 </span>
 
                 {/* 2. Icon Folder/Link */}
-                <span className="node-icon">
+                <span className="flex items-center mr-[8px] text-[16px]">
                   {hasChildren || node.ParentID === 0 ? (
                     isExpanded ? (
                       <FaFolderOpen style={{ color: "#f59e0b" }} />
@@ -161,23 +160,23 @@ const MenuManager = () => {
                 </span>
 
                 {/* 3. Info */}
-                <div className="node-info" onClick={() => handleEdit(node)}>
-                  <span className="node-title">{node.Title}</span>
-                  {node.Url && <span className="node-url">({node.Url})</span>}
-                  {!node.IsShow && <span className="node-hidden">(Ẩn)</span>}
+                <div className="flex-1 flex items-center gap-[10px] cursor-pointer select-none" onClick={() => handleEdit(node)}>
+                  <span className="font-semibold text-[#333]">{node.Title}</span>
+                  {node.Url && <span className="text-[12px] text-[#64748b] italic">({node.Url})</span>}
+                  {!node.IsShow && <span className="text-[#ef4444] text-[12px] font-semibold">(Ẩn)</span>}
                 </div>
 
                 {/* 4. Actions */}
-                <div className="node-actions">
+                <div className="hidden gap-[5px] ml-[10px] group-hover/item:flex">
                   <button
-                    className="btn-icon-mini edit"
+                    className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#eff6ff] hover:text-[#0d6efd] hover:border-[#0d6efd]"
                     onClick={() => handleEdit(node)}
                     title="Sửa"
                   >
                     <FaEdit />
                   </button>
                   <button
-                    className="btn-icon-mini delete"
+                    className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
                     onClick={() => handleDelete(node.MenuID)}
                     title="Xóa"
                   >
@@ -188,7 +187,7 @@ const MenuManager = () => {
 
               {/* 5. Children */}
               {hasChildren && isExpanded && (
-                <div className="tree-children">
+                <div className="pl-[27px] border-l border-dotted border-[#ccc] ml-[9px]">
                   {renderTreeNodes(node.children)}
                 </div>
               )}
@@ -253,23 +252,24 @@ const MenuManager = () => {
   const treeData = buildTree(menus);
 
   return (
-    <div className="menu-manager">
+    <div className="p-[20px] bg-[#f8fafc] min-h-screen font-sans text-[#334155] text-[14px] flex flex-col gap-[15px]">
       {/* HEADER */}
-      <div className="page-header">
-        <h2 className="page-title">
+      <div className="flex justify-between items-center bg-white p-[15px_20px] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.1)] border-l-[5px] border-[#2c5282]">
+        <h2 className="text-[18px] font-bold text-[#2c5282] flex items-center gap-[10px] uppercase m-0">
           <FaSitemap /> QUẢN TRỊ MENU HOMEPAGE
         </h2>
-        <div className="header-actions">
-          <div className="search-wrapper">
-            <FaSearch className="search-icon" />
+        <div className="flex gap-[10px]">
+          <div className="relative">
+            <FaSearch className="absolute left-[10px] top-1/2 -translate-y-1/2 text-[#999]" />
             <input
+              className="p-[0_10px_0_35px] border border-[#ccc] rounded-[4px] text-[13px] w-[250px] h-[36px] outline-none"
               type="text"
               placeholder="Tìm kiếm menu..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="btn btn-primary" onClick={handleOpenAdd}>
+          <button className="bg-[#2c5282] text-white border-none px-[16px] rounded-[4px] font-semibold cursor-pointer h-[36px] flex items-center gap-[6px] transition-all duration-200 hover:bg-[#1e3a8a]" onClick={handleOpenAdd}>
             <FaPlus /> Thêm mới
           </button>
         </div>
@@ -277,39 +277,39 @@ const MenuManager = () => {
 
       {/* TOOLBAR */}
       {!searchTerm && (
-        <div className="tree-toolbar">
-          <button className="btn-tool" onClick={collapseAll}>
+        <div className="bg-white p-[10px_15px] border border-[#cbd5e1] border-b-0 rounded-t-lg flex gap-[10px]">
+          <button className="bg-[#f1f5f9] border border-[#cbd5e1] text-[#334155] p-[5px_12px] rounded-[4px] cursor-pointer font-semibold text-[13px] flex items-center gap-[6px] transition-all duration-200 hover:bg-[#e2e8f0] hover:text-[#2c5282]" onClick={collapseAll}>
             <FaMinusSquare /> Đóng tất cả
           </button>
-          <button className="btn-tool" onClick={expandAll}>
+          <button className="bg-[#f1f5f9] border border-[#cbd5e1] text-[#334155] p-[5px_12px] rounded-[4px] cursor-pointer font-semibold text-[13px] flex items-center gap-[6px] transition-all duration-200 hover:bg-[#e2e8f0] hover:text-[#2c5282]" onClick={expandAll}>
             <FaPlusSquare /> Mở tất cả
           </button>
         </div>
       )}
 
       {/* TREE VIEW */}
-      <div className="tree-container">
+      <div className={`bg-white border border-[#cbd5e1] p-[20px] min-h-[400px] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] ${searchTerm ? 'rounded-lg' : 'rounded-b-lg'}`}>
         {menus.length > 0 ? (
           searchTerm ? (
             // LIST PHẲNG (Khi tìm kiếm)
-            <ul className="tree-list">
+            <ul className="list-none p-0 m-0">
               {filteredMenus.map((node) => (
-                <li key={node.MenuID} className="tree-node">
-                  <div className="tree-content">
-                    <span className="dot"></span>
-                    <div className="node-info" onClick={() => handleEdit(node)}>
-                      <span className="node-title">{node.Title}</span>
-                      <span className="node-url">({node.Url})</span>
+                <li key={node.MenuID} className="mb-[2px] relative">
+                  <div className="flex items-center p-[6px_5px] rounded-[4px] transition-colors duration-100 cursor-default hover:bg-[#f1f5f9] group/item">
+                    <span className="w-[6px] h-[6px] bg-[#cbd5e1] rounded-full mx-[9px]"></span>
+                    <div className="flex-1 flex items-center gap-[10px] cursor-pointer select-none" onClick={() => handleEdit(node)}>
+                      <span className="font-semibold text-[#333]">{node.Title}</span>
+                      <span className="text-[12px] text-[#64748b] italic">({node.Url})</span>
                     </div>
-                    <div className="node-actions" style={{ display: "flex" }}>
+                    <div className="hidden gap-[5px] ml-[10px] group-hover/item:flex">
                       <button
-                        className="btn-icon-mini edit"
+                        className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#eff6ff] hover:text-[#0d6efd] hover:border-[#0d6efd]"
                         onClick={() => handleEdit(node)}
                       >
                         <FaEdit />
                       </button>
                       <button
-                        className="btn-icon-mini delete"
+                        className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
                         onClick={() => handleDelete(node.MenuID)}
                       >
                         <FaTrash />
@@ -324,30 +324,30 @@ const MenuManager = () => {
             renderTreeNodes(treeData)
           )
         ) : (
-          <p className="no-data">Chưa có dữ liệu menu</p>
+          <p className="text-center text-[#999] p-[20px] italic">Chưa có dữ liệu menu</p>
         )}
       </div>
 
       {/* MODAL */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>{isEditing ? "CẬP NHẬT MENU" : "THÊM MENU MỚI"}</h3>
-              <button className="btn-close" onClick={() => setShowModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex justify-center pt-[80px] z-[999]">
+          <div className="bg-white w-[500px] rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.2)] overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div className="bg-[#2c5282] text-white p-[15px_20px] flex justify-between items-center">
+              <h3 className="m-0 text-[16px] font-bold uppercase">{isEditing ? "CẬP NHẬT MENU" : "THÊM MENU MỚI"}</h3>
+              <button className="bg-transparent border-none text-white/80 text-[20px] cursor-pointer hover:text-white" onClick={() => setShowModal(false)}>
                 <FaTimes />
               </button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
+              <div className="p-[25px_30px]">
                 {/* Title */}
-                <div className="form-group">
-                  <label>
-                    Tiêu đề Menu <span className="req">*</span>
+                <div className="mb-[20px] flex-1">
+                  <label className="block font-semibold mb-[8px] text-[#334155]">
+                    Tiêu đề Menu <span className="text-[#ef4444]">*</span>
                   </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                     value={formData.title}
                     onChange={(e) =>
                       setFormData({ ...formData, title: e.target.value })
@@ -358,12 +358,12 @@ const MenuManager = () => {
                 </div>
 
                 {/* Url & STT */}
-                <div style={{ display: "flex", gap: "15px" }}>
-                  <div className="form-group" style={{ flex: 2 }}>
-                    <label>Liên kết (Url)</label>
+                <div className="flex gap-[15px]">
+                  <div className="mb-[20px] flex-[2]">
+                    <label className="block font-semibold mb-[8px] text-[#334155]">Liên kết (Url)</label>
                     <input
                       type="text"
-                      className="form-control"
+                      className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                       value={formData.url}
                       onChange={(e) =>
                         setFormData({ ...formData, url: e.target.value })
@@ -371,11 +371,11 @@ const MenuManager = () => {
                       placeholder="/example"
                     />
                   </div>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label>Thứ tự (STT)</label>
+                  <div className="mb-[20px] flex-1">
+                    <label className="block font-semibold mb-[8px] text-[#334155]">Thứ tự (STT)</label>
                     <input
                       type="number"
-                      className="form-control"
+                      className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                       value={formData.stt}
                       onChange={(e) =>
                         setFormData({
@@ -388,17 +388,11 @@ const MenuManager = () => {
                 </div>
 
                 {/* Parent & Show */}
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "15px",
-                    alignItems: "flex-end",
-                  }}
-                >
-                  <div className="form-group" style={{ flex: 2 }}>
-                    <label>Menu Cha</label>
+                <div className="flex gap-[15px] items-end">
+                  <div className="mb-[20px] flex-[2]">
+                    <label className="block font-semibold mb-[8px] text-[#334155]">Menu Cha</label>
                     <select
-                      className="form-control"
+                      className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                       value={formData.parentID}
                       onChange={(e) =>
                         setFormData({
@@ -423,21 +417,11 @@ const MenuManager = () => {
                         ))}
                     </select>
                   </div>
-                  <div
-                    className="form-group"
-                    style={{ flex: 1, paddingBottom: "10px" }}
-                  >
-                    <label
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        cursor: "pointer",
-                      }}
-                    >
+                  <div className="mb-[20px] pb-[10px] flex-1">
+                    <label className="flex items-center gap-[8px] cursor-pointer text-[#334155] font-semibold">
                       <input
                         type="checkbox"
-                        style={{ width: "18px", height: "18px" }}
+                        className="w-[18px] h-[18px]"
                         checked={formData.isShow}
                         onChange={(e) =>
                           setFormData({ ...formData, isShow: e.target.checked })
@@ -449,15 +433,15 @@ const MenuManager = () => {
                 </div>
               </div>
 
-              <div className="modal-footer">
+              <div className="p-[15px_30px] bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end gap-[10px]">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="bg-[#64748b] text-white border-none p-[8px_20px] rounded-[4px] cursor-pointer font-semibold hover:bg-[#475569]"
                   onClick={() => setShowModal(false)}
                 >
                   Đóng lại
                 </button>
-                <button type="submit" className="btn-success">
+                <button type="submit" className="flex items-center gap-[6px] bg-[#15803d] text-white border-none p-[8px_20px] rounded-[4px] cursor-pointer font-semibold hover:bg-[#166534]">
                   <FaSave /> {isEditing ? "Cập nhật" : "Lưu lại"}
                 </button>
               </div>

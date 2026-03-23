@@ -5,6 +5,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Gửi/nhận cookie (accessToken, refreshToken) cross-origin
 });
 axiosRetry(api,
   {

@@ -8,19 +8,16 @@ import {
   FaCaretRight,
   FaAngleDoubleRight,
 } from "react-icons/fa";
-import "./HomePage.css";
 
 const HomePage = () => {
   const [slides, setSlides] = useState([]);
   const [featuredNews, setFeaturedNews] = useState([]);
 
-  // Data Grid
   const [newsActivityMinistry, setNewsActivityMinistry] = useState([]);
   const [newsActivityCenter, setNewsActivityCenter] = useState([]);
   const [newsDigital, setNewsDigital] = useState([]);
   const [newsPolicy, setNewsPolicy] = useState([]);
 
-  // Sidebar
   const [documents, setDocuments] = useState([]);
   const [webLinks, setWebLinks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,15 +34,11 @@ const HomePage = () => {
         ]);
 
         let listSlides = resSlides.data || [];
-        listSlides.sort(
-          (a, b) => (a.DisplayOrder || 0) - (b.DisplayOrder || 0)
-        );
+        listSlides.sort((a, b) => (a.DisplayOrder || 0) - (b.DisplayOrder || 0));
         setSlides(listSlides);
 
         let allNews = resNews.data || [];
-        allNews.sort(
-          (a, b) => new Date(b.PublishedDate) - new Date(a.PublishedDate)
-        );
+        allNews.sort((a, b) => new Date(b.PublishedDate) - new Date(a.PublishedDate));
 
         const getNewsByCategory = (catId, count, excludeIds = []) => {
           let filtered = allNews.filter((n) => n.CategoryID === catId);
@@ -53,10 +46,7 @@ const HomePage = () => {
             const remaining = allNews.filter(
               (n) => n.CategoryID !== catId && !excludeIds.includes(n.NewsID)
             );
-            filtered = [
-              ...filtered,
-              ...remaining.slice(0, count - filtered.length),
-            ];
+            filtered = [...filtered, ...remaining.slice(0, count - filtered.length)];
           }
           return filtered.slice(0, count);
         };
@@ -83,58 +73,58 @@ const HomePage = () => {
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
-  if (loading) return <div className="loading-state">Đang tải dữ liệu...</div>;
+  if (loading) return <div className="text-center py-10 font-medium text-gov-text-sub">Đang tải dữ liệu...</div>;
 
   const bigNews = featuredNews[0];
   const subNews = featuredNews.slice(1, 4);
 
-  const SectionHeader = ({ title, linkTo }) => (
-    <div className="gov-section-header">
-      <h3 className="gov-section-title">
-        <span className="icon-star">
-          <FaStar />
-        </span>{" "}
-        {title}
+  const SectionHeader = ({ title }) => (
+    <div className="bg-gradient-to-br from-gov-red to-[#aa1a28] text-white py-[10px] px-4 flex justify-between items-center rounded-t-lg border-b-[3px] border-gov-yellow shadow-[0_2px_4px_rgba(190,30,45,0.2)]">
+      <h3 className="m-0 text-[14px] uppercase font-bold tracking-[0.5px] flex items-center gap-2">
+        <FaStar className="text-gov-yellow text-[13px]" /> {title}
       </h3>
     </div>
   );
 
-  // Tin chính trong khối
   const FirstNewsItem = ({ news }) => (
-    <div className="gov-first-news">
-      <Link to={`/news/${news.NewsID}`} className="gov-first-thumb">
+    <div className="flex flex-col gap-[10px] mb-[12px] group/firstnews">
+      <Link to={`/news/${news.NewsID}`} className="w-full h-[190px] rounded-md overflow-hidden block">
         <img
           src={news.ImageLink || "https://via.placeholder.com/300x200"}
           alt={news.Title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover/firstnews:scale-[1.05]"
         />
       </Link>
-      <div className="gov-first-body">
-        <h4 className="gov-first-title">
-          <Link to={`/news/${news.NewsID}`}>{news.Title}</Link>
+      <div>
+        <h4 className="m-0 text-[15px] leading-[1.4] mb-1">
+          <Link to={`/news/${news.NewsID}`} className="font-bold text-gov-text group-hover/firstnews:text-gov-red transition-colors duration-300">
+            {news.Title}
+          </Link>
         </h4>
-        <p className="gov-summary">{news.Summary}</p>
+        <p className="text-[13px] text-gov-text-sub m-0 line-clamp-2 leading-[1.5] text-justify">
+          {news.Summary}
+        </p>
       </div>
     </div>
   );
 
-  // List tin bên dưới
   const NewsListItem = ({ news }) => (
-    <div className="gov-news-item-list">
-      <FaCaretRight className="gov-bullet" />
-      <Link to={`/news/${news.NewsID}`} title={news.Title}>
+    <div className="text-[14px] flex items-start py-[3px]">
+      <FaCaretRight className="text-gov-red mt-[3px] mr-[8px] text-[13px] flex-shrink-0" />
+      <Link to={`/news/${news.NewsID}`} title={news.Title} className="text-gov-text leading-[1.5] hover:text-gov-red transition-colors duration-300">
         {news.Title}{" "}
-        <span className="gov-date-sm">({formatDate(news.PublishedDate)})</span>
+        <span className="text-[12px] text-slate-400 font-normal ml-1 whitespace-nowrap">({formatDate(news.PublishedDate)})</span>
       </Link>
     </div>
   );
 
-  const CategoryBlock = ({ title, data, linkTo }) => (
-    <div className="gov-box">
-      <SectionHeader title={title} linkTo={linkTo} />
-      <div className="gov-box-body">
+  const CategoryBlock = ({ title, data }) => (
+    <div className="bg-white mb-0 rounded-lg border border-gov-border shadow-sm hover:shadow-md transition-shadow duration-300">
+      <SectionHeader title={title} />
+      <div className="p-[14px] bg-white rounded-b-lg">
         {data.length > 0 && <FirstNewsItem news={data[0]} />}
-        <div className="gov-list-divider"></div>
-        <div className="gov-sub-list">
+        <div className="border-b border-gov-border my-[10px]"></div>
+        <div className="flex flex-col gap-[6px]">
           {data.slice(1).map((item) => (
             <NewsListItem key={item.NewsID} news={item} />
           ))}
@@ -144,138 +134,120 @@ const HomePage = () => {
   );
 
   return (
-    <div className="home-wrapper gov-style">
-      <div className="home-container">
-        {/* --- SECTION 1: TOP NEWS & SLIDER --- */}
-        <div className="gov-top-section">
-          {/* Cột tin nổi bật (Trái) */}
-          <div className="gov-featured-col">
-            <div className="gov-box no-border">
-              <div className="gov-section-header-red">
-                <span>TIN NỔI BẬT</span>
-              </div>
-              <div className="gov-featured-content">
-                {bigNews && (
-                  <div className="gov-big-news">
-                    <Link
-                      to={`/news/${bigNews.NewsID}`}
-                      className="gov-big-thumb"
-                    >
-                      <img
-                        src={
-                          bigNews.ImageLink ||
-                          "https://via.placeholder.com/600x400"
-                        }
-                        alt={bigNews.Title}
-                      />
-                    </Link>
-                    <h2 className="gov-big-title">
-                      <Link to={`/news/${bigNews.NewsID}`}>
-                        {bigNews.Title}
-                      </Link>
-                    </h2>
-                    <p className="gov-big-summary">{bigNews.Summary}</p>
-                  </div>
-                )}
-                <div className="gov-sub-featured">
-                  {subNews.map((news) => (
-                    <div key={news.NewsID} className="gov-sub-item-row">
-                      <Link
-                        to={`/news/${news.NewsID}`}
-                        className="gov-sub-thumb-sm"
-                      >
-                        <img src={news.ImageLink} alt={news.Title} />
-                      </Link>
-                      <Link
-                        to={`/news/${news.NewsID}`}
-                        className="gov-sub-title-sm"
-                      >
-                        {news.Title}
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-                <div className="gov-view-all-bottom">
-                  <Link to="/news" className="btn-view-all">
-                    Xem tất cả tin tức <FaAngleDoubleRight />
+    <div className="bg-gov-bg-body font-sans text-gov-text text-[14px] w-full min-h-screen antialiased">
+      <div className="max-w-[1280px] mx-auto px-4 pt-[20px] pb-[30px]">
+
+        {/* SECTION 1: TIN NỔI BẬT + SLIDE */}
+        <div className="grid grid-cols-1 lg:grid-cols-[2.2fr_1fr] gap-[18px] mb-[20px]">
+          {/* Cột trái: Tin nổi bật */}
+          <div>
+            <div className="bg-gradient-to-br from-gov-red to-[#aa1a28] text-white py-[10px] px-4 flex items-center rounded-t-lg border-b-[3px] border-gov-yellow shadow-[0_2px_4px_rgba(190,30,45,0.2)]">
+              <span className="text-[14px] uppercase font-bold tracking-[0.5px]">TIN NỔI BẬT</span>
+            </div>
+            <div className="bg-white border border-gov-border border-t-0 p-[16px] rounded-b-lg shadow-sm">
+              {bigNews && (
+                <div>
+                  <Link
+                    to={`/news/${bigNews.NewsID}`}
+                    className="block w-full h-[300px] md:h-[380px] overflow-hidden mb-[14px] rounded-md relative group/thumb"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none rounded-md z-10"></div>
+                    <img
+                      src={bigNews.ImageLink || "https://via.placeholder.com/600x400"}
+                      alt={bigNews.Title}
+                      className="w-full h-full object-cover transition-transform duration-[600ms] group-hover/thumb:scale-[1.04]"
+                    />
                   </Link>
+                  <h2 className="text-[20px] m-0 mb-[8px] leading-[1.35] font-bold tracking-[-0.3px]">
+                    <Link to={`/news/${bigNews.NewsID}`} className="text-gov-text hover:text-gov-red transition-colors duration-300">
+                      {bigNews.Title}
+                    </Link>
+                  </h2>
+                  <p className="text-gov-text-sub text-[14px] leading-[1.6] text-justify mb-[14px] line-clamp-2 overflow-hidden">
+                    {bigNews.Summary}
+                  </p>
                 </div>
+              )}
+              {/* Sub news grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-[14px] border-t border-gov-border pt-[14px] mb-[12px]">
+                {subNews.map((news) => (
+                  <div key={news.NewsID} className="flex flex-row md:flex-col items-center md:items-stretch gap-[10px] group/subitem">
+                    <Link
+                      to={`/news/${news.NewsID}`}
+                      className="w-[110px] md:w-full h-[75px] md:h-[120px] flex-shrink-0 overflow-hidden rounded-md"
+                    >
+                      <img src={news.ImageLink} alt={news.Title} className="w-full h-full object-cover transition-transform duration-500 group-hover/subitem:scale-[1.05]" />
+                    </Link>
+                    <Link
+                      to={`/news/${news.NewsID}`}
+                      className="text-[13.5px] font-semibold leading-[1.5] text-gov-text line-clamp-3 group-hover/subitem:text-gov-red transition-colors duration-300"
+                    >
+                      {news.Title}
+                    </Link>
+                  </div>
+                ))}
+              </div>
+              <div className="text-right border-t border-gov-border pt-[10px]">
+                <Link to="/news" className="inline-flex items-center gap-[5px] text-[13px] font-semibold text-gov-red py-[6px] px-[14px] rounded-full bg-gov-red-light transition-all duration-300 hover:bg-gov-red hover:text-white hover:shadow-[0_4px_8px_rgba(190,30,45,0.2)]">
+                  Xem tất cả tin tức <FaAngleDoubleRight />
+                </Link>
               </div>
             </div>
           </div>
 
-          {/* Cột Banner/Slide (Phải) - Giống trang nq57 thường banner bên phải hoặc trên cùng */}
-          <div className="gov-banner-col">
+          {/* Cột phải: Banner/Slide */}
+          <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(260px,1fr))] lg:grid-cols-1 gap-[12px]">
             {slides.map((slide) => (
               <a
                 key={slide.SlideID}
                 href={slide.LinkUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="gov-banner-link"
+                className="block rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-[2px] hover:shadow-md"
               >
-                <img
-                  src={slide.ImageLink}
-                  alt={slide.Name}
-                  className="gov-banner-img"
-                />
+                <img src={slide.ImageLink} alt={slide.Name} className="w-full h-auto block object-cover" />
               </a>
             ))}
           </div>
         </div>
 
-        {/* --- SECTION 2: GRID CONTENT --- */}
-        <div className="gov-main-grid">
-          <div className="gov-content-left">
-            <div className="gov-row-2">
-              <CategoryBlock
-                title="Hoạt động CĐS Bộ"
-                data={newsActivityMinistry}
-                linkTo="/bo-nganh"
-              />
-              <CategoryBlock
-                title="Hoạt động CĐS Trung tâm"
-                data={newsActivityCenter}
-                linkTo="/trung-tam"
-              />
+        {/* SECTION 2: NỘI DUNG CHÍNH + SIDEBAR */}
+        <div className="grid grid-cols-1 lg:grid-cols-[2.8fr_1.2fr] gap-[18px]">
+          {/* Cột chính: 4 khối tin */}
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px] mb-[16px]">
+              <CategoryBlock title="Hoạt động CĐS Bộ" data={newsActivityMinistry} />
+              <CategoryBlock title="Hoạt động CĐS Trung tâm" data={newsActivityCenter} />
             </div>
 
-            {/* Banner giữa trang */}
-            <div className="gov-mid-banner">
+            <div className="mb-[16px] rounded-lg overflow-hidden shadow-sm">
               <img
                 src="https://dxc.gov.vn/SitePages/uploads/banners/banners.jpg"
                 alt="Banner"
+                className="w-full block"
               />
             </div>
 
-            <div className="gov-row-2">
-              <CategoryBlock
-                title="Điểm tin Chuyển đổi số"
-                data={newsDigital}
-                linkTo="/diem-tin"
-              />
-              <CategoryBlock
-                title="Chính sách - Văn bản"
-                data={newsPolicy}
-                linkTo="/chinh-sach"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
+              <CategoryBlock title="Điểm tin Chuyển đổi số" data={newsDigital} />
+              <CategoryBlock title="Chính sách - Văn bản" data={newsPolicy} />
             </div>
           </div>
 
-          {/* SIDEBAR RIGHT */}
-          <div className="gov-sidebar">
-            {/* Box Link */}
-            <div className="gov-box sidebar-box">
-              <div className="gov-section-header sidebar-header">
-                <span>LIÊN KẾT WEBSITE</span>
+          {/* SIDEBAR */}
+          <div className="flex flex-col gap-[16px]">
+            {/* Liên kết website */}
+            <div className="bg-white rounded-lg border border-gov-border shadow-sm hover:shadow-md transition-shadow duration-300">
+              <div className="bg-gradient-to-br from-gov-red to-[#aa1a28] text-white py-[10px] px-4 rounded-t-lg border-b-[3px] border-gov-yellow">
+                <span className="text-[14px] uppercase font-bold tracking-[0.5px]">LIÊN KẾT WEBSITE</span>
               </div>
-              <ul className="gov-link-list">
+              <ul className="list-none py-[6px] px-[6px] m-0 rounded-b-lg">
                 {webLinks
                   .filter((l) => l.IsShow)
                   .map((link) => (
-                    <li key={link.LinkID}>
-                      <FaLink className="icon-link" />
-                      <a href={link.Url} target="_blank" rel="noreferrer">
+                    <li key={link.LinkID} className="py-[8px] px-[12px] border-b border-gov-border flex items-center gap-[10px] transition-all duration-300 last:border-b-0 hover:bg-gov-red-light rounded-md">
+                      <FaLink className="text-gov-red text-[12px] flex-shrink-0" />
+                      <a href={link.Url} target="_blank" rel="noreferrer" className="font-semibold text-[13px] text-gov-text flex-1 hover:text-gov-red transition-colors duration-300">
                         {link.Name}
                       </a>
                     </li>
@@ -283,35 +255,35 @@ const HomePage = () => {
               </ul>
             </div>
 
-            {/* Box Văn bản mới */}
-            <div className="gov-box sidebar-box mt-15">
-              <div className="gov-section-header sidebar-header">
-                <span>
+            {/* Văn bản mới */}
+            <div className="bg-white rounded-lg border border-gov-border shadow-sm hover:shadow-md transition-shadow duration-300">
+              <div className="bg-gradient-to-br from-gov-red to-[#aa1a28] text-white py-[10px] px-4 rounded-t-lg border-b-[3px] border-gov-yellow">
+                <span className="text-[14px] uppercase font-bold tracking-[0.5px] flex items-center gap-2">
                   <FaFileAlt /> VĂN BẢN MỚI
                 </span>
               </div>
-              <div className="gov-doc-list">
+              <div className="p-[12px_14px]">
                 {documents.slice(0, 5).map((doc) => (
-                  <div key={doc.DocID} className="gov-doc-item">
+                  <div key={doc.DocID} className="mb-[10px] border-b border-dashed border-gov-border pb-[10px] last:border-none last:pb-0 last:mb-0 hover:translate-x-[2px] transition-transform duration-300">
                     <Link
                       to={`/documents/${doc.DocID}`}
-                      className="gov-doc-title"
+                      className="block font-semibold text-[13px] text-gov-text mb-[4px] leading-[1.5] hover:text-gov-red transition-colors duration-300 line-clamp-2"
                     >
                       {doc.Title}
                     </Link>
-                    <div className="gov-doc-meta">
-                      Số: <b>{doc.DocNumber}</b> - NH:{" "}
-                      {formatDate(doc.IssueDate)}
+                    <div className="text-[12px] text-gov-text-sub flex items-center gap-[4px]">
+                      Số: <b className="text-gov-text font-semibold">{doc.DocNumber}</b> - NH: {formatDate(doc.IssueDate)}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="gov-ad-banner mt-15">
+            <div className="rounded-lg overflow-hidden shadow-sm">
               <img
                 src="https://dxc.gov.vn/SitePages/uploads/banners/MOI-TRUONG.jpg"
                 alt="QC"
+                className="w-full block transition-transform duration-300 hover:scale-[1.02]"
               />
             </div>
           </div>

@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../../services/api";
 import { toast } from "react-toastify";
 import { FaSave, FaFileAlt, FaPen, FaTimes } from "react-icons/fa";
-import "./DocumentForm.css";
 
 const DocumentForm = () => {
   const { id } = useParams();
@@ -101,26 +100,26 @@ const DocumentForm = () => {
   };
 
   return (
-    <div className="document-form-page">
-      <div className="page-header">
-        <h2 className="page-title">
+    <div className="p-[20px] w-full min-h-[calc(100vh-60px)] bg-[#f0f2f5] font-sans text-[#333] text-[14px] flex flex-col items-center gap-[15px]">
+      <div className="bg-white p-[12px_20px] rounded-[6px] shadow-[0_2px_4px_rgba(0,0,0,0.05)] flex justify-between items-center border-t-[3px] border-[#2c3e50] w-full max-w-[1100px]">
+        <h2 className="text-[18px] font-bold text-[#2c3e50] m-0 flex items-center gap-[10px] uppercase">
           {isEditing ? <FaPen /> : <FaFileAlt />}
           {isEditing ? "CẬP NHẬT VĂN BẢN" : "THÊM VĂN BẢN MỚI"}
         </h2>
       </div>
 
-      <div className="form-card">
-        <form onSubmit={handleSubmit} className="main-form">
+      <div className="bg-white rounded-[6px] shadow-[0_4px_10px_rgba(0,0,0,0.05)] border border-[#ced4da] w-full max-w-[1100px] p-[20px] sm:p-[30px] h-auto flex flex-col">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-[20px]">
           {/* HÀNG 1: 4 CỘT (Thông tin cơ bản) */}
-          <div className="form-row four-cols">
-            <div className="form-group">
-              <label>
-                Số/Ký hiệu <span className="req">*</span>
+          <div className="grid gap-[20px] w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label className="block font-semibold mb-[6px] text-[13.5px] text-[#444]">
+                Số/Ký hiệu <span className="text-[#dc3545] ml-[3px]">*</span>
               </label>
-              <div className="input-with-icon">
+              <div className="relative w-full">
                 <input
                   type="text"
-                  className="form-control"
+                  className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
                   placeholder="VD: 749/QĐ-TTg"
                   value={formData.docNumber}
                   onChange={(e) =>
@@ -132,13 +131,13 @@ const DocumentForm = () => {
               </div>
             </div>
 
-            <div className="form-group">
-              <label>
-                Loại văn bản <span className="req">*</span>
+            <div>
+              <label className="block font-semibold mb-[6px] text-[13.5px] text-[#444]">
+                Loại văn bản <span className="text-[#dc3545] ml-[3px]">*</span>
               </label>
-              <div className="input-with-icon">
+              <div className="relative w-full">
                 <select
-                  className="form-control"
+                  className="w-full p-[9px_12px] pr-[30px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23666%22_stroke-width=%222%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22%3e%3cpolyline_points=%226_9_12_15_18_9%22%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[position:right_12px_center] bg-[length:14px]"
                   value={formData.typeID}
                   onChange={(e) =>
                     setFormData({ ...formData, typeID: e.target.value })
@@ -155,13 +154,13 @@ const DocumentForm = () => {
               </div>
             </div>
 
-            <div className="form-group">
-              <label>
-                Lĩnh vực <span className="req">*</span>
+            <div>
+              <label className="block font-semibold mb-[6px] text-[13.5px] text-[#444]">
+                Lĩnh vực <span className="text-[#dc3545] ml-[3px]">*</span>
               </label>
-              <div className="input-with-icon">
+              <div className="relative w-full">
                 <select
-                  className="form-control"
+                  className="w-full p-[9px_12px] pr-[30px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23666%22_stroke-width=%222%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22%3e%3cpolyline_points=%226_9_12_15_18_9%22%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[position:right_12px_center] bg-[length:14px]"
                   value={formData.fieldID}
                   onChange={(e) =>
                     setFormData({ ...formData, fieldID: e.target.value })
@@ -178,11 +177,11 @@ const DocumentForm = () => {
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Trạng thái</label>
-              <div className="input-with-icon">
+            <div>
+              <label className="block font-semibold mb-[6px] text-[13.5px] text-[#444]">Trạng thái</label>
+              <div className="relative w-full">
                 <select
-                  className="form-control"
+                  className="w-full p-[9px_12px] pr-[30px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23666%22_stroke-width=%222%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22%3e%3cpolyline_points=%226_9_12_15_18_9%22%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[position:right_12px_center] bg-[length:14px]"
                   value={formData.publishStatus}
                   onChange={(e) =>
                     setFormData({ ...formData, publishStatus: e.target.value })
@@ -196,14 +195,14 @@ const DocumentForm = () => {
           </div>
 
           {/* HÀNG 2: 4 CỘT (Đối tượng & Thời gian) */}
-          <div className="form-row four-cols">
-            <div className="form-group">
-              <label>
-                Cơ quan ban hành <span className="req">*</span>
+          <div className="grid gap-[20px] w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label className="block font-semibold mb-[6px] text-[13.5px] text-[#444]">
+                Cơ quan ban hành <span className="text-[#dc3545] ml-[3px]">*</span>
               </label>
-              <div className="input-with-icon">
+              <div className="relative w-full">
                 <select
-                  className="form-control"
+                  className="w-full p-[9px_12px] pr-[30px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23666%22_stroke-width=%222%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22%3e%3cpolyline_points=%226_9_12_15_18_9%22%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[position:right_12px_center] bg-[length:14px]"
                   value={formData.agencyID}
                   onChange={(e) =>
                     setFormData({ ...formData, agencyID: e.target.value })
@@ -220,13 +219,13 @@ const DocumentForm = () => {
               </div>
             </div>
 
-            <div className="form-group">
-              <label>
-                Người ký <span className="req">*</span>
+            <div>
+              <label className="block font-semibold mb-[6px] text-[13.5px] text-[#444]">
+                Người ký <span className="text-[#dc3545] ml-[3px]">*</span>
               </label>
-              <div className="input-with-icon">
+              <div className="relative w-full">
                 <select
-                  className="form-control"
+                  className="w-full p-[9px_12px] pr-[30px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23666%22_stroke-width=%222%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22%3e%3cpolyline_points=%226_9_12_15_18_9%22%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[position:right_12px_center] bg-[length:14px]"
                   value={formData.signerID}
                   onChange={(e) =>
                     setFormData({ ...formData, signerID: e.target.value })
@@ -243,12 +242,12 @@ const DocumentForm = () => {
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Ngày ban hành</label>
-              <div className="input-with-icon">
+            <div>
+              <label className="block font-semibold mb-[6px] text-[13.5px] text-[#444]">Ngày ban hành</label>
+              <div className="relative w-full">
                 <input
                   type="date"
-                  className="form-control"
+                  className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
                   value={formData.issueDate}
                   onChange={(e) =>
                     setFormData({ ...formData, issueDate: e.target.value })
@@ -257,12 +256,12 @@ const DocumentForm = () => {
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Ngày hiệu lực</label>
-              <div className="input-with-icon">
+            <div>
+              <label className="block font-semibold mb-[6px] text-[13.5px] text-[#444]">Ngày hiệu lực</label>
+              <div className="relative w-full">
                 <input
                   type="date"
-                  className="form-control"
+                  className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
                   value={formData.effectiveDate}
                   onChange={(e) =>
                     setFormData({ ...formData, effectiveDate: e.target.value })
@@ -272,14 +271,14 @@ const DocumentForm = () => {
             </div>
           </div>
 
-          {/* HÀNG 3: LINK (Full width nhưng mỏng) */}
-          <div className="form-row">
-            <div className="form-group full-width">
-              <label>Link tải về (URL)</label>
-              <div className="input-with-icon">
+          {/* HÀNG 3: LINK */}
+          <div className="grid gap-[20px] w-full grid-cols-1">
+            <div className="col-span-full">
+              <label className="block font-semibold mb-[6px] text-[13.5px] text-[#444]">Link tải về (URL)</label>
+              <div className="relative w-full">
                 <input
                   type="url"
-                  className="form-control"
+                  className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
                   placeholder="https://..."
                   value={formData.link}
                   onChange={(e) =>
@@ -290,15 +289,15 @@ const DocumentForm = () => {
             </div>
           </div>
 
-          {/* HÀNG 4: TRÍCH YẾU (Chiếm toàn bộ không gian còn lại) */}
-          <div className="form-row flex-grow-row">
-            <div className="form-group full-width h-100">
-              <label>
-                Trích yếu nội dung <span className="req">*</span>
+          {/* HÀNG 4: TRÍCH YẾU */}
+          <div className="grid gap-[20px] w-full grid-cols-1">
+            <div className="col-span-full h-full">
+              <label className="block font-semibold mb-[6px] text-[13.5px] text-[#444]">
+                Trích yếu nội dung <span className="text-[#dc3545] ml-[3px]">*</span>
               </label>
-              <div className="input-with-icon textarea-wrapper h-100">
+              <div className="relative w-full h-full">
                 <textarea
-                  className="form-control textarea-control h-100"
+                  className="w-full p-[10px_12px] border border-[#ccc] rounded-[4px] text-[14px] min-h-[120px] resize-y leading-[1.5] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 h-full"
                   placeholder="Nhập nội dung tóm tắt..."
                   value={formData.title}
                   onChange={(e) =>
@@ -311,17 +310,17 @@ const DocumentForm = () => {
           </div>
 
           {/* FOOTER */}
-          <div className="form-footer">
+          <div className="mt-[10px] pt-[20px] border-t border-[#eee] flex justify-end gap-[12px] max-sm:flex-col-reverse">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="px-[24px] h-[40px] border-none rounded-[4px] cursor-pointer font-semibold inline-flex items-center gap-[8px] text-[14px] transition-all duration-200 bg-[#6c757d] text-white hover:bg-[#5a6268] max-sm:w-full max-sm:justify-center"
               onClick={() => navigate("/admin/documents")}
             >
               <FaTimes /> Hủy bỏ
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="px-[24px] h-[40px] border-none rounded-[4px] cursor-pointer font-semibold inline-flex items-center gap-[8px] text-[14px] transition-all duration-200 bg-[#0d6efd] text-white hover:bg-[#0b5ed7] max-sm:w-full max-sm:justify-center"
               disabled={loading}
             >
               <FaSave /> {loading ? "Đang lưu..." : "Lưu dữ liệu"}

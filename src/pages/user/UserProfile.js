@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { toast } from "react-toastify";
 import { FaUser, FaLock, FaSave, FaCamera, FaSpinner } from "react-icons/fa";
-import "./UserProfile.css";
 
 const UserProfile = () => {
   const [loading, setLoading] = useState(true);
@@ -118,64 +117,70 @@ const UserProfile = () => {
 
   if (loading) {
     return (
-      <div className="loading-spinner">
-        <FaSpinner className="spin" /> Đang tải...
+      <div className="flex justify-center items-center h-[50vh] gap-[10px] text-[#64748b]">
+        <FaSpinner className="animate-spin" /> Đang tải...
       </div>
     );
   }
 
   if (!currentId) {
     return (
-      <div className="no-data">
+      <div className="text-center p-8 text-gray-500">
         Không tìm thấy thông tin người dùng (Vui lòng đăng nhập lại).
       </div>
     );
   }
 
   return (
-    <div className="user-profile-container">
+    <div className="p-[20px] max-w-[900px] mx-auto font-sans">
       {/* HEADER CARD */}
-      <div className="profile-header-card">
-        <div className="profile-avatar-wrapper">
+      <div className="bg-white rounded-[8px] p-[30px] flex items-center gap-[20px] shadow-[0_2px_5px_rgba(0,0,0,0.05)] mb-[20px]">
+        <div className="relative">
           <img
             src={
               formData.avatar || "https://via.placeholder.com/150?text=Avatar"
             }
             alt="Avatar"
-            className="profile-avatar-lg"
+            className="w-[100px] h-[100px] rounded-full object-cover border-[3px] border-[#f1f5f9]"
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = "https://via.placeholder.com/150?text=Avatar";
             }}
           />
           <button
-            className="btn-upload-avatar"
+            className="absolute bottom-0 right-0 bg-[#2c3e50] text-white border-[2px] border-white rounded-full w-[32px] h-[32px] flex items-center justify-center cursor-pointer"
             type="button"
             title="Chức năng này đang phát triển"
           >
             <FaCamera />
           </button>
         </div>
-        <div className="profile-info-basic">
-          <h2>{formData.fullName}</h2>
-          <p>
+        <div>
+          <h2 className="m-[0_0_5px_0] text-[#2c3e50] text-2xl font-bold">{formData.fullName}</h2>
+          <p className="m-0 text-[#64748b] text-[14px]">
             @{formData.username} •{" "}
-            <span className="role-badge">{formData.role}</span>
+            <span className="bg-[#e0f2fe] text-[#0369a1] p-[2px_8px] rounded-[12px] text-[12px] font-semibold uppercase">{formData.role}</span>
           </p>
         </div>
       </div>
 
-      <div className="profile-content">
+      <div className="flex gap-[20px] flex-col md:flex-row">
         {/* TABS */}
-        <div className="profile-tabs">
+        <div className="w-full md:w-[250px] bg-white rounded-[8px] p-[10px] shadow-[0_2px_5px_rgba(0,0,0,0.05)] h-fit shrink-0">
           <button
-            className={`tab-btn ${activeTab === "general" ? "active" : ""}`}
+            className={`flex items-center gap-[10px] w-full p-[12px_15px] border-none text-left cursor-pointer rounded-[6px] transition-all duration-200 ${activeTab === "general"
+              ? "bg-[#eff6ff] text-[#2c3e50] font-semibold"
+              : "bg-transparent text-[#64748b] font-medium hover:bg-[#f8fafc] hover:text-[#2c3e50]"
+              }`}
             onClick={() => setActiveTab("general")}
           >
             <FaUser /> Thông tin chung
           </button>
           <button
-            className={`tab-btn ${activeTab === "security" ? "active" : ""}`}
+            className={`flex items-center gap-[10px] w-full p-[12px_15px] border-none text-left cursor-pointer rounded-[6px] transition-all duration-200 ${activeTab === "security"
+              ? "bg-[#eff6ff] text-[#2c3e50] font-semibold"
+              : "bg-transparent text-[#64748b] font-medium hover:bg-[#f8fafc] hover:text-[#2c3e50]"
+              }`}
             onClick={() => setActiveTab("security")}
           >
             <FaLock /> Bảo mật
@@ -183,30 +188,29 @@ const UserProfile = () => {
         </div>
 
         {/* PANELS */}
-        <div className="profile-tab-panel">
+        <div className="flex-1 bg-white rounded-[8px] p-[30px] shadow-[0_2px_5px_rgba(0,0,0,0.05)]">
           {/* TAB 1 */}
           {activeTab === "general" && (
-            <form onSubmit={handleUpdateInfo} className="profile-form">
-              <h3 className="panel-title">Chỉnh sửa thông tin</h3>
+            <form onSubmit={handleUpdateInfo}>
+              <h3 className="mt-0 mb-[25px] text-[18px] text-[#334155] border-b border-[#f1f5f9] pb-[15px]">Chỉnh sửa thông tin</h3>
 
-              <div className="form-group">
-                <label>Tên đăng nhập</label>
+              <div className="mb-[20px]">
+                <label className="block mb-[8px] font-medium text-[#475569]">Tên đăng nhập</label>
                 <input
                   type="text"
-                  className="form-control"
+                  className="w-full p-[10px] border border-[#cbd5e1] rounded-[6px] text-[14px] outline-none h-[42px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15 disabled:bg-[#f1f5f9] disabled:text-[#94a3b8] cursor-not-allowed"
                   value={formData.username}
                   disabled
-                  style={{ backgroundColor: "#f3f4f6" }}
                 />
               </div>
 
-              <div className="form-group">
-                <label>
-                  Họ và tên <span className="req">*</span>
+              <div className="mb-[20px]">
+                <label className="block mb-[8px] font-medium text-[#475569]">
+                  Họ và tên <span className="text-[#ef4444] ml-[3px]">*</span>
                 </label>
                 <input
                   type="text"
-                  className="form-control"
+                  className="w-full p-[10px] border border-[#cbd5e1] rounded-[6px] text-[14px] outline-none h-[42px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                   value={formData.fullName}
                   onChange={(e) =>
                     setFormData({ ...formData, fullName: e.target.value })
@@ -215,11 +219,11 @@ const UserProfile = () => {
                 />
               </div>
 
-              <div className="form-group">
-                <label>Link Avatar (URL)</label>
+              <div className="mb-[20px]">
+                <label className="block mb-[8px] font-medium text-[#475569]">Link Avatar (URL)</label>
                 <input
                   type="text"
-                  className="form-control"
+                  className="w-full p-[10px] border border-[#cbd5e1] rounded-[6px] text-[14px] outline-none h-[42px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                   value={formData.avatar}
                   onChange={(e) =>
                     setFormData({ ...formData, avatar: e.target.value })
@@ -228,8 +232,8 @@ const UserProfile = () => {
                 />
               </div>
 
-              <div className="form-actions">
-                <button type="submit" className="btn btn-primary">
+              <div className="mt-[30px] text-right text-black">
+                <button type="submit" className="bg-[#2c5282] text-white px-[20px] py-[10px] rounded-[6px] font-semibold inline-flex items-center justify-center gap-[8px] hover:bg-[#1e3a8a] transition-all cursor-pointer border-none">
                   <FaSave /> Lưu thay đổi
                 </button>
               </div>
@@ -238,16 +242,16 @@ const UserProfile = () => {
 
           {/* TAB 2 */}
           {activeTab === "security" && (
-            <form onSubmit={handleChangePassword} className="profile-form">
-              <h3 className="panel-title">Đổi mật khẩu</h3>
+            <form onSubmit={handleChangePassword}>
+              <h3 className="mt-0 mb-[25px] text-[18px] text-[#334155] border-b border-[#f1f5f9] pb-[15px]">Đổi mật khẩu</h3>
 
-              <div className="form-group">
-                <label>
-                  Mật khẩu mới <span className="req">*</span>
+              <div className="mb-[20px]">
+                <label className="block mb-[8px] font-medium text-[#475569]">
+                  Mật khẩu mới <span className="text-[#ef4444] ml-[3px]">*</span>
                 </label>
                 <input
                   type="password"
-                  className="form-control"
+                  className="w-full p-[10px] border border-[#cbd5e1] rounded-[6px] text-[14px] outline-none h-[42px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                   value={passData.newPassword}
                   onChange={(e) =>
                     setPassData({ ...passData, newPassword: e.target.value })
@@ -257,13 +261,13 @@ const UserProfile = () => {
                 />
               </div>
 
-              <div className="form-group">
-                <label>
-                  Xác nhận mật khẩu <span className="req">*</span>
+              <div className="mb-[20px]">
+                <label className="block mb-[8px] font-medium text-[#475569]">
+                  Xác nhận mật khẩu <span className="text-[#ef4444] ml-[3px]">*</span>
                 </label>
                 <input
                   type="password"
-                  className="form-control"
+                  className="w-full p-[10px] border border-[#cbd5e1] rounded-[6px] text-[14px] outline-none h-[42px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                   value={passData.confirmPassword}
                   onChange={(e) =>
                     setPassData({
@@ -276,8 +280,8 @@ const UserProfile = () => {
                 />
               </div>
 
-              <div className="form-actions">
-                <button type="submit" className="btn btn-primary">
+              <div className="mt-[30px] text-right">
+                <button type="submit" className="bg-[#2c5282] text-white px-[20px] py-[10px] rounded-[6px] font-semibold inline-flex items-center justify-center gap-[8px] hover:bg-[#1e3a8a] transition-all cursor-pointer border-none">
                   <FaSave /> Cập nhật mật khẩu
                 </button>
               </div>

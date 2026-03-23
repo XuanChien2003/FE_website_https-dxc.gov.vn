@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../services/api";
 import { FaCalendarAlt, FaAngleLeft, FaAngleRight } from "react-icons/fa";
-import "./NewsPage.css";
 
 const NewsPage = () => {
   // 1. State lưu TOÀN BỘ tin từ API (API cũ trả về hết 1 lần)
@@ -111,16 +110,16 @@ const NewsPage = () => {
   };
 
   return (
-    <div className="np-wrapper">
-      <div className="np-container">
-        <h1 className="np-page-title">Tin tức</h1>
+    <div className="bg-[#fdfdfd] font-sans min-h-screen py-[30px] pb-[60px]">
+      <div className="max-w-[1200px] mx-auto px-[15px]">
+        <h1 className="text-center text-gov-red text-[28px] font-bold mb-[25px] uppercase">Tin tức</h1>
 
         {/* Filter Section */}
-        <div className="np-filters">
+        <div className="flex flex-col gap-[15px] mb-[30px] bg-white p-[5px]">
           <select
             value={selectedCategory}
             onChange={handleCategoryChange}
-            className="np-select"
+            className="w-full py-2.5 px-[15px] border border-[#e5e7eb] rounded text-[14px] text-[#555] outline-none bg-white focus:border-[#aaa] transition-colors"
           >
             <option value="all">--- Tất cả các mục ---</option>
             {categories.map((cat) => (
@@ -135,41 +134,44 @@ const NewsPage = () => {
             placeholder="Nhập từ khóa tìm kiếm..."
             value={searchText}
             onChange={handleSearchChange}
-            className="np-search"
+            className="w-full py-2.5 px-[15px] border border-[#e5e7eb] rounded text-[14px] text-[#555] outline-none bg-white focus:border-[#aaa] transition-colors"
           />
         </div>
 
         {/* Loading State */}
         {loading ? (
-          <div className="np-loading">Đang tải dữ liệu...</div>
+          <div className="text-center p-[50px] text-gray-500 font-medium">Đang tải dữ liệu...</div>
         ) : (
           <>
             {/* Grid News List */}
-            <div className="np-grid">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[24px] mb-[40px]">
               {currentItems.length > 0 ? (
                 currentItems.map((news) => (
-                  <div key={news.NewsID} className="np-card">
-                    <Link to={`/news/${news.NewsID}`} className="np-card-thumb">
+                  <div key={news.NewsID} className="bg-white border border-[#e5e7eb] rounded-lg overflow-hidden flex flex-col shadow-[0_2px_5px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_5px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 group/card">
+                    <Link to={`/news/${news.NewsID}`} className="block w-full h-[200px] overflow-hidden">
                       <img
                         src={
                           news.ImageLink ||
                           "https://via.placeholder.com/400x250"
                         }
                         alt={news.Title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover/card:scale-105"
                       />
                     </Link>
-                    <div className="np-card-body">
-                      <h3 className="np-card-title">
-                        <Link to={`/news/${news.NewsID}`}>{news.Title}</Link>
+                    <div className="p-[15px] flex-1 flex flex-col">
+                      <h3 className="m-0 mb-2.5 text-[15px] leading-[1.4] font-bold line-clamp-3 overflow-hidden">
+                        <Link to={`/news/${news.NewsID}`} className="text-[#333] no-underline hover:text-gov-red transition-colors">
+                          {news.Title}
+                        </Link>
                       </h3>
-                      <div className="np-card-date">
+                      <div className="mt-auto text-[12px] text-[#888] flex items-center gap-[5px]">
                         <FaCalendarAlt /> {formatDate(news.PublishedDate)}
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="np-no-result">
+                <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center p-[40px] text-[#777]">
                   Không tìm thấy tin tức nào phù hợp.
                 </div>
               )}
@@ -177,11 +179,11 @@ const NewsPage = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="np-pagination">
+              <div className="flex justify-center items-center gap-2">
                 <button
                   disabled={currentPage === 1}
                   onClick={() => handlePageChange(currentPage - 1)}
-                  className="np-page-btn arrow"
+                  className="w-[35px] h-[35px] flex items-center justify-center border-none bg-transparent text-[#777] font-semibold cursor-pointer rounded transition-all duration-200 hover:bg-[#f0f0f0] disabled:hover:bg-transparent disabled:opacity-30 disabled:cursor-default"
                 >
                   <FaAngleLeft />
                 </button>
@@ -191,8 +193,8 @@ const NewsPage = () => {
                   return (
                     <button
                       key={pageNum}
-                      className={`np-page-btn ${
-                        currentPage === pageNum ? "active" : ""
+                      className={`w-[35px] h-[35px] flex items-center justify-center border-none font-semibold cursor-pointer rounded transition-all duration-200 ${
+                        currentPage === pageNum ? "bg-gov-red text-white shadow-[0_2px_4px_rgba(190,30,45,0.4)]" : "bg-transparent text-[#333] hover:bg-[#f0f0f0]"
                       }`}
                       onClick={() => handlePageChange(pageNum)}
                     >
@@ -204,7 +206,7 @@ const NewsPage = () => {
                 <button
                   disabled={currentPage === totalPages}
                   onClick={() => handlePageChange(currentPage + 1)}
-                  className="np-page-btn arrow"
+                  className="w-[35px] h-[35px] flex items-center justify-center border-none bg-transparent text-[#777] font-semibold cursor-pointer rounded transition-all duration-200 hover:bg-[#f0f0f0] disabled:hover:bg-transparent disabled:opacity-30 disabled:cursor-default"
                 >
                   <FaAngleRight />
                 </button>

@@ -22,7 +22,7 @@ import {
   FaAlignCenter,
   FaAlignRight,
   FaAlignJustify,
-  FaMagic, // Icon cho AI
+  FaMagic,
 } from "react-icons/fa";
 
 // --- TIPTAP IMPORTS ---
@@ -32,9 +32,6 @@ import ImageExtension from "@tiptap/extension-image";
 import LinkExtension from "@tiptap/extension-link";
 import UnderlineExtension from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
-
-import "../../admin/document/DocumentList.css";
-import "./NewsForm.css";
 
 // --- COMPONENT THANH CÔNG CỤ (TOOLBAR) ---
 const MenuBar = ({ editor, onOpenAI }) => {
@@ -60,28 +57,32 @@ const MenuBar = ({ editor, onOpenAI }) => {
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
+  const baseBtnClass = "border-none rounded-[4px] w-[32px] h-[32px] flex items-center justify-center cursor-pointer transition-all duration-200 text-[14px]";
+  const activeBtnClass = `${baseBtnClass} bg-[#2c3e50] text-white`;
+  const inactiveBtnClass = `${baseBtnClass} bg-transparent text-[#333] hover:bg-[#e2e6ea] hover:text-black`;
+
   return (
-    <div className="editor-toolbar">
+    <div className="bg-[#f8f9fa] p-[8px] border-b border-[#ddd] flex flex-wrap gap-[5px] items-center">
       {/* NÚT AI WRITER */}
-      <div className="toolbar-group">
+      <div className="flex gap-[2px]">
         <button
           type="button"
           onClick={onOpenAI}
-          className="btn-ai-magic"
+          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] !text-white font-bold !w-auto h-[32px] px-[10px] !rounded-[20px] gap-[6px] shadow-[0_2px_5px_rgba(118,75,162,0.4)] hover:opacity-90 hover:-translate-y-[1px] flex items-center cursor-pointer border-none transition-all"
           title="Viết bài tự động bằng AI"
         >
-          <FaMagic /> <span>Viết bằng AI</span>
+          <FaMagic /> <span className="text-[13px]">Viết bằng AI</span>
         </button>
       </div>
 
-      <div className="toolbar-separator"></div>
+      <div className="w-[1px] h-[24px] bg-[#ccc] my-0 mx-[8px]"></div>
 
       {/* Group: Format Text */}
-      <div className="toolbar-group">
+      <div className="flex gap-[2px]">
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive("bold") ? "is-active" : ""}
+          className={editor.isActive("bold") ? activeBtnClass : inactiveBtnClass}
           title="In đậm"
         >
           <FaBold />
@@ -89,7 +90,7 @@ const MenuBar = ({ editor, onOpenAI }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive("italic") ? "is-active" : ""}
+          className={editor.isActive("italic") ? activeBtnClass : inactiveBtnClass}
           title="In nghiêng"
         >
           <FaItalic />
@@ -97,7 +98,7 @@ const MenuBar = ({ editor, onOpenAI }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
-          className={editor.isActive("underline") ? "is-active" : ""}
+          className={editor.isActive("underline") ? activeBtnClass : inactiveBtnClass}
           title="Gạch chân"
         >
           <FaUnderline />
@@ -105,63 +106,57 @@ const MenuBar = ({ editor, onOpenAI }) => {
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleStrike().run()}
-          className={editor.isActive("strike") ? "is-active" : ""}
+          className={editor.isActive("strike") ? activeBtnClass : inactiveBtnClass}
           title="Gạch ngang"
         >
           <FaStrikethrough />
         </button>
       </div>
 
-      <div className="toolbar-separator"></div>
+      <div className="w-[1px] h-[24px] bg-[#ccc] my-0 mx-[8px]"></div>
 
       {/* Group: Alignment */}
-      <div className="toolbar-group">
+      <div className="flex gap-[2px]">
         <button
           type="button"
           onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          className={editor.isActive({ textAlign: "left" }) ? "is-active" : ""}
+          className={editor.isActive({ textAlign: "left" }) ? activeBtnClass : inactiveBtnClass}
         >
           <FaAlignLeft />
         </button>
         <button
           type="button"
           onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          className={
-            editor.isActive({ textAlign: "center" }) ? "is-active" : ""
-          }
+          className={editor.isActive({ textAlign: "center" }) ? activeBtnClass : inactiveBtnClass}
         >
           <FaAlignCenter />
         </button>
         <button
           type="button"
           onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          className={editor.isActive({ textAlign: "right" }) ? "is-active" : ""}
+          className={editor.isActive({ textAlign: "right" }) ? activeBtnClass : inactiveBtnClass}
         >
           <FaAlignRight />
         </button>
         <button
           type="button"
           onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-          className={
-            editor.isActive({ textAlign: "justify" }) ? "is-active" : ""
-          }
+          className={editor.isActive({ textAlign: "justify" }) ? activeBtnClass : inactiveBtnClass}
         >
           <FaAlignJustify />
         </button>
       </div>
 
-      <div className="toolbar-separator"></div>
+      <div className="w-[1px] h-[24px] bg-[#ccc] my-0 mx-[8px]"></div>
 
       {/* Group: Lists & Heading */}
-      <div className="toolbar-group">
+      <div className="flex gap-[2px]">
         <button
           type="button"
           onClick={() =>
             editor.chain().focus().toggleHeading({ level: 2 }).run()
           }
-          className={
-            editor.isActive("heading", { level: 2 }) ? "is-active" : ""
-          }
+          className={editor.isActive("heading", { level: 2 }) ? activeBtnClass : inactiveBtnClass}
         >
           H2
         </button>
@@ -170,63 +165,63 @@ const MenuBar = ({ editor, onOpenAI }) => {
           onClick={() =>
             editor.chain().focus().toggleHeading({ level: 3 }).run()
           }
-          className={
-            editor.isActive("heading", { level: 3 }) ? "is-active" : ""
-          }
+          className={editor.isActive("heading", { level: 3 }) ? activeBtnClass : inactiveBtnClass}
         >
           H3
         </button>
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={editor.isActive("bulletList") ? "is-active" : ""}
+          className={editor.isActive("bulletList") ? activeBtnClass : inactiveBtnClass}
         >
           <FaListUl />
         </button>
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={editor.isActive("orderedList") ? "is-active" : ""}
+          className={editor.isActive("orderedList") ? activeBtnClass : inactiveBtnClass}
         >
           <FaListOl />
         </button>
       </div>
 
-      <div className="toolbar-separator"></div>
+      <div className="w-[1px] h-[24px] bg-[#ccc] my-0 mx-[8px]"></div>
 
       {/* Group: Insert */}
-      <div className="toolbar-group">
+      <div className="flex gap-[2px]">
         <button
           type="button"
           onClick={setLink}
-          className={editor.isActive("link") ? "is-active" : ""}
+          className={editor.isActive("link") ? activeBtnClass : inactiveBtnClass}
         >
           <FaLink />
         </button>
-        <button type="button" onClick={addImage}>
+        <button type="button" onClick={addImage} className={inactiveBtnClass}>
           <FaImage />
         </button>
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={editor.isActive("blockquote") ? "is-active" : ""}
+          className={editor.isActive("blockquote") ? activeBtnClass : inactiveBtnClass}
         >
           <FaQuoteRight />
         </button>
       </div>
 
-      <div className="toolbar-separator"></div>
+      <div className="w-[1px] h-[24px] bg-[#ccc] my-0 mx-[8px]"></div>
 
-      <div className="toolbar-group">
+      <div className="flex gap-[2px]">
         <button
           type="button"
           onClick={() => editor.chain().focus().undo().run()}
+          className={inactiveBtnClass}
         >
           <FaUndo />
         </button>
         <button
           type="button"
           onClick={() => editor.chain().focus().redo().run()}
+          className={inactiveBtnClass}
         >
           <FaRedo />
         </button>
@@ -268,7 +263,7 @@ const NewsForm = () => {
       LinkExtension.configure({ openOnClick: false }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
-    content: "", // Nội dung ban đầu
+    content: "",
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       setFormData((prev) => ({ ...prev, content: html }));
@@ -285,11 +280,8 @@ const NewsForm = () => {
         publishedDate: formatDateTimeLocal(new Date()),
       }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isEditing]);
 
-  // Cập nhật nội dung vào editor khi dữ liệu API tải xong (chỉ 1 lần lúc đầu)
-  // Logic này đảm bảo khi F5 trang edit, dữ liệu sẽ nhảy vào khung soạn thảo
   useEffect(() => {
     if (editor && formData.content && editor.isEmpty && isEditing) {
       editor.commands.setContent(formData.content);
@@ -321,7 +313,6 @@ const NewsForm = () => {
         newsStatus: item.NewsStatus || "Chờ duyệt",
       });
 
-      // Force set content cho editor ngay khi lấy được dữ liệu
       if (editor) {
         editor.commands.setContent(item.Content);
       }
@@ -347,7 +338,6 @@ const NewsForm = () => {
       const payload = {
         ...formData,
         categoryID: parseInt(formData.categoryID),
-        // Lấy content mới nhất từ editor để chắc chắn
         content: editor ? editor.getHTML() : formData.content,
       };
       if (isEditing) {
@@ -373,11 +363,9 @@ const NewsForm = () => {
     setIsGeneratingAI(true);
 
     try {
-      // Gọi API Backend (Đã cấu hình Gemini ở các bước trước)
       const res = await api.post("/ai/generate", { prompt: aiPrompt });
       const aiContent = res.data.content;
 
-      // Chèn nội dung AI trả về vào vị trí con trỏ hiện tại
       if (editor) {
         editor.chain().focus().insertContent(aiContent).run();
       }
@@ -394,35 +382,35 @@ const NewsForm = () => {
   };
 
   return (
-    <div className="document-manager news-form-page">
-      <div className="page-header">
-        <h2 className="page-title">
+    <div className="p-[20px] pb-[50px] w-full min-h-[calc(100vh-60px)] bg-[#f0f2f5] font-sans text-[#333] text-[14px] flex flex-col items-center gap-[15px]">
+      <div className="bg-white p-[12px_20px] rounded-[6px] shadow-[0_2px_4px_rgba(0,0,0,0.05)] flex justify-between items-center border-t-[3px] border-[#2c3e50] w-full max-w-[1200px]">
+        <h2 className="text-[18px] font-bold text-[#2c3e50] m-0 flex items-center gap-[10px] uppercase">
           {isEditing ? "CHỈNH SỬA BÀI VIẾT" : "THÊM BÀI VIẾT MỚI"}
         </h2>
-        <div className="header-actions">
+        <div className="flex gap-[12px] items-center">
           <button
-            className="btn btn-secondary"
+            className="px-[18px] h-[36px] border-none rounded-[4px] cursor-pointer font-semibold inline-flex items-center gap-[6px] text-[13.5px] transition-all duration-200 bg-[#6c757d] text-white hover:bg-[#5a6268]"
             onClick={() => navigate("/admin/news")}
           >
             <FaArrowLeft /> Quay lại
           </button>
-          <button className="btn btn-success" onClick={handleSubmit}>
+          <button className="px-[18px] h-[36px] border-none rounded-[4px] cursor-pointer font-semibold inline-flex items-center gap-[6px] text-[13.5px] transition-all duration-200 bg-[#15803d] text-white hover:bg-[#166534]" onClick={handleSubmit}>
             <FaSave /> {isEditing ? "Cập nhật" : "Lưu bài viết"}
           </button>
         </div>
       </div>
 
-      <div className="form-card">
-        <form onSubmit={handleSubmit} className="form-layout">
+      <div className="bg-white rounded-[6px] shadow-[0_4px_10px_rgba(0,0,0,0.05)] border border-[#ced4da] w-full max-w-[1200px] p-[20px] sm:p-[30px] h-auto flex flex-col">
+        <form onSubmit={handleSubmit} className="flex gap-[30px] max-lg:flex-col">
           {/* CỘT TRÁI */}
-          <div className="form-main-col">
-            <div className="form-group">
-              <label className="form-label-bold form-label-lg">
-                Tiêu đề bài viết <span className="req">*</span>
+          <div className="flex-[7]">
+            <div>
+              <label className="font-bold text-[16px] mb-[5px] block text-[#444]">
+                Tiêu đề bài viết <span className="text-red-500 ml-[3px]">*</span>
               </label>
               <input
                 type="text"
-                className="form-control input-lg"
+                className="w-full !p-[10px] border border-[#ccc] rounded-[4px] !text-[16px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
@@ -432,10 +420,10 @@ const NewsForm = () => {
               />
             </div>
 
-            <div className="form-group" style={{ marginTop: "20px" }}>
-              <label className="form-label-bold">Mô tả tóm tắt</label>
+            <div className="mt-[20px]">
+              <label className="font-bold text-[14px] mb-[5px] block text-[#444]">Mô tả tóm tắt</label>
               <textarea
-                className="form-control"
+                className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 min-h-[80px]"
                 rows="3"
                 value={formData.summary}
                 onChange={(e) =>
@@ -446,9 +434,9 @@ const NewsForm = () => {
             </div>
 
             {/* --- TRÌNH SOẠN THẢO TIPTAP --- */}
-            <div className="form-group" style={{ marginTop: "20px" }}>
-              <label className="form-label-bold">Nội dung bài viết</label>
-              <div className="tiptap-container">
+            <div className="mt-[20px]">
+              <label className="font-bold text-[14px] mb-[5px] block text-[#444]">Nội dung bài viết</label>
+              <div className="border border-[#ccc] rounded-[6px] bg-white overflow-hidden flex flex-col [&_.ProseMirror]:p-[20px] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[400px] [&_.ProseMirror]:font-sans [&_.ProseMirror]:text-[15px] [&_.ProseMirror]:leading-[1.6] [&_.ProseMirror_p]:mb-[10px] [&_.ProseMirror_h1]:mt-[15px] [&_.ProseMirror_h1]:mb-[10px] [&_.ProseMirror_h1]:font-bold [&_.ProseMirror_h2]:mt-[15px] [&_.ProseMirror_h2]:mb-[10px] [&_.ProseMirror_h2]:font-bold [&_.ProseMirror_h3]:mt-[15px] [&_.ProseMirror_h3]:mb-[10px] [&_.ProseMirror_h3]:font-bold [&_.ProseMirror_ul]:pl-[20px] [&_.ProseMirror_ul]:mb-[10px] [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ol]:pl-[20px] [&_.ProseMirror_ol]:mb-[10px] [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_blockquote]:border-l-[3px] [&_.ProseMirror_blockquote]:border-[#ccc] [&_.ProseMirror_blockquote]:pl-[10px] [&_.ProseMirror_blockquote]:ml-0 [&_.ProseMirror_blockquote]:italic [&_.ProseMirror_blockquote]:text-[#666] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:h-auto [&_.ProseMirror_img]:rounded-[4px] [&_.ProseMirror_img]:block [&_.ProseMirror_img]:my-[10px] [&_.ProseMirror_img.ProseMirror-selectednode]:outline-[2px] [&_.ProseMirror_img.ProseMirror-selectednode]:outline-[#2c3e50] [&_.ProseMirror_a]:text-[#007bff] [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:cursor-pointer [&_.tiptap-content]:min-h-[400px] [&_.tiptap-content]:max-h-[600px] [&_.tiptap-content]:overflow-y-auto [&_.tiptap-content]:cursor-text [&_.tiptap-content]:bg-white">
                 <MenuBar
                   editor={editor}
                   onOpenAI={() => setShowAIModal(true)}
@@ -459,19 +447,18 @@ const NewsForm = () => {
           </div>
 
           {/* CỘT PHẢI */}
-          <div className="form-sidebar-col">
-            <div className="form-group">
-              <label className="form-label-bold">
-                Chuyên mục <span className="req">*</span>
+          <div className="flex-[3] border-l border-[#eee] pl-[30px] max-lg:border-l-0 max-lg:border-t max-lg:border-[#eee] max-lg:pl-0 max-lg:pt-[30px]">
+            <div>
+              <label className="font-bold text-[14px] mb-[5px] block text-[#444]">
+                Chuyên mục <span className="text-red-500 ml-[3px]">*</span>
               </label>
               <select
-                className="form-control"
+                className="w-full p-[8px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
                 value={formData.categoryID}
                 onChange={(e) =>
                   setFormData({ ...formData, categoryID: e.target.value })
                 }
                 required
-                style={{ padding: "8px" }}
               >
                 <option value="">-- Chọn chuyên mục --</option>
                 {categories.map((c) => (
@@ -482,10 +469,10 @@ const NewsForm = () => {
               </select>
             </div>
 
-            <div className="form-group" style={{ marginTop: "20px" }}>
-              <label className="form-label-bold">Trạng thái</label>
+            <div className="mt-[20px]">
+              <label className="font-bold text-[14px] mb-[5px] block text-[#444]">Trạng thái</label>
               <select
-                className="form-control status-select"
+                className="w-full p-[8px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 font-bold"
                 value={formData.newsStatus}
                 onChange={(e) =>
                   setFormData({ ...formData, newsStatus: e.target.value })
@@ -502,12 +489,12 @@ const NewsForm = () => {
               </select>
             </div>
 
-            <div className="form-group" style={{ marginTop: "20px" }}>
-              <label className="form-label-bold">Ảnh đại diện (URL)</label>
-              <div className="input-with-icon">
+            <div className="mt-[20px]">
+              <label className="font-bold text-[14px] mb-[5px] block text-[#444]">Ảnh đại diện (URL)</label>
+              <div className="relative w-full">
                 <input
                   type="text"
-                  className="form-control"
+                  className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
                   value={formData.imageLink}
                   onChange={(e) =>
                     setFormData({ ...formData, imageLink: e.target.value })
@@ -515,17 +502,17 @@ const NewsForm = () => {
                   placeholder="https://..."
                 />
               </div>
-              <div className="image-preview-box">
+              <div className="mt-[10px] w-full h-[150px] bg-[#f8f9fa] border border-dashed border-[#ced4da] rounded-[4px] flex items-center justify-center overflow-hidden relative">
                 {formData.imageLink ? (
                   <>
                     <img
                       src={formData.imageLink}
                       alt="Preview"
-                      className="preview-img"
+                      className="w-full h-full object-cover"
                     />
                     <button
                       type="button"
-                      className="btn-remove-img"
+                      className="absolute top-[5px] right-[5px] bg-black/50 text-white border-none rounded-full w-[24px] h-[24px] cursor-pointer flex items-center justify-center hover:bg-black/70 transition-colors"
                       onClick={() =>
                         setFormData({ ...formData, imageLink: "" })
                       }
@@ -535,17 +522,17 @@ const NewsForm = () => {
                     </button>
                   </>
                 ) : (
-                  <span className="no-image-text">Chưa có ảnh</span>
+                  <span className="text-[#adb5bd] text-[13px]">Chưa có ảnh</span>
                 )}
               </div>
             </div>
 
-            <div className="form-group" style={{ marginTop: "20px" }}>
-              <label className="form-label-bold">Ngày xuất bản</label>
-              <div className="input-with-icon">
+            <div className="mt-[20px]">
+              <label className="font-bold text-[14px] mb-[5px] block text-[#444]">Ngày xuất bản</label>
+              <div className="relative w-full">
                 <input
                   type="datetime-local"
-                  className="form-control"
+                  className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
                   value={formData.publishedDate}
                   onChange={(e) =>
                     setFormData({ ...formData, publishedDate: e.target.value })
@@ -554,24 +541,24 @@ const NewsForm = () => {
               </div>
             </div>
 
-            <div className="featured-box">
-              <label className="featured-label">
+            <div className="mt-[20px] bg-[#fff3cd] p-[10px] rounded-[4px] border border-[#ffeeba]">
+              <label className="cursor-pointer flex items-center gap-[10px] m-0">
                 <input
                   type="checkbox"
-                  className="checkbox-lg"
+                  className="w-[20px] h-[20px] cursor-pointer"
                   checked={formData.isFeatured}
                   onChange={(e) =>
                     setFormData({ ...formData, isFeatured: e.target.checked })
                   }
                 />
-                <span className="featured-text">Đánh dấu Tin nổi bật</span>
+                <span className="font-bold text-[#856404]">Đánh dấu Tin nổi bật</span>
               </label>
             </div>
 
-            <div className="form-group" style={{ marginTop: "20px" }}>
-              <label className="form-label-bold">Ghi chú nội bộ</label>
+            <div className="mt-[20px]">
+              <label className="font-bold text-[14px] mb-[5px] block text-[#444]">Ghi chú nội bộ</label>
               <textarea
-                className="form-control"
+                className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 min-h-[100px]"
                 rows="4"
                 value={formData.note}
                 onChange={(e) =>
@@ -586,19 +573,20 @@ const NewsForm = () => {
 
       {/* --- MODAL AI WRITER --- */}
       {showAIModal && (
-        <div className="ai-modal-overlay">
-          <div className="ai-modal-content">
-            <div className="ai-modal-header">
-              <h3>
+        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center animate-[fadeIn_0.2s_ease-out]">
+          <div className="bg-white w-[500px] rounded-[8px] shadow-[0_10px_25px_rgba(0,0,0,0.2)] overflow-hidden animate-[slideUp_0.3s_ease-out]">
+            <div className="bg-[#f8f9fa] p-[15px_20px] border-b border-[#eee] flex justify-between items-center">
+              <h3 className="m-0 text-[18px] text-[#333] flex items-center gap-[8px]">
                 <FaMagic /> Viết bài tự động với AI
               </h3>
-              <button onClick={() => setShowAIModal(false)}>
+              <button className="bg-transparent border-none text-[18px] cursor-pointer text-[#999] hover:text-[#555]" onClick={() => setShowAIModal(false)}>
                 <FaTimes />
               </button>
             </div>
-            <div className="ai-modal-body">
-              <label>Nhập yêu cầu hoặc chủ đề bài viết:</label>
+            <div className="p-[20px]">
+              <label className="block font-bold mb-[8px] text-[#555]">Nhập yêu cầu hoặc chủ đề bài viết:</label>
               <textarea
+                className="w-full p-[10px] border border-[#ddd] rounded-[4px] font-inherit resize-y outline-none focus:border-[#0d6efd]"
                 rows="5"
                 placeholder="Ví dụ: Viết một bài tin tức về Lễ hội Chuyển đổi số Quốc gia năm 2025..."
                 value={aiPrompt}
@@ -606,16 +594,16 @@ const NewsForm = () => {
                 disabled={isGeneratingAI}
               ></textarea>
             </div>
-            <div className="ai-modal-footer">
+            <div className="p-[15px_20px] border-t border-[#eee] flex justify-end gap-[10px]">
               <button
-                className="btn-cancel"
+                className="bg-[#f1f3f5] border-none p-[8px_16px] rounded-[4px] cursor-pointer font-medium hover:bg-[#e2e6ea]"
                 onClick={() => setShowAIModal(false)}
                 disabled={isGeneratingAI}
               >
                 Hủy bỏ
               </button>
               <button
-                className="btn-generate"
+                className="bg-[#764ba2] text-white border-none p-[8px_20px] rounded-[4px] cursor-pointer font-bold hover:bg-[#6c4494] disabled:bg-[#ccc] disabled:cursor-not-allowed"
                 onClick={handleGenerateAI}
                 disabled={isGeneratingAI}
               >

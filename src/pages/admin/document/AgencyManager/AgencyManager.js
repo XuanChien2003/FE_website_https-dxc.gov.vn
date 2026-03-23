@@ -14,7 +14,6 @@ import {
   FaTag,
   FaToggleOn,
 } from "react-icons/fa";
-import "./AgencyManager.css";
 
 const AgencyManager = () => {
   const [agencies, setAgencies] = useState([]);
@@ -120,34 +119,34 @@ const AgencyManager = () => {
   };
 
   return (
-    <div className="agency-manager">
-      <div className="page-header">
-        <h2 className="page-title">
+    <div className="p-5 bg-[#f8fafc] min-h-screen font-sans text-[#334155] text-[13.5px]">
+      <div className="bg-white p-[15px_20px] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.1)] border-l-[5px] border-[#2c5282] flex justify-between items-center mb-5 w-full box-border">
+        <h2 className="text-[18px] font-bold text-[#2c5282] flex items-center gap-[10px] uppercase m-0">
           <FaBuilding /> QUẢN LÝ CƠ QUAN
         </h2>
-        <div className="header-actions">
+        <div className="flex gap-[10px] items-center">
           <button
-            className={`search-toggle-btn ${showSearch ? "active" : ""}`}
+            className={`bg-white border text-[#2c5282] py-[8px] px-[16px] rounded-md font-semibold flex items-center gap-[8px] cursor-pointer transition-all duration-200 hover:bg-[#eff6ff] hover:border-[#2c5282] ${showSearch ? 'bg-[#eff6ff] border-[#2c5282]' : 'border-[#cbd5e1]'}`}
             onClick={() => setShowSearch(!showSearch)}
           >
             {showSearch ? <FaTimes /> : <FaFilter />}{" "}
             {showSearch ? "Đóng bộ lọc" : "Tìm kiếm"}
           </button>
-          <button className="btn-primary" onClick={handleOpenAdd}>
+          <button className="bg-[#2c5282] text-white border-none py-[9px] px-[18px] rounded-md font-semibold flex items-center gap-[8px] cursor-pointer transition-colors duration-200 hover:bg-[#1e3a8a]" onClick={handleOpenAdd}>
             <FaPlus /> Thêm mới
           </button>
         </div>
       </div>
 
-      <div className={`advanced-search-container ${showSearch ? "open" : ""}`}>
-        <div className="search-panel">
-          <div className="search-row">
-            <div className="search-group" style={{ flex: 2 }}>
-              <div className="input-with-icon">
-                <FaSearch className="input-icon left" />
+      <div className={`overflow-hidden transition-all duration-300 opacity-0 max-h-0 mb-0 ${showSearch ? 'max-h-[200px] opacity-100 mb-[20px]' : ''}`}>
+        <div className="bg-white p-[20px] rounded-lg border border-[#cbd5e1] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]">
+          <div className="flex gap-[15px]">
+            <div className="flex flex-col flex-[2]">
+              <div className="relative w-full">
+                <FaSearch className="absolute left-[12px] top-1/2 -translate-y-1/2 text-[#94a3b8] text-[14px]" />
                 <input
                   type="text"
-                  className="form-control"
+                  className="w-full py-[9px] px-[12px] pl-[36px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] transition-all duration-200 focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                   name="keyword"
                   placeholder="Nhập từ khóa..."
                   value={searchParams.keyword}
@@ -155,11 +154,11 @@ const AgencyManager = () => {
                 />
               </div>
             </div>
-            <div className="search-group">
-              <div className="input-with-icon">
-                <FaTag className="input-icon left" />
+            <div className="flex flex-col flex-1">
+              <div className="relative w-full">
+                <FaTag className="absolute left-[12px] top-1/2 -translate-y-1/2 text-[#94a3b8] text-[14px]" />
                 <select
-                  className="form-control"
+                  className="w-full py-[9px] px-[12px] pl-[36px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] transition-all duration-200 focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                   name="scope"
                   value={searchParams.scope}
                   onChange={handleSearchChange}
@@ -170,11 +169,11 @@ const AgencyManager = () => {
                 </select>
               </div>
             </div>
-            <div className="search-group">
-              <div className="input-with-icon">
-                <FaToggleOn className="input-icon left" />
+            <div className="flex flex-col flex-1">
+              <div className="relative w-full">
+                <FaToggleOn className="absolute left-[12px] top-1/2 -translate-y-1/2 text-[#94a3b8] text-[14px]" />
                 <select
-                  className="form-control"
+                  className="w-full py-[9px] px-[12px] pl-[36px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] transition-all duration-200 focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                   name="isDefault"
                   value={searchParams.isDefault}
                   onChange={handleSearchChange}
@@ -189,41 +188,41 @@ const AgencyManager = () => {
         </div>
       </div>
 
-      <div className="table-container">
-        <div className="table-scroll">
-          <table className="data-table">
+      <div className="bg-white rounded-t-lg shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] border border-[#cbd5e1] overflow-hidden w-full box-border">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse min-w-[800px]">
             <thead>
               <tr>
-                <th className="col-id">ID</th>
-                <th className="col-name">Tên Cơ Quan / Đơn Vị</th>
-                <th className="col-default">Mặc định</th>
-                <th className="col-action">Thao tác</th>
+                <th className="w-[80px] text-center bg-[#2c5282] text-white p-[12px_15px] font-semibold uppercase text-[12.5px] border-r border-white/20">ID</th>
+                <th className="bg-[#2c5282] text-white p-[12px_15px] text-left font-semibold uppercase text-[12.5px] border-r border-white/20">Tên Cơ Quan / Đơn Vị</th>
+                <th className="w-[120px] text-center bg-[#2c5282] text-white p-[12px_15px] font-semibold uppercase text-[12.5px] border-r border-white/20">Mặc định</th>
+                <th className="w-[120px] text-center bg-[#2c5282] text-white p-[12px_15px] font-semibold uppercase text-[12.5px] border-r border-white/20">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {filteredAgencies.length > 0 ? (
                 filteredAgencies.map((agency) => (
-                  <tr key={agency.AgencyID}>
-                    <td className="col-id">{agency.AgencyID}</td>
-                    <td className="font-medium text-primary">{agency.Name}</td>
-                    <td className="col-default">
+                  <tr key={agency.AgencyID} className="group even:bg-[#f8fafc] hover:bg-[#eff6ff]">
+                    <td className="w-[80px] text-center font-bold text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{agency.AgencyID}</td>
+                    <td className="font-medium text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{agency.Name}</td>
+                    <td className="w-[120px] text-center p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">
                       {agency.IsDefault ? (
-                        <FaCheckCircle className="icon-check-success" />
+                        <FaCheckCircle className="text-[#22c55e] text-[20px] mx-auto" />
                       ) : (
-                        <span className="text-muted">-</span>
+                        <span className="text-[#ccc] font-bold">-</span>
                       )}
                     </td>
-                    <td className="col-action">
-                      <div className="btn-group">
+                    <td className="w-[120px] text-center p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">
+                      <div className="flex justify-center gap-[8px]">
                         <button
-                          className="btn-icon btn-edit"
+                          className="w-[30px] h-[30px] border border-[#cbd5e1] bg-white rounded-[4px] cursor-pointer flex items-center justify-center text-[#64748b] transition-all duration-200 hover:bg-[#eff6ff] hover:text-[#0d6efd] hover:border-[#0d6efd]"
                           onClick={() => handleEdit(agency)}
                           title="Sửa"
                         >
                           <FaEdit />
                         </button>
                         <button
-                          className="btn-icon btn-delete"
+                          className="w-[30px] h-[30px] border border-[#cbd5e1] bg-white rounded-[4px] cursor-pointer flex items-center justify-center text-[#64748b] transition-all duration-200 hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
                           onClick={() => handleDelete(agency.AgencyID)}
                           title="Xóa"
                         >
@@ -235,7 +234,7 @@ const AgencyManager = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="text-center p-4 text-muted">
+                  <td colSpan="4" className="text-center p-4 text-[#ccc] font-bold border-b border-[#cbd5e1]">
                     Không tìm thấy dữ liệu
                   </td>
                 </tr>
@@ -243,30 +242,30 @@ const AgencyManager = () => {
             </tbody>
           </table>
         </div>
-        <div className="table-footer">
+        <div className="p-[12px_20px] bg-white border-t border-[#cbd5e1] text-right italic text-[#64748b]">
           Hiển thị <b>{filteredAgencies.length}</b> / <b>{agencies.length}</b>{" "}
           cơ quan
         </div>
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>{isEditing ? "CẬP NHẬT CƠ QUAN" : "THÊM CƠ QUAN MỚI"}</h3>
-              <button className="btn-close" onClick={() => setShowModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-start pt-[80px] z-[999] animate-[fadeIn_0.2s]">
+          <div className="bg-white w-[600px] max-w-[95%] rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.2)] overflow-hidden animate-[slideIn_0.3s]">
+            <div className="bg-[#2c5282] text-white p-[15px_20px] flex justify-between items-center">
+              <h3 className="m-0 text-[16px] font-bold uppercase">{isEditing ? "CẬP NHẬT CƠ QUAN" : "THÊM CƠ QUAN MỚI"}</h3>
+              <button className="bg-transparent border-none text-white/80 text-[20px] cursor-pointer hover:text-white" onClick={() => setShowModal(false)}>
                 <FaTimes />
               </button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label>
-                    Tên cơ quan <span className="req">*</span>
+              <div className="p-[25px_30px]">
+                <div className="mb-[20px]">
+                  <label className="block font-semibold mb-[8px] text-[#334155]">
+                    Tên cơ quan <span className="text-[#ef4444] ml-[3px]">*</span>
                   </label>
                   <input
                     type="text"
-                    className="input-lg"
+                    className="h-[42px] text-[15px] p-[10px_15px] border border-[#cbd5e1] rounded-[4px] w-full outline-none focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
@@ -276,10 +275,11 @@ const AgencyManager = () => {
                     autoFocus
                   />
                 </div>
-                <div className="form-group checkbox-wrapper">
-                  <label className="custom-checkbox">
+                <div className="bg-[#f1f5f9] p-[15px_20px] border border-[#e2e8f0] rounded-[6px] flex flex-col gap-[5px] mb-[20px]">
+                  <label className="flex items-center gap-[12px] cursor-pointer select-none">
                     <input
                       type="checkbox"
+                      className="w-[20px] h-[20px] cursor-pointer accent-[#2c5282]"
                       checked={formData.isDefault}
                       onChange={(e) =>
                         setFormData({
@@ -288,22 +288,22 @@ const AgencyManager = () => {
                         })
                       }
                     />
-                    <span className="checkbox-text">Hiển thị mặc định</span>
+                    <span className="text-[15px] font-semibold text-[#334155]">Hiển thị mặc định</span>
                   </label>
-                  <div className="hint-text">
+                  <div className="text-[13px] text-[#64748b] italic ml-[32px]">
                     (Ưu tiên hiển thị cơ quan này trong danh sách)
                   </div>
                 </div>
               </div>
-              <div className="modal-footer">
+              <div className="p-[15px_30px] bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end gap-[10px]">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="bg-[#64748b] text-white p-[8px_20px] rounded-[4px] border-none font-semibold cursor-pointer flex items-center gap-[6px] hover:bg-[#475569]"
                   onClick={() => setShowModal(false)}
                 >
                   <FaTimes /> Đóng
                 </button>
-                <button type="submit" className="btn-success">
+                <button type="submit" className="bg-[#15803d] text-white p-[8px_20px] rounded-[4px] border-none font-semibold cursor-pointer flex items-center gap-[6px] hover:bg-[#166534]">
                   <FaSave /> {isEditing ? "Cập nhật" : "Lưu lại"}
                 </button>
               </div>

@@ -13,8 +13,6 @@ import {
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
-import "../document/DocumentList.css";
-import "./WebLinkManager.css";
 
 const WebLinkManager = () => {
   const [links, setLinks] = useState([]);
@@ -127,104 +125,96 @@ const WebLinkManager = () => {
   };
 
   return (
-    <div className="document-manager weblink-manager">
+    <div className="p-[20px] bg-[#f8fafc] min-h-screen font-sans text-[13.5px] text-[#334155]">
       {/* HEADER */}
-      <div className="page-header">
-        <h2 className="page-title">
+      <div className="flex justify-between items-center mb-[20px] bg-white p-[15px_20px] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.1)] border-l-[5px] border-[#2c5282]">
+        <h2 className="text-[18px] font-bold text-[#2c5282] flex items-center gap-[10px] uppercase m-0">
           <FaLink /> QUẢN TRỊ LIÊN KẾT WEB
         </h2>
-        <div className="header-actions">
-          <div className="search-wrapper">
-            <FaSearch className="search-icon" />
+        <div className="flex gap-[12px] items-center">
+          <div className="relative">
+            <FaSearch className="absolute left-[12px] top-1/2 -translate-y-1/2 text-[#888] text-[14px]" />
             <input
+              className="p-[8px_12px_8px_35px] border border-[#ccc] rounded-[4px] text-[13.5px] w-[250px] outline-none transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 h-[34px]"
               type="text"
               placeholder="Tìm tên hoặc url..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="btn btn-primary" onClick={handleOpenAdd}>
+          <button className="bg-[#2c5282] text-white border-none py-[8px] px-[18px] h-[34px] rounded-md font-semibold flex items-center gap-[6px] cursor-pointer transition-colors duration-200 hover:bg-[#1e3a8a]" onClick={handleOpenAdd}>
             <FaPlus /> Thêm mới
           </button>
         </div>
       </div>
 
       {/* TABLE */}
-      <div className="table-container">
-        <div className="table-scroll">
-          <table className="data-table">
+      <div className="bg-white rounded-t-lg shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] overflow-hidden border border-[#cbd5e1] mt-[20px]">
+        <div className="w-full overflow-x-auto min-h-[300px]">
+          <table className="w-full border-collapse table-fixed min-w-[900px]">
             <thead>
               <tr>
-                <th style={{ width: "60px", textAlign: "center" }}>STT</th>
-                <th style={{ width: "80px", textAlign: "center" }}>Logo</th>
-                <th style={{ width: "25%" }}>Tên Website / Liên kết</th>
-                <th style={{ width: "25%" }}>Đường dẫn (URL)</th>
-                <th style={{ width: "20%" }}>Mô tả</th>
-                <th style={{ width: "100px", textAlign: "center" }}>
-                  Hiển thị
-                </th>
-                <th style={{ width: "80px", textAlign: "center" }}>Thao tác</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[5%]">STT</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[8%]">Logo</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[25%]">Tên Website / Liên kết</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[25%]">Đường dẫn (URL)</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[20%]">Mô tả</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[9%]">Hiển thị</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-transparent leading-[1.3] w-[8%]">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {filteredLinks.length > 0 ? (
                 filteredLinks.map((item) => (
-                  // FIX: Key dùng LinkID
-                  <tr key={item.LinkID}>
-                    {/* FIX: item.STT */}
-                    <td className="text-center">{item.STT}</td>
-                    <td className="text-center">
-                      {/* FIX: item.ImageLink */}
+                  <tr key={item.LinkID} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-semibold text-center">{item.STT}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-center overflow-hidden">
                       {item.ImageLink ? (
-                        <img
-                          src={item.ImageLink}
-                          alt="logo"
-                          className="link-logo-sm"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src =
-                              "https://via.placeholder.com/40?text=Logo";
-                          }}
-                        />
+                        <div className="w-[40px] h-[40px] mx-auto bg-white border border-[#ddd] rounded-[4px] p-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.1)] flex items-center justify-center">
+                          <img
+                            src={item.ImageLink}
+                            alt="logo"
+                            className="max-w-full max-h-full object-contain"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "https://via.placeholder.com/40?text=Logo";
+                            }}
+                          />
+                        </div>
                       ) : (
-                        <FaGlobe size={24} color="#ccc" />
+                        <FaGlobe size={24} className="text-[#ccc] mx-auto" />
                       )}
                     </td>
-                    {/* FIX: item.Name */}
-                    <td className="font-bold text-primary">{item.Name}</td>
-                    <td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-bold text-[#2c5282]">{item.Name}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words">
                       <a
-                        // FIX: item.Url
                         href={item.Url}
                         target="_blank"
                         rel="noreferrer"
-                        className="link-url"
+                        className="text-[#0d6efd] no-underline hover:underline text-[13px]"
                       >
                         {item.Url}
                       </a>
                     </td>
-                    {/* FIX: item.Description */}
-                    <td>{item.Description}</td>
-                    <td className="text-center">
-                      {/* FIX: item.IsShow */}
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] leading-[1.4]">{item.Description}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-center">
                       {item.IsShow ? (
-                        <FaCheckCircle style={{ color: "green" }} />
+                        <FaCheckCircle className="text-green-600 mx-auto text-[16px]" />
                       ) : (
-                        <FaTimesCircle style={{ color: "#ccc" }} />
+                        <FaTimesCircle className="text-[#ccc] mx-auto text-[16px]" />
                       )}
                     </td>
-                    <td className="text-center">
-                      <div className="btn-group">
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-center">
+                      <div className="flex justify-center gap-[4px]">
                         <button
-                          className="btn-icon btn-edit"
+                          className="w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white text-[#64748b] cursor-pointer flex items-center justify-center transition-all hover:-translate-y-[1px] hover:border-[#3b82f6] hover:text-[#3b82f6] hover:bg-[#eff6ff]"
                           onClick={() => handleEdit(item)}
                           title="Sửa"
                         >
                           <FaEdit />
                         </button>
                         <button
-                          className="btn-icon btn-delete"
-                          // FIX: Xóa dùng LinkID
+                          className="w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white text-[#64748b] cursor-pointer flex items-center justify-center transition-all hover:-translate-y-[1px] hover:border-[#ef4444] hover:text-[#ef4444] hover:bg-[#fef2f2]"
                           onClick={() => handleDelete(item.LinkID)}
                           title="Xóa"
                         >
@@ -236,7 +226,7 @@ const WebLinkManager = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="no-data">
+                  <td colSpan="7" className="text-center p-[30px] text-[#999] border border-[#cbd5e1]">
                     Chưa có liên kết nào
                   </td>
                 </tr>
@@ -244,29 +234,34 @@ const WebLinkManager = () => {
             </tbody>
           </table>
         </div>
+        <div className="p-[12px_20px] border-t border-[#cbd5e1] bg-white flex justify-between items-center rounded-b-lg">
+          <div className="text-[#334155]">
+            Tổng số: <b className="text-[#2c5282]">{filteredLinks.length}</b> liên kết
+          </div>
+        </div>
       </div>
 
-      {/* MODAL FORM - (Phần này giữ nguyên logic vì dùng formData) */}
+      {/* MODAL FORM */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ width: "600px" }}>
-            <div className="modal-header">
-              <h3>{isEditing ? "CẬP NHẬT LIÊN KẾT" : "THÊM LIÊN KẾT MỚI"}</h3>
-              <button className="btn-close" onClick={() => setShowModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex justify-center pt-[80px] z-[999]">
+          <div className="bg-white w-[600px] rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.2)] overflow-hidden h-fit">
+            <div className="bg-[#2c5282] text-white p-[15px_20px] flex justify-between items-center">
+              <h3 className="m-0 text-[16px] font-bold uppercase">{isEditing ? "CẬP NHẬT LIÊN KẾT" : "THÊM LIÊN KẾT MỚI"}</h3>
+              <button className="bg-transparent border-none text-white/80 text-[20px] cursor-pointer hover:text-white transition-colors" onClick={() => setShowModal(false)}>
                 <FaTimes />
               </button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
+              <div className="p-[25px_30px]">
                 {/* Tên & STT */}
-                <div style={{ display: "flex", gap: "15px" }}>
-                  <div className="form-group" style={{ flex: 3 }}>
-                    <label>
-                      Tên Website <span className="req">*</span>
+                <div className="flex gap-[15px] mb-[20px]">
+                  <div className="flex-[3]">
+                    <label className="block font-semibold mb-[8px] text-[#334155]">
+                      Tên Website <span className="text-[#ef4444] ml-[3px]">*</span>
                     </label>
                     <input
                       type="text"
-                      className="form-control"
+                      className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[rgba(44,82,130,0.15)] transition-all"
                       value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
@@ -276,11 +271,11 @@ const WebLinkManager = () => {
                       placeholder="VD: Cổng Dịch vụ công Quốc gia"
                     />
                   </div>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label>Thứ tự</label>
+                  <div className="flex-1">
+                    <label className="block font-semibold mb-[8px] text-[#334155]">Thứ tự</label>
                     <input
                       type="number"
-                      className="form-control"
+                      className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[rgba(44,82,130,0.15)] transition-all"
                       value={formData.stt}
                       onChange={(e) =>
                         setFormData({ ...formData, stt: e.target.value })
@@ -290,13 +285,13 @@ const WebLinkManager = () => {
                 </div>
 
                 {/* URL */}
-                <div className="form-group">
-                  <label>
-                    Đường dẫn (URL) <span className="req">*</span>
+                <div className="mb-[20px]">
+                  <label className="block font-semibold mb-[8px] text-[#334155]">
+                    Đường dẫn (URL) <span className="text-[#ef4444] ml-[3px]">*</span>
                   </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[rgba(44,82,130,0.15)] transition-all"
                     value={formData.url}
                     onChange={(e) =>
                       setFormData({ ...formData, url: e.target.value })
@@ -307,12 +302,12 @@ const WebLinkManager = () => {
                 </div>
 
                 {/* Logo Link & Preview */}
-                <div className="form-group">
-                  <label>Link Logo (Icon)</label>
-                  <div className="input-with-icon">
+                <div className="mb-[20px]">
+                  <label className="block font-semibold mb-[8px] text-[#334155]">Link Logo (Icon)</label>
+                  <div className="relative w-full">
                     <input
                       type="text"
-                      className="form-control"
+                      className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[rgba(44,82,130,0.15)] transition-all"
                       value={formData.imageLink}
                       onChange={(e) =>
                         setFormData({ ...formData, imageLink: e.target.value })
@@ -321,11 +316,11 @@ const WebLinkManager = () => {
                     />
                   </div>
                   {formData.imageLink && (
-                    <div className="logo-preview-box">
+                    <div className="mt-[10px] w-full h-[120px] bg-[#f1f5f9] border border-dashed border-[#cbd5e1] rounded-[4px] flex items-center justify-center relative p-[10px]">
                       <img
                         src={formData.imageLink}
                         alt="Preview"
-                        className="logo-preview-img"
+                        className="max-w-full max-h-full object-contain"
                         onError={(e) =>
                           (e.target.src =
                             "https://via.placeholder.com/100x50?text=Error")
@@ -333,17 +328,10 @@ const WebLinkManager = () => {
                       />
                       <button
                         type="button"
-                        className="btn-clear-img"
+                        className="absolute top-[5px] right-[5px] w-[24px] h-[24px] bg-black/60 text-white border-none rounded-full flex items-center justify-center cursor-pointer hover:bg-[#ef4444] transition-colors"
                         onClick={() =>
                           setFormData({ ...formData, imageLink: "" })
                         }
-                        style={{
-                          position: "absolute",
-                          top: "5px",
-                          right: "5px",
-                          width: "24px",
-                          height: "24px",
-                        }}
                       >
                         <FaTimes size={12} />
                       </button>
@@ -352,10 +340,10 @@ const WebLinkManager = () => {
                 </div>
 
                 {/* Mô tả */}
-                <div className="form-group">
-                  <label>Mô tả</label>
+                <div className="mb-[20px]">
+                  <label className="block font-semibold mb-[8px] text-[#334155]">Mô tả</label>
                   <textarea
-                    className="form-control"
+                    className="w-full p-[10px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15 resize-y transition-all"
                     rows="2"
                     value={formData.description}
                     onChange={(e) =>
@@ -366,37 +354,30 @@ const WebLinkManager = () => {
                 </div>
 
                 {/* Checkbox Hiển thị */}
-                <div className="form-group">
-                  <label
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      cursor: "pointer",
-                    }}
-                  >
+                <div className="mb-[10px]">
+                  <label className="flex items-center gap-[8px] cursor-pointer">
                     <input
                       type="checkbox"
-                      style={{ width: "18px", height: "18px" }}
+                      className="w-[18px] h-[18px] cursor-pointer accent-[#2c5282]"
                       checked={formData.isShow}
                       onChange={(e) =>
                         setFormData({ ...formData, isShow: e.target.checked })
                       }
                     />
-                    <span>Hiển thị trên trang chủ</span>
+                    <span className="text-[#334155] font-semibold">Hiển thị trên trang chủ</span>
                   </label>
                 </div>
               </div>
 
-              <div className="modal-footer">
+              <div className="p-[15px_30px] bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end gap-[10px]">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="bg-[#64748b] text-white p-[8px_20px] rounded-[4px] border-none font-semibold cursor-pointer flex items-center gap-[6px] hover:bg-[#475569] transition-colors"
                   onClick={() => setShowModal(false)}
                 >
                   Đóng lại
                 </button>
-                <button type="submit" className="btn-success">
+                <button type="submit" className="bg-[#15803d] text-white p-[8px_20px] rounded-[4px] border-none font-semibold cursor-pointer flex items-center gap-[6px] hover:bg-[#166534] transition-colors">
                   <FaSave /> {isEditing ? "Cập nhật" : "Lưu lại"}
                 </button>
               </div>

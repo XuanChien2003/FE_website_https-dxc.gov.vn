@@ -16,7 +16,6 @@ import {
   FaSitemap,
   FaTags,
 } from "react-icons/fa";
-import "./AdminLayout.css";
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -190,54 +189,41 @@ const AdminLayout = () => {
   ];
 
   return (
-    <div className="admin-layout">
+    <div className="flex flex-col h-screen overflow-hidden font-sans bg-[#f4f6f9]">
       {/* HEADER */}
-      <header className="admin-header">
-        <div className="header-left">
+      <header className="h-[60px] bg-[#2c3e50] text-white flex justify-between items-center px-[15px] shadow-[0_2px_5px_rgba(0,0,0,0.15)] z-[1000] relative">
+        <div className="flex items-center gap-[10px]">
           <button
-            className="menu-toggle"
+            className="bg-transparent border-none text-white text-[18px] cursor-pointer p-[5px]"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             <FaBars />
           </button>
-          <h1 className="app-title">HỆ THỐNG QUẢN TRỊ</h1>
+          <h1 className="text-[16px] font-bold uppercase m-0 tracking-[0.5px]">HỆ THỐNG QUẢN TRỊ</h1>
         </div>
 
-        <div className="header-right">
+        <div className="flex items-center gap-[14px] text-[14px]">
           {/* Link tới trang Profile */}
           <Link
             to="/admin/profile"
-            className="user-info-link"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-            }}
+            className="flex items-center gap-[10px] text-inherit no-underline hover:opacity-90 transition-opacity"
             title="Xem thông tin cá nhân"
           >
             {currentUser.avatar && (
               <img
                 src={currentUser.avatar}
                 alt="avatar"
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  border: "2px solid rgba(255,255,255,0.2)",
-                }}
+                className="w-[32px] h-[32px] rounded-full object-cover border-[2px] border-white/20"
                 onError={(e) => (e.target.style.display = "none")} // Ẩn nếu lỗi ảnh
               />
             )}
-            <span className="user-info">
+            <span>
               Xin chào: <strong>{currentUser.displayName}</strong>
             </span>
           </Link>
 
           <button
-            className="logout-btn"
+            className="bg-white/10 border border-white/20 text-white p-[6px_10px] text-[15px] rounded-[4px] cursor-pointer flex items-center gap-[5px] transition-all hover:bg-white/20"
             onClick={handleLogout}
             title="Đăng xuất"
           >
@@ -247,59 +233,57 @@ const AdminLayout = () => {
       </header>
 
       {/* BODY */}
-      <div className="main-container">
+      <div className="flex flex-1 overflow-hidden mt-[2px]">
         {/* SIDEBAR */}
-        <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-          <div className="sidebar-menu">
+        <aside
+          className={`bg-[#2c3e50] transition-all duration-300 overflow-y-auto shrink-0 border-r border-white/5 ${
+            sidebarOpen ? "w-[230px]" : "w-[50px]"
+          } scrollbar-thin scrollbar-thumb-gray-600`}
+        >
+          <div className="pt-[5px]">
             {menuConfig.map((item) => (
               <React.Fragment key={item.key}>
                 {/* --- MENU CHA (CÓ CON) --- */}
                 {item.isParent ? (
-                  <div
-                    className={`menu-group ${
-                      openMenus[item.key] ? "expanded" : ""
-                    }`}
-                  >
+                  <div className="group">
                     <div
-                      className={`menu-parent ${
-                        isParentActive(item.children) ? "active-parent" : ""
+                      className={`flex justify-between items-center p-[12px_15px] text-[#ecf0f1] bg-[#2c3e50] cursor-pointer transition-all duration-200 font-medium text-[14px] border-b border-black/5 ${
+                        !sidebarOpen && "justify-center py-[15px]"
+                      } ${
+                        isParentActive(item.children) || openMenus[item.key]
+                          ? "bg-[#34495e] text-white border-l-[4px] border-[#e74c3c]"
+                          : "hover:bg-[#34495e] hover:text-white border-l-[4px] border-transparent"
                       }`}
                       onClick={() => toggleMenu(item.key)}
                       title={!sidebarOpen ? item.label : ""}
                     >
-                      <div className="menu-parent-content">
-                        <span className="menu-icon">{item.icon}</span>
-                        {sidebarOpen && (
-                          <span className="menu-text">{item.label}</span>
-                        )}
+                      <div className={`flex items-center ${sidebarOpen ? "gap-[12px]" : "gap-0"}`}>
+                        <span className={`text-[16px] min-w-[20px] text-center ${isParentActive(item.children) || openMenus[item.key] ? "text-white" : "text-[#bdc3c7]"}`}>{item.icon}</span>
+                        {sidebarOpen && <span>{item.label}</span>}
                       </div>
                       {sidebarOpen && (
-                        <span className="menu-arrow">
-                          {openMenus[item.key] ? (
-                            <FaChevronDown />
-                          ) : (
-                            <FaChevronRight />
-                          )}
+                        <span className="text-[11px] opacity-80">
+                          {openMenus[item.key] ? <FaChevronDown /> : <FaChevronRight />}
                         </span>
                       )}
                     </div>
 
                     {/* Menu con */}
                     {(openMenus[item.key] || !sidebarOpen) && (
-                      <div className="menu-children">
+                      <div className={`bg-[#22303d] shadow-[inset_0_3px_5px_rgba(0,0,0,0.2)] ${!sidebarOpen && "hidden"}`}>
                         {item.children.map((child) => (
                           <Link
                             key={child.key}
                             to={child.path}
-                            className={`menu-item ${
-                              isActive(child.path) ? "active" : ""
+                            className={`flex items-center gap-[10px] p-[10px_15px_10px_48px] no-underline text-[13px] transition-all duration-200 border-l-[4px] ${
+                              isActive(child.path)
+                                ? "bg-white/10 text-[#e74c3c] font-semibold border-[#e74c3c]"
+                                : "text-[#bdc3c7] border-transparent hover:text-white hover:bg-white/5"
                             }`}
                             title={!sidebarOpen ? child.name : ""}
                           >
-                            <span className="menu-icon">{child.icon}</span>
-                            {sidebarOpen && (
-                              <span className="menu-text">{child.name}</span>
-                            )}
+                            <span className={`text-[16px] min-w-[20px] text-center ${isActive(child.path) ? "text-[#e74c3c]" : "text-[#bdc3c7]"}`}>{child.icon}</span>
+                            {sidebarOpen && <span>{child.name}</span>}
                           </Link>
                         ))}
                       </div>
@@ -309,16 +293,18 @@ const AdminLayout = () => {
                   /* --- MENU ĐƠN (KHÔNG CON) --- */
                   <Link
                     to={item.path}
-                    className={`menu-parent single-link ${
-                      isActive(item.path) ? "active-parent" : ""
+                    className={`flex justify-between items-center p-[12px_15px] text-[#ecf0f1] bg-[#2c3e50] cursor-pointer transition-all duration-200 font-medium text-[14px] no-underline border-b border-black/5 ${
+                      !sidebarOpen && "justify-center py-[15px]"
+                    } ${
+                      isActive(item.path)
+                        ? "bg-[#34495e] text-white border-l-[4px] border-[#e74c3c]"
+                        : "hover:bg-[#34495e] hover:text-white border-l-[4px] border-transparent"
                     }`}
                     title={!sidebarOpen ? item.label : ""}
                   >
-                    <div className="menu-parent-content">
-                      <span className="menu-icon">{item.icon}</span>
-                      {sidebarOpen && (
-                        <span className="menu-text">{item.label}</span>
-                      )}
+                    <div className={`flex items-center ${sidebarOpen ? "gap-[12px]" : "gap-0"}`}>
+                      <span className={`text-[16px] min-w-[20px] text-center ${isActive(item.path) ? "text-white" : "text-[#bdc3c7]"}`}>{item.icon}</span>
+                      {sidebarOpen && <span>{item.label}</span>}
                     </div>
                   </Link>
                 )}
@@ -328,8 +314,8 @@ const AdminLayout = () => {
         </aside>
 
         {/* MAIN CONTENT */}
-        <main className={`main-content ${sidebarOpen ? "" : "full-width"}`}>
-          <div className="content-container">
+        <main className="flex-1 bg-[#f4f6f9] p-0 overflow-y-auto w-full">
+          <div className="min-h-full">
             <Outlet />
           </div>
         </main>

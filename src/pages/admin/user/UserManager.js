@@ -15,7 +15,6 @@ import {
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
-import "./UserManager.css";
 
 const UserManager = () => {
   const [users, setUsers] = useState([]);
@@ -132,7 +131,6 @@ const UserManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // LOGIC MỚI: Chỉ validate mật khẩu khi THÊM MỚI (!isEditing)
     if (!isEditing) {
       if (!formData.password) {
         toast.error("Vui lòng nhập mật khẩu!");
@@ -146,8 +144,6 @@ const UserManager = () => {
 
     try {
       if (isEditing) {
-        // Khi sửa: Chỉ gửi thông tin Username(nếu API cần check), FullName, Role
-        // Không gửi password
         const updateData = {
           fullName: formData.fullName,
           role: formData.role,
@@ -157,7 +153,6 @@ const UserManager = () => {
         await api.put(`/users/${editID}`, updateData);
         toast.success("Cập nhật thông tin thành công!");
       } else {
-        // Khi thêm mới: Gửi đầy đủ
         await api.post("/users", formData);
         toast.success("Thêm mới thành công!");
       }
@@ -170,41 +165,49 @@ const UserManager = () => {
 
   const getRoleBadge = (role) => {
     return role === "admin" ? (
-      <span className="badge badge-admin">Quản trị</span>
+      <span className="inline-block p-[4px_12px] rounded-[15px] text-[11px] font-bold uppercase whitespace-nowrap bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd]">Quản trị</span>
     ) : (
-      <span className="badge badge-user">Người dùng</span>
+      <span className="inline-block p-[4px_12px] rounded-[15px] text-[11px] font-bold uppercase whitespace-nowrap bg-[#f1f5f9] text-[#64748b] border border-[#e2e8f0]">Người dùng</span>
     );
   };
 
   return (
-    <div className="agency-manager">
-      <div className="page-header">
-        <h2 className="page-title">
+    <div className="p-[20px] bg-[#f8fafc] min-h-screen font-sans text-[13.5px] text-[#334155]">
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-[20px] bg-white p-[15px_20px] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.1)] border-l-[5px] border-[#2c5282]">
+        <h2 className="text-[18px] font-bold text-[#2c5282] flex items-center gap-[10px] uppercase m-0">
           <FaUserCog /> QUẢN LÝ NGƯỜI DÙNG
         </h2>
-        <div className="header-actions">
+        <div className="flex gap-[10px]">
           <button
-            className={`search-toggle-btn ${showSearch ? "active" : ""}`}
+            className={`bg-white border text-[#2c5282] py-[8px] px-[16px] rounded-md font-semibold flex items-center gap-[8px] cursor-pointer transition-all duration-200 hover:bg-[#eff6ff] hover:border-[#2c5282] ${
+              showSearch ? "bg-[#eff6ff] border-[#2c5282]" : "border-[#cbd5e1]"
+            }`}
             onClick={() => setShowSearch(!showSearch)}
           >
             {showSearch ? <FaTimes /> : <FaFilter />}
             {showSearch ? " Đóng bộ lọc" : " Tìm kiếm"}
           </button>
-          <button className="btn-primary" onClick={handleOpenAdd}>
+          <button className="bg-[#2c5282] text-white border-none py-[9px] px-[18px] rounded-md font-semibold flex items-center gap-[8px] cursor-pointer transition-colors duration-200 hover:bg-[#1e3a8a]" onClick={handleOpenAdd}>
             <FaPlus /> Thêm mới
           </button>
         </div>
       </div>
 
-      <div className={`advanced-search-container ${showSearch ? "open" : ""}`}>
-        <div className="search-panel">
-          <div className="search-row">
-            <div className="search-group" style={{ flex: 2 }}>
-              <div className="input-with-icon">
-                <FaSearch className="input-icon left" />
+      {/* TÌM KIẾM MỞ RỘNG */}
+      <div
+        className={`overflow-hidden transition-all duration-400 opacity-0 mb-0 ${
+          showSearch ? "max-h-[500px] opacity-100 mb-[20px]" : "max-h-0"
+        }`}
+      >
+        <div className="bg-white p-[25px] rounded-lg border border-[#cbd5e1] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] flex flex-col gap-[15px]">
+          <div className="flex gap-[15px] w-full flex-col md:flex-row md:gap-[15px]">
+            <div className="flex flex-col flex-[2]">
+              <div className="relative w-full">
+                <FaSearch className="absolute top-1/2 -translate-y-1/2 text-[#94a3b8] text-[14px] left-[12px]" />
                 <input
                   type="text"
-                  className="form-control"
+                  className="p-[10px_12px_10px_36px] border border-[#d1d5db] rounded-[4px] text-[14px] text-[#334155] outline-none w-full h-[42px] bg-white transition-all duration-200 focus:border-[#2c5282] focus:ring-[2px] focus:ring-[#2c5282]/10"
                   name="keyword"
                   placeholder="Tìm theo Tên hoặc Username..."
                   value={searchParams.keyword}
@@ -212,11 +215,11 @@ const UserManager = () => {
                 />
               </div>
             </div>
-            <div className="search-group">
-              <div className="input-with-icon">
-                <FaUserShield className="input-icon left" />
+            <div className="flex flex-col flex-1">
+              <div className="relative w-full">
+                <FaUserShield className="absolute top-1/2 -translate-y-1/2 text-[#94a3b8] text-[14px] left-[12px]" />
                 <select
-                  className="form-control"
+                  className="p-[10px_12px_10px_36px] border border-[#d1d5db] rounded-[4px] text-[14px] text-[#334155] outline-none w-full h-[42px] bg-white transition-all duration-200 focus:border-[#2c5282] focus:ring-[2px] focus:ring-[#2c5282]/10 cursor-pointer appearance-none"
                   name="role"
                   value={searchParams.role}
                   onChange={handleSearchChange}
@@ -231,97 +234,106 @@ const UserManager = () => {
         </div>
       </div>
 
-      <div className="table-container">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Họ tên</th>
-              <th className="text-center">Quyền</th>
-              <th className="col-action">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => {
-                const isAdmin = user.Role === "admin";
-                return (
-                  <tr key={user.UserID}>
-                    <td className="font-bold text-primary">{user.Username}</td>
-                    <td>{user.FullName}</td>
-                    <td className="text-center">{getRoleBadge(user.Role)}</td>
-                    <td className="col-action">
-                      <div className="btn-group">
-                        <button
-                          className="btn-icon btn-edit"
-                          onClick={() => !isAdmin && handleEdit(user)}
-                          disabled={isAdmin}
-                          title={
-                            isAdmin ? "Không thể sửa Admin" : "Sửa thông tin"
-                          }
-                          style={
-                            isAdmin
-                              ? { opacity: 0.5, cursor: "not-allowed" }
-                              : {}
-                          }
-                        >
-                          {isAdmin ? <FaBan /> : <FaEdit />}
-                        </button>
-
-                        <button
-                          className="btn-icon btn-delete"
-                          onClick={() => !isAdmin && handleDelete(user)}
-                          disabled={isAdmin}
-                          title={isAdmin ? "Không thể xóa Admin" : "Xóa"}
-                          style={
-                            isAdmin
-                              ? { opacity: 0.5, cursor: "not-allowed" }
-                              : {}
-                          }
-                        >
-                          {isAdmin ? <FaBan /> : <FaTrash />}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
+      {/* BẢNG DỮ LIỆU */}
+      <div className="bg-white rounded-t-lg shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] overflow-hidden border border-[#cbd5e1] mt-[20px]">
+        {/* Đã xóa min-h-[300px] để bảng co giãn vừa khít */}
+        <div className="w-full overflow-x-auto">
+          <table className="w-full border-collapse table-fixed min-w-[700px]">
+            <thead>
               <tr>
-                <td colSpan="4" className="text-center text-muted p-4">
-                  Không có dữ liệu
-                </td>
+                {/* Thay đổi lại tỷ lệ các cột cho chuẩn đẹp: Username (25%), Họ tên (45%), Quyền (15%), Thao tác (15%) */}
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-left p-[12px_15px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[25%]">Username</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-left p-[12px_15px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[45%]">Họ tên</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_15px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[15%]">Quyền</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_15px] align-middle border-r border-transparent leading-[1.3] w-[15%]">Thao tác</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((user) => {
+                  const isAdmin = user.Role === "admin";
+                  return (
+                    <tr key={user.UserID} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
+                      <td className="p-[10px_15px] border border-[#cbd5e1] align-middle break-words text-[13px] font-bold text-[#0d6efd]">{user.Username}</td>
+                      <td className="p-[10px_15px] border border-[#cbd5e1] align-middle break-words text-[13.5px]">{user.FullName}</td>
+                      <td className="p-[10px_15px] border border-[#cbd5e1] align-middle text-center break-words">{getRoleBadge(user.Role)}</td>
+                      <td className="p-[10px_15px] border border-[#cbd5e1] align-middle text-center">
+                        <div className="flex justify-center gap-[6px]">
+                          <button
+                            className={`w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white flex items-center justify-center transition-all ${
+                              isAdmin
+                                ? "opacity-50 cursor-not-allowed text-[#94a3b8]"
+                                : "text-[#64748b] cursor-pointer hover:-translate-y-[1px] hover:border-[#3b82f6] hover:text-[#3b82f6] hover:bg-[#eff6ff]"
+                            }`}
+                            onClick={() => !isAdmin && handleEdit(user)}
+                            disabled={isAdmin}
+                            title={
+                              isAdmin ? "Không thể sửa Admin" : "Sửa thông tin"
+                            }
+                          >
+                            {isAdmin ? <FaBan /> : <FaEdit />}
+                          </button>
+
+                          <button
+                            className={`w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white flex items-center justify-center transition-all ${
+                              isAdmin
+                                ? "opacity-50 cursor-not-allowed text-[#94a3b8]"
+                                : "text-[#64748b] cursor-pointer hover:-translate-y-[1px] hover:border-[#ef4444] hover:text-[#ef4444] hover:bg-[#fef2f2]"
+                            }`}
+                            onClick={() => !isAdmin && handleDelete(user)}
+                            disabled={isAdmin}
+                            title={isAdmin ? "Không thể xóa Admin" : "Xóa"}
+                          >
+                            {isAdmin ? <FaBan /> : <FaTrash />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="4" className="text-center p-[30px] text-[#999] border border-[#cbd5e1]">
+                    Không có dữ liệu
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="p-[12px_20px] border-t border-[#cbd5e1] bg-white flex justify-between items-center rounded-b-lg">
+          <div className="text-[#334155]">
+            Tổng số: <b className="text-[#2c5282] mx-[2px]">{filteredUsers.length}</b> người dùng
+          </div>
+        </div>
       </div>
 
+      {/* MODAL FORM */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>
+        <div className="fixed inset-0 bg-black/50 flex justify-center pt-[80px] z-[999]">
+          <div className="bg-white w-[600px] max-w-[95%] rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.2)] overflow-hidden h-fit">
+            <div className="bg-[#2c5282] text-white p-[15px_20px] flex justify-between items-center border-b border-[#1e3a8a]">
+              <h3 className="m-0 text-[16px] font-bold uppercase tracking-wide">
                 {isEditing ? "CẬP NHẬT THÔNG TIN" : "THÊM NGƯỜI DÙNG MỚI"}
               </h3>
-              <button className="btn-close" onClick={() => setShowModal(false)}>
+              <button className="bg-transparent border-none text-white/80 text-[20px] cursor-pointer hover:text-white transition-colors" onClick={() => setShowModal(false)}>
                 <FaTimes />
               </button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label>
+              <div className="p-[25px_30px]">
+                <div className="mb-[20px]">
+                  <label className="block font-semibold mb-[8px] text-[#334155] text-[13.5px]">
                     Tên tài khoản{" "}
                     {isEditing ? (
-                      "(Không thể sửa)"
+                      <span className="text-[#94a3b8] text-[12px] font-normal italic ml-[5px]">(Không thể sửa)</span>
                     ) : (
-                      <span className="req">*</span>
+                      <span className="text-[#ef4444] ml-[3px]">*</span>
                     )}
                   </label>
                   <input
                     type="text"
-                    className="input-lg"
+                    className="w-full p-[10px_15px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[42px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[rgba(44,82,130,0.15)] disabled:bg-[#f1f5f9] disabled:cursor-not-allowed transition-all"
                     value={formData.username}
                     onChange={(e) =>
                       setFormData({ ...formData, username: e.target.value })
@@ -329,28 +341,19 @@ const UserManager = () => {
                     required
                     disabled={isEditing}
                     placeholder="Nhập tên đăng nhập..."
-                    style={
-                      isEditing
-                        ? { backgroundColor: "#f0f0f0", cursor: "not-allowed" }
-                        : {}
-                    }
                   />
                 </div>
 
-                {/* LOGIC MỚI: Chỉ hiển thị vùng nhập password khi KHÔNG PHẢI LÀ EDIT (!isEditing) */}
                 {!isEditing && (
                   <>
-                    <div className="form-group">
-                      <label>
-                        Mật khẩu <span className="req">*</span>
+                    <div className="mb-[20px]">
+                      <label className="block font-semibold mb-[8px] text-[#334155] text-[13.5px]">
+                        Mật khẩu <span className="text-[#ef4444] ml-[3px]">*</span>
                       </label>
-                      <div
-                        className="password-input-wrapper"
-                        style={{ position: "relative" }}
-                      >
+                      <div className="relative flex items-center">
                         <input
                           type={showPassword ? "text" : "password"}
-                          className="input-lg"
+                          className="w-full p-[10px_40px_10px_15px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[42px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[rgba(44,82,130,0.15)] transition-all"
                           value={formData.password}
                           onChange={(e) =>
                             setFormData({
@@ -360,37 +363,25 @@ const UserManager = () => {
                           }
                           placeholder="Nhập mật khẩu..."
                           required
-                          style={{ paddingRight: "40px" }}
                         />
-                        <span
-                          className="eye-icon"
+                        <button
+                          type="button"
+                          className="absolute right-[5px] w-[32px] h-[32px] flex flex-col justify-center items-center cursor-pointer text-[#94a3b8] bg-transparent border-none hover:text-[#0ea5e9] transition-colors"
                           onClick={() => setShowPassword(!showPassword)}
-                          style={{
-                            position: "absolute",
-                            right: "10px",
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            cursor: "pointer",
-                            zIndex: 10,
-                            color: "#666",
-                          }}
                         >
                           {showPassword ? <FaEyeSlash /> : <FaEye />}
-                        </span>
+                        </button>
                       </div>
                     </div>
 
-                    <div className="form-group">
-                      <label>
-                        Xác nhận mật khẩu <span className="req">*</span>
+                    <div className="mb-[20px]">
+                      <label className="block font-semibold mb-[8px] text-[#334155] text-[13.5px]">
+                        Xác nhận mật khẩu <span className="text-[#ef4444] ml-[3px]">*</span>
                       </label>
-                      <div
-                        className="password-input-wrapper"
-                        style={{ position: "relative" }}
-                      >
+                      <div className="relative flex items-center">
                         <input
                           type={showConfirmPass ? "text" : "password"}
-                          className="input-lg"
+                          className="w-full p-[10px_40px_10px_15px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[42px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[rgba(44,82,130,0.15)] transition-all"
                           value={formData.confirmPassword}
                           onChange={(e) =>
                             setFormData({
@@ -400,35 +391,26 @@ const UserManager = () => {
                           }
                           placeholder="Nhập lại mật khẩu..."
                           required
-                          style={{ paddingRight: "40px" }}
                         />
-                        <span
-                          className="eye-icon"
+                        <button
+                          type="button"
+                          className="absolute right-[5px] w-[32px] h-[32px] flex flex-col justify-center items-center cursor-pointer text-[#94a3b8] bg-transparent border-none hover:text-[#0ea5e9] transition-colors"
                           onClick={() => setShowConfirmPass(!showConfirmPass)}
-                          style={{
-                            position: "absolute",
-                            right: "10px",
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            cursor: "pointer",
-                            zIndex: 10,
-                            color: "#666",
-                          }}
                         >
                           {showConfirmPass ? <FaEyeSlash /> : <FaEye />}
-                        </span>
+                        </button>
                       </div>
                     </div>
                   </>
                 )}
 
-                <div className="form-group">
-                  <label>
-                    Họ và tên <span className="req">*</span>
+                <div className="mb-[20px]">
+                  <label className="block font-semibold mb-[8px] text-[#334155] text-[13.5px]">
+                    Họ và tên <span className="text-[#ef4444] ml-[3px]">*</span>
                   </label>
                   <input
                     type="text"
-                    className="input-lg"
+                    className="w-full p-[10px_15px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[42px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[rgba(44,82,130,0.15)] transition-all"
                     value={formData.fullName}
                     onChange={(e) =>
                       setFormData({ ...formData, fullName: e.target.value })
@@ -438,10 +420,10 @@ const UserManager = () => {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Phân quyền</label>
+                <div className="mb-[10px]">
+                  <label className="block font-semibold mb-[8px] text-[#334155] text-[13.5px]">Phân quyền</label>
                   <select
-                    className="input-lg"
+                    className="w-full p-[10px_15px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[42px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[rgba(44,82,130,0.15)] bg-white cursor-pointer transition-all"
                     value={formData.role}
                     onChange={(e) =>
                       setFormData({ ...formData, role: e.target.value })
@@ -453,15 +435,15 @@ const UserManager = () => {
                 </div>
               </div>
 
-              <div className="modal-footer">
+              <div className="p-[15px_30px] bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end gap-[10px]">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="bg-[#64748b] text-white p-[8px_20px] rounded-[4px] border-none font-semibold cursor-pointer flex items-center gap-[6px] hover:bg-[#475569] transition-colors"
                   onClick={() => setShowModal(false)}
                 >
-                  <FaTimes /> Đóng
+                  <FaTimes /> Đóng lại
                 </button>
-                <button type="submit" className="btn-success">
+                <button type="submit" className="bg-[#15803d] text-white p-[8px_20px] rounded-[4px] border-none font-semibold cursor-pointer flex items-center gap-[6px] hover:bg-[#166534] transition-colors">
                   <FaSave /> {isEditing ? "Cập nhật" : "Tạo tài khoản"}
                 </button>
               </div>

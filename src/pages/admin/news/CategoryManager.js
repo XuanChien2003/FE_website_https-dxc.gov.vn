@@ -14,7 +14,6 @@ import {
   FaFolderOpen,
   FaSearch,
 } from "react-icons/fa";
-import "./CategoryManager.css";
 
 const CategoryManager = () => {
   const [categories, setCategories] = useState([]);
@@ -102,7 +101,6 @@ const CategoryManager = () => {
     return sortTree(tree);
   };
 
-  // --- HÀM TOGGLE (QUAN TRỌNG: FIX LỖI CLICK) ---
   const toggleNode = (id) => {
     setExpandedNodes((prev) => ({
       ...prev,
@@ -123,18 +121,18 @@ const CategoryManager = () => {
   // --- RENDER NODE (ĐỆ QUY) ---
   const renderTreeNodes = (nodes) => {
     return (
-      <ul className="tree-list">
+      <ul className="list-none p-0 m-0">
         {nodes.map((node) => {
           const hasChildren = node.children && node.children.length > 0;
           const isExpanded = !!expandedNodes[node.CategoryID];
 
           return (
-            <li key={node.CategoryID} className="tree-node">
-              <div className="tree-content">
+            <li key={node.CategoryID} className="mb-[2px] relative">
+              <div className="flex items-center p-[6px_5px] rounded-[4px] transition-colors duration-100 cursor-default hover:bg-[#f1f5f9] group/item">
                 {/* 1. Icon Đóng/Mở (+/-) */}
                 <span
-                  className={`toggle-icon ${
-                    hasChildren ? "clickable" : "spacer"
+                  className={`flex items-center justify-center w-[24px] h-[24px] rounded-[3px] mr-[5px] text-[#64748b] text-[14px] ${
+                    hasChildren ? "cursor-pointer hover:bg-[#e2e8f0] hover:text-[#2c5282]" : ""
                   }`}
                   onClick={(e) => {
                     // Ngăn sự kiện nổi bọt để tránh click nhầm vào dòng
@@ -144,17 +142,17 @@ const CategoryManager = () => {
                 >
                   {hasChildren ? (
                     isExpanded ? (
-                      <FaMinusSquare className="ico-collapse" />
+                      <FaMinusSquare className="text-[#64748b]" />
                     ) : (
-                      <FaPlusSquare className="ico-expand" />
+                      <FaPlusSquare className="text-[#2c5282]" />
                     )
                   ) : (
-                    <span className="dot"></span>
+                    <span className="w-[6px] h-[6px] bg-[#cbd5e1] rounded-full"></span>
                   )}
                 </span>
 
                 {/* 2. Icon Folder */}
-                <span className="node-icon">
+                <span className="flex items-center mr-[8px] text-[18px]">
                   {hasChildren ? (
                     isExpanded ? (
                       <FaFolderOpen style={{ color: "#f59e0b" }} />
@@ -167,24 +165,24 @@ const CategoryManager = () => {
                 </span>
 
                 {/* 3. Tên & STT */}
-                <span className="node-title" onClick={() => handleEdit(node)}>
+                <span className="flex-1 font-medium text-[#333] cursor-pointer select-none hover:text-[#0d6efd]" onClick={() => handleEdit(node)}>
                   {node.Title}
                   {node.STT > 0 && (
-                    <span className="node-stt"> (STT: {node.STT})</span>
+                    <span className="text-[11px] text-[#999] ml-[8px] font-normal italic"> (STT: {node.STT})</span>
                   )}
                 </span>
 
                 {/* 4. Actions Hover */}
-                <div className="node-actions">
+                <div className="hidden gap-[5px] ml-[10px] group-hover/item:flex">
                   <button
-                    className="btn-icon-mini edit"
+                    className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#eff6ff] hover:text-[#0d6efd] hover:border-[#0d6efd]"
                     onClick={() => handleEdit(node)}
                     title="Sửa"
                   >
                     <FaEdit />
                   </button>
                   <button
-                    className="btn-icon-mini delete"
+                    className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
                     onClick={() => handleDelete(node.CategoryID)}
                     title="Xóa"
                   >
@@ -195,7 +193,7 @@ const CategoryManager = () => {
 
               {/* 5. Render Con (Chỉ hiện khi cha đang mở) */}
               {hasChildren && isExpanded && (
-                <div className="tree-children">
+                <div className="pl-[27px] border-l border-dotted border-[#ccc] ml-[9px]">
                   {renderTreeNodes(node.children)}
                 </div>
               )}
@@ -258,23 +256,24 @@ const CategoryManager = () => {
   const treeData = buildTree(categories);
 
   return (
-    <div className="category-manager">
+    <div className="p-[20px] bg-[#f8fafc] min-h-screen font-sans text-[#334155] text-[14px] flex flex-col gap-[15px]">
       {/* HEADER MÀU XANH CHUẨN */}
-      <div className="page-header">
-        <h2 className="page-title">
+      <div className="flex justify-between items-center bg-white p-[15px_20px] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.1)] border-l-[5px] border-[#2c5282]">
+        <h2 className="text-[18px] font-bold text-[#2c5282] flex items-center gap-[10px] uppercase m-0">
           <FaTags /> QUẢN TRỊ CHUYÊN MỤC
         </h2>
-        <div className="header-actions">
-          <div className="search-wrapper">
-            <FaSearch className="search-icon" />
+        <div className="flex gap-[10px]">
+          <div className="relative">
+            <FaSearch className="absolute left-[10px] top-1/2 -translate-y-1/2 text-[#999]" />
             <input
+              className="p-[0_10px_0_35px] border border-[#ccc] rounded-[4px] text-[13px] w-[250px] h-[36px] outline-none"
               type="text"
               placeholder="Tìm kiếm..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="btn btn-primary" onClick={handleOpenAdd}>
+          <button className="bg-[#2c5282] text-white border-none px-[16px] rounded-[4px] font-semibold cursor-pointer h-[36px] flex items-center gap-[6px] transition-all duration-200 hover:bg-[#1e3a8a]" onClick={handleOpenAdd}>
             <FaPlus /> Thêm mới
           </button>
         </div>
@@ -282,36 +281,36 @@ const CategoryManager = () => {
 
       {/* TOOLBAR */}
       {!searchTerm && (
-        <div className="tree-toolbar">
-          <button className="btn-tool" onClick={collapseAll}>
+        <div className="bg-white p-[10px_15px] border border-[#cbd5e1] border-b-0 rounded-t-lg flex gap-[10px]">
+          <button className="bg-[#f1f5f9] border border-[#cbd5e1] text-[#334155] p-[5px_12px] rounded-[4px] cursor-pointer font-semibold text-[13px] flex items-center gap-[6px] transition-all duration-200 hover:bg-[#e2e8f0] hover:text-[#2c5282]" onClick={collapseAll}>
             <FaMinusSquare /> Đóng tất cả
           </button>
-          <button className="btn-tool" onClick={expandAll}>
+          <button className="bg-[#f1f5f9] border border-[#cbd5e1] text-[#334155] p-[5px_12px] rounded-[4px] cursor-pointer font-semibold text-[13px] flex items-center gap-[6px] transition-all duration-200 hover:bg-[#e2e8f0] hover:text-[#2c5282]" onClick={expandAll}>
             <FaPlusSquare /> Mở tất cả
           </button>
         </div>
       )}
 
       {/* TREE VIEW */}
-      <div className="tree-container">
+      <div className={`bg-white border border-[#cbd5e1] p-[20px] min-h-[400px] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] ${searchTerm ? 'rounded-lg' : 'rounded-b-lg'}`}>
         {categories.length > 0 ? (
           searchTerm ? (
             // List phẳng khi search
-            <ul className="tree-list">
+            <ul className="list-none p-0 m-0">
               {filteredCats.map((node) => (
-                <li key={node.CategoryID} className="tree-node">
-                  <div className="tree-content">
-                    <span className="dot"></span>
-                    <span className="node-title">{node.Title}</span>
-                    <div className="node-actions" style={{ display: "flex" }}>
+                <li key={node.CategoryID} className="mb-[2px] relative">
+                  <div className="flex items-center p-[6px_5px] rounded-[4px] transition-colors duration-100 cursor-default hover:bg-[#f1f5f9] group/item">
+                    <span className="w-[6px] h-[6px] bg-[#cbd5e1] rounded-full mx-[9px]"></span>
+                    <span className="flex-1 font-medium text-[#333] cursor-pointer select-none hover:text-[#0d6efd]">{node.Title}</span>
+                    <div className="hidden gap-[5px] ml-[10px] group-hover/item:flex">
                       <button
-                        className="btn-icon-mini edit"
+                        className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#eff6ff] hover:text-[#0d6efd] hover:border-[#0d6efd]"
                         onClick={() => handleEdit(node)}
                       >
                         <FaEdit />
                       </button>
                       <button
-                        className="btn-icon-mini delete"
+                        className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
                         onClick={() => handleDelete(node.CategoryID)}
                       >
                         <FaTrash />
@@ -325,29 +324,29 @@ const CategoryManager = () => {
             renderTreeNodes(treeData)
           )
         ) : (
-          <p className="no-data">Chưa có dữ liệu chuyên mục</p>
+          <p className="text-center text-[#999] p-[20px] italic">Chưa có dữ liệu chuyên mục</p>
         )}
       </div>
 
       {/* MODAL */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>{isEditing ? "CẬP NHẬT CHUYÊN MỤC" : "THÊM CHUYÊN MỤC"}</h3>
-              <button className="btn-close" onClick={() => setShowModal(false)}>
+        <div className="fixed inset-0 bg-black/50 flex justify-center pt-[80px] z-[999]">
+          <div className="bg-white w-[500px] rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.2)] overflow-hidden h-fit">
+            <div className="bg-[#2c5282] text-white p-[15px_20px] flex justify-between items-center">
+              <h3 className="m-0 text-[16px] font-bold uppercase">{isEditing ? "CẬP NHẬT CHUYÊN MỤC" : "THÊM CHUYÊN MỤC"}</h3>
+              <button className="bg-transparent border-none text-white/80 text-[20px] cursor-pointer hover:text-white" onClick={() => setShowModal(false)}>
                 <FaTimes />
               </button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label>
-                    Tên chuyên mục <span className="req">*</span>
+              <div className="p-[25px_30px]">
+                <div className="mb-[20px]">
+                  <label className="block font-semibold mb-[8px] text-[#334155]">
+                    Tên chuyên mục <span className="text-[#ef4444]">*</span>
                   </label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                     value={formData.title}
                     onChange={(e) =>
                       setFormData({ ...formData, title: e.target.value })
@@ -356,11 +355,11 @@ const CategoryManager = () => {
                     autoFocus
                   />
                 </div>
-                <div className="form-group">
-                  <label>STT (Thứ tự)</label>
+                <div className="mb-[20px]">
+                  <label className="block font-semibold mb-[8px] text-[#334155]">STT (Thứ tự)</label>
                   <input
                     type="number"
-                    className="form-control"
+                    className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                     value={formData.stt}
                     onChange={(e) =>
                       setFormData({
@@ -370,10 +369,10 @@ const CategoryManager = () => {
                     }
                   />
                 </div>
-                <div className="form-group">
-                  <label>Chuyên mục cha</label>
+                <div className="mb-[20px]">
+                  <label className="block font-semibold mb-[8px] text-[#334155]">Chuyên mục cha</label>
                   <select
-                    className="form-control"
+                    className="w-full p-[8px_12px] border border-[#cbd5e1] rounded-[4px] text-[14px] outline-none h-[40px] focus:border-[#2c5282] focus:ring-[3px] focus:ring-[#2c5282]/15"
                     value={formData.parentID}
                     onChange={(e) =>
                       setFormData({
@@ -393,15 +392,15 @@ const CategoryManager = () => {
                   </select>
                 </div>
               </div>
-              <div className="modal-footer">
+              <div className="p-[15px_30px] bg-[#f8fafc] border-t border-[#e2e8f0] flex justify-end gap-[10px]">
                 <button
                   type="button"
-                  className="btn-secondary"
+                  className="bg-[#64748b] text-white border-none p-[8px_20px] rounded-[4px] cursor-pointer font-semibold hover:bg-[#475569]"
                   onClick={() => setShowModal(false)}
                 >
                   Đóng lại
                 </button>
-                <button type="submit" className="btn-success">
+                <button type="submit" className="bg-[#15803d] flex items-center gap-[6px] text-white border-none p-[8px_20px] rounded-[4px] cursor-pointer font-semibold hover:bg-[#166534]">
                   <FaSave /> {isEditing ? "Cập nhật" : "Lưu lại"}
                 </button>
               </div>

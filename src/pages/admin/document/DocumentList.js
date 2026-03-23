@@ -16,7 +16,6 @@ import {
   FaTag,
   FaInfoCircle,
 } from "react-icons/fa";
-import "./DocumentList.css";
 
 const DocumentList = () => {
   const navigate = useNavigate();
@@ -46,7 +45,6 @@ const DocumentList = () => {
     let results = docs;
 
     // 1. Lọc theo Từ khóa & Phạm vi
-    // "Lĩnh vực" giờ đã nằm trong scope (FieldName)
     if (searchParams.keyword) {
       const term = searchParams.keyword.toLowerCase();
       const scope = searchParams.scope;
@@ -57,7 +55,7 @@ const DocumentList = () => {
             doc.DocNumber?.toLowerCase().includes(term) ||
             doc.AgencyName?.toLowerCase().includes(term) ||
             doc.TypeName?.toLowerCase().includes(term) ||
-            doc.FieldName?.toLowerCase().includes(term) || // Tìm cả lĩnh vực
+            doc.FieldName?.toLowerCase().includes(term) ||
             doc.SignerName?.toLowerCase().includes(term) ||
             doc.Title?.toLowerCase().includes(term) ||
             doc.CreatedBy?.toLowerCase().includes(term) ||
@@ -73,7 +71,7 @@ const DocumentList = () => {
         if (scope === "TypeName")
           return doc.TypeName?.toLowerCase().includes(term);
         if (scope === "FieldName")
-          return doc.FieldName?.toLowerCase().includes(term); // Lĩnh vực nằm ở đây
+          return doc.FieldName?.toLowerCase().includes(term);
         if (scope === "SignerName")
           return doc.SignerName?.toLowerCase().includes(term);
         if (scope === "Title") return doc.Title?.toLowerCase().includes(term);
@@ -136,20 +134,22 @@ const DocumentList = () => {
     }
   };
   const displayDate = (d) => (d ? new Date(d).toLocaleDateString("vi-VN") : "");
+
   const getTypeClass = (t) => {
     const m = {
-      "Quyết định": "type-qd",
-      "Nghị định": "type-nd",
-      "Chỉ thị": "type-ct",
-      "Thông tư": "type-tt",
-      "Công văn": "type-cv",
+      "Quyết định": "bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd]",
+      "Nghị định": "bg-[#dcfce7] text-[#15803d] border border-[#bbf7d0]",
+      "Chỉ thị": "bg-[#fef9c3] text-[#a16207] border border-[#fde047]",
+      "Thông tư": "bg-[#fee2e2] text-[#b91c1c] border border-[#fecaca]",
+      "Công văn": "bg-[#f1f5f9] text-[#475569] border border-[#e2e8f0]",
     };
-    return m[t] || "";
+    return m[t] || "bg-[#f1f5f9] text-[#475569] border border-[#e2e8f0]";
   };
+
   const getStatusClass = (s) => {
-    if (s === "Đã xuất bản") return "status-published";
-    if (s === "Chưa xuất bản") return "status-pending";
-    return "status-default";
+    if (s === "Đã xuất bản") return "bg-[#22c55e] text-white";
+    if (s === "Chưa xuất bản") return "bg-[#f59e0b] text-white";
+    return "bg-[#e2e8f0] text-[#475569]";
   };
 
   // Pagination
@@ -187,22 +187,23 @@ const DocumentList = () => {
         );
     }
     return (
-      <div className="pagination">
+      <div className="flex gap-[4px]">
         <button
+          className="min-w-[30px] h-[30px] border border-[#cbd5e1] flex items-center justify-center bg-white rounded-[4px] cursor-pointer disabled:opacity-50 transition-colors"
           onClick={() => goToPage(currentPage - 1)}
           disabled={currentPage === 1}
         >
-          <FaChevronLeft />
+          <FaChevronLeft className="text-[12px]" />
         </button>
         {pages.map((p, i) =>
           p === "..." ? (
-            <span key={i} className="page-ellipsis">
+            <span key={i} className="flex items-center justify-center min-w-[30px] h-[30px] text-[#94a3b8]">
               ...
             </span>
           ) : (
             <button
               key={i}
-              className={currentPage === p ? "active" : ""}
+              className={`min-w-[30px] h-[30px] border border-[#cbd5e1] bg-white rounded-[4px] cursor-pointer transition-colors ${currentPage === p ? 'bg-[#2c5282] text-white border-[#2c5282]' : 'hover:bg-slate-50'}`}
               onClick={() => goToPage(p)}
             >
               {p}
@@ -210,46 +211,47 @@ const DocumentList = () => {
           )
         )}
         <button
+          className="min-w-[30px] h-[30px] border border-[#cbd5e1] flex items-center justify-center bg-white rounded-[4px] cursor-pointer disabled:opacity-50 transition-colors"
           onClick={() => goToPage(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
-          <FaChevronRight />
+          <FaChevronRight className="text-[12px]" />
         </button>
       </div>
     );
   };
 
   return (
-    <div className="document-manager">
-      <div className="page-header">
-        <h2 className="page-title">
+    <div className="p-[20px] bg-[#f8fafc] min-h-screen font-sans text-[13.5px] text-[#334155]">
+      <div className="flex justify-between items-center mb-[20px] bg-white p-[15px_20px] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.1)] border-l-[5px] border-[#2c5282]">
+        <h2 className="text-[18px] font-bold text-[#2c5282] flex items-center gap-[10px] uppercase m-0">
           <FaFileAlt /> QUẢN LÝ VĂN BẢN
         </h2>
-        <div className="header-actions">
+        <div className="flex gap-[10px]">
           <button
-            className={`search-toggle-btn ${showSearch ? "active" : ""}`}
+            className={`bg-white border text-[#2c5282] py-[8px] px-[16px] rounded-md font-semibold flex items-center gap-[8px] cursor-pointer transition-all duration-200 hover:bg-[#eff6ff] hover:border-[#2c5282] ${showSearch ? 'bg-[#eff6ff] border-[#2c5282]' : 'border-[#cbd5e1]'}`}
             onClick={() => setShowSearch(!showSearch)}
           >
             {showSearch ? <FaTimes /> : <FaFilter />}{" "}
             {showSearch ? "Đóng tìm kiếm" : "Bộ lọc tìm kiếm"}
           </button>
-          <button className="btn-primary" onClick={() => navigate("add")}>
+          <button className="bg-[#2c5282] text-white border-none py-[9px] px-[18px] rounded-md font-semibold flex items-center gap-[8px] cursor-pointer transition-colors duration-200 hover:bg-[#1e3a8a]" onClick={() => navigate("add")}>
             <FaPlus /> Thêm mới
           </button>
         </div>
       </div>
 
       {/* --- FORM TÌM KIẾM --- */}
-      <div className={`advanced-search-container ${showSearch ? "open" : ""}`}>
-        <div className="search-panel">
+      <div className={`overflow-hidden transition-all duration-400 opacity-0 mb-0 ${showSearch ? 'max-h-[500px] opacity-100 mb-[20px]' : 'max-h-0'}`}>
+        <div className="bg-white p-[25px] rounded-lg border border-[#cbd5e1] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] flex flex-col gap-[15px]">
           {/* HÀNG 1: TỪ KHÓA + TÌM THEO (Bao gồm cả Lĩnh vực trong này) */}
-          <div className="search-row">
-            <div className="search-group" style={{ flex: 2 }}>
-              <div className="input-with-icon">
-                <FaSearch className="input-icon left" />
+          <div className="flex gap-[15px] w-full flex-col md:flex-row md:gap-[15px]">
+            <div className="flex flex-col flex-[2]">
+              <div className="relative w-full">
+                <FaSearch className="absolute top-1/2 -translate-y-1/2 text-[#94a3b8] text-[14px] left-[12px]" />
                 <input
                   type="text"
-                  className="form-control"
+                  className="p-[10px_12px_10px_36px] border border-[#d1d5db] rounded-[4px] text-[14px] text-[#334155] outline-none w-full h-[42px] bg-white transition-all duration-200 focus:border-[#2c5282] focus:ring-[2px] focus:ring-[#2c5282]/10"
                   name="keyword"
                   placeholder="Từ khóa tìm kiếm"
                   value={searchParams.keyword}
@@ -258,11 +260,11 @@ const DocumentList = () => {
               </div>
             </div>
 
-            <div className="search-group" style={{ flex: 1 }}>
-              <div className="input-with-icon">
-                <FaTag className="input-icon left" />
+            <div className="flex flex-col flex-1">
+              <div className="relative w-full">
+                <FaTag className="absolute top-1/2 -translate-y-1/2 text-[#94a3b8] text-[14px] left-[12px]" />
                 <select
-                  className="form-control"
+                  className="p-[10px_12px_10px_36px] border border-[#d1d5db] rounded-[4px] text-[14px] text-[#334155] outline-none w-full h-[42px] bg-white transition-all duration-200 focus:border-[#2c5282] focus:ring-[2px] focus:ring-[#2c5282]/10 cursor-pointer appearance-none"
                   name="scope"
                   value={searchParams.scope}
                   onChange={handleSearchChange}
@@ -271,8 +273,7 @@ const DocumentList = () => {
                   <option value="DocNumber">Số/Ký hiệu</option>
                   <option value="AgencyName">Cơ quan ban hành</option>
                   <option value="TypeName">Loại văn bản</option>
-                  <option value="FieldName">Lĩnh vực</option>{" "}
-                  {/* Đã đưa vào đây */}
+                  <option value="FieldName">Lĩnh vực</option>
                   <option value="SignerName">Người ký</option>
                   <option value="Title">Trích Yếu</option>
                   <option value="CreatedBy">Người tạo</option>
@@ -283,12 +284,12 @@ const DocumentList = () => {
           </div>
 
           {/* HÀNG 2: TRẠNG THÁI (Riêng biệt, full width cho đẹp) */}
-          <div className="search-row">
-            <div className="search-group full-width">
-              <div className="input-with-icon">
-                <FaInfoCircle className="input-icon left" />
+          <div className="flex gap-[15px] w-full flex-col md:flex-row md:gap-[15px]">
+            <div className="flex flex-col flex-1 w-full">
+              <div className="relative w-full">
+                <FaInfoCircle className="absolute top-1/2 -translate-y-1/2 text-[#94a3b8] text-[14px] left-[12px]" />
                 <select
-                  className="form-control"
+                  className="p-[10px_12px_10px_36px] border border-[#d1d5db] rounded-[4px] text-[14px] text-[#334155] outline-none w-full h-[42px] bg-white transition-all duration-200 focus:border-[#2c5282] focus:ring-[2px] focus:ring-[#2c5282]/10 cursor-pointer appearance-none"
                   name="publishStatus"
                   value={searchParams.publishStatus}
                   onChange={handleSearchChange}
@@ -302,15 +303,15 @@ const DocumentList = () => {
           </div>
 
           {/* HÀNG 3: NGÀY + NÚT */}
-          <div className="search-row bottom-row">
-            <div className="search-group">
-              <div className="input-with-icon">
-                <FaCalendarAlt className="input-icon left" />
+          <div className="flex gap-[15px] w-full flex-col md:flex-row md:gap-[15px]">
+            <div className="flex flex-col flex-1">
+              <div className="relative w-full">
+                <FaCalendarAlt className="absolute top-1/2 -translate-y-1/2 text-[#94a3b8] text-[14px] left-[12px]" />
                 <input
                   type="text"
                   onFocus={(e) => (e.target.type = "date")}
                   onBlur={(e) => (e.target.type = "text")}
-                  className="form-control"
+                  className="p-[10px_12px_10px_36px] border border-[#d1d5db] rounded-[4px] text-[14px] text-[#334155] outline-none w-full h-[42px] bg-white transition-all duration-200 focus:border-[#2c5282] focus:ring-[2px] focus:ring-[#2c5282]/10"
                   name="dateFrom"
                   placeholder="Ngày tạo"
                   value={searchParams.dateFrom}
@@ -319,14 +320,14 @@ const DocumentList = () => {
               </div>
             </div>
 
-            <div className="search-group">
-              <div className="input-with-icon">
-                <FaCalendarAlt className="input-icon left" />
+            <div className="flex flex-col flex-1">
+              <div className="relative w-full">
+                <FaCalendarAlt className="absolute top-1/2 -translate-y-1/2 text-[#94a3b8] text-[14px] left-[12px]" />
                 <input
                   type="text"
                   onFocus={(e) => (e.target.type = "date")}
                   onBlur={(e) => (e.target.type = "text")}
-                  className="form-control"
+                  className="p-[10px_12px_10px_36px] border border-[#d1d5db] rounded-[4px] text-[14px] text-[#334155] outline-none w-full h-[42px] bg-white transition-all duration-200 focus:border-[#2c5282] focus:ring-[2px] focus:ring-[#2c5282]/10"
                   name="dateTo"
                   placeholder="Ngày kết"
                   value={searchParams.dateTo}
@@ -335,8 +336,8 @@ const DocumentList = () => {
               </div>
             </div>
 
-            <div className="search-group btn-container">
-              <button className="btn-search-block" onClick={() => {}}>
+            <div className="flex-[0_0_150px] md:w-auto w-full">
+              <button className="w-full h-[42px] bg-[#4285f4] text-white border-none rounded-[4px] font-semibold text-[14px] flex items-center justify-center gap-[8px] cursor-pointer transition-opacity duration-200 hover:opacity-90" onClick={() => { }}>
                 <FaSearch /> Tìm kiếm
               </button>
             </div>
@@ -344,67 +345,59 @@ const DocumentList = () => {
         </div>
       </div>
 
-      <div className="table-container">
-        <div className="table-scroll">
-          <table className="data-table">
+      <div className="bg-white rounded-t-lg shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] overflow-hidden border border-[#cbd5e1] mt-[20px]">
+        <div className="w-full overflow-x-auto min-h-[300px]">
+          <table className="w-full border-collapse table-fixed min-w-[1100px]">
             <thead>
               <tr>
-                <th className="col-number">Số/Ký hiệu</th>
-                <th className="col-date">Ban hành</th>
-                <th className="col-date">Hiệu lực</th>
-                <th className="col-agency">Cơ quan</th>
-                <th className="col-type">Loại</th>
-                <th className="col-field">Lĩnh vực</th>
-                <th className="col-signer">Người ký</th>
-                <th className="col-title">Trích Yếu</th>
-                <th className="col-info">Người tạo</th>
-                <th className="col-info">Người sửa cuối</th>
-                <th className="col-status">Trạng thái</th>
-                <th className="col-actions">Thao tác</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[8%]">Số/Ký hiệu</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[6.5%]">Ban hành</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[6.5%]">Hiệu lực</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[11%]">Cơ quan</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[7%]">Loại</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[7%]">Lĩnh vực</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[9%]">Người ký</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[15%]">Trích Yếu</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[7%]">Người tạo</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[7%]">Người sửa cuối</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-[#ffffff]/30 leading-[1.3] w-[8%]">Trạng thái</th>
+                <th className="bg-[#2c5282] text-white font-semibold uppercase text-[12px] text-center p-[12px_2px] align-middle border-r border-transparent leading-[1.3] w-[7%]">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {currentItems.length > 0 ? (
                 currentItems.map((doc) => (
-                  <tr key={doc.DocID}>
-                    <td className="col-number">{doc.DocNumber}</td>
-                    <td className="col-date">{displayDate(doc.IssueDate)}</td>
-                    <td className="col-date">
-                      {displayDate(doc.EffectiveDate)}
-                    </td>
-                    <td className="col-agency">{doc.AgencyName}</td>
-                    <td className="col-type">
-                      <span
-                        className={`doc-type ${getTypeClass(doc.TypeName)}`}
-                      >
+                  <tr key={doc.DocID} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-semibold text-[#2c5282] text-center">{doc.DocNumber}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12.5px] text-center">{displayDate(doc.IssueDate)}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12.5px] text-center">{displayDate(doc.EffectiveDate)}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px]">{doc.AgencyName}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] text-center">
+                      <span className={`inline-block p-[2px_6px] rounded-[4px] text-[11px] font-semibold whitespace-nowrap ${getTypeClass(doc.TypeName)}`}>
                         {doc.TypeName}
                       </span>
                     </td>
-                    <td className="col-field">{doc.FieldName}</td>
-                    <td className="col-signer">{doc.SignerName}</td>
-                    <td className="col-title">{doc.Title}</td>
-                    <td className="col-info">{doc.CreatedBy}</td>
-                    <td className="col-info">{doc.UpdatedBy}</td>
-                    <td className="col-status">
-                      <span
-                        className={`doc-status ${getStatusClass(
-                          doc.PublishStatus
-                        )}`}
-                      >
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px]">{doc.FieldName}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px]">{doc.SignerName}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] leading-[1.4] text-justify">{doc.Title}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] text-[#475569]">{doc.CreatedBy}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] text-[#475569]">{doc.UpdatedBy}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] text-center">
+                      <span className={`inline-block p-[2px_8px] rounded-[50px] text-[11px] font-semibold whitespace-nowrap ${getStatusClass(doc.PublishStatus)}`}>
                         {doc.PublishStatus || "Chưa cập nhật"}
                       </span>
                     </td>
-                    <td className="col-actions">
-                      <div className="btn-group">
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] text-center">
+                      <div className="flex justify-center gap-[4px]">
                         <button
-                          className="btn-icon btn-edit"
+                          className="w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white text-[#64748b] cursor-pointer flex items-center justify-center transition-all hover:-translate-y-[1px] hover:border-[#3b82f6] hover:text-[#3b82f6] hover:bg-[#eff6ff]"
                           title="Sửa"
                           onClick={() => navigate(`edit/${doc.DocID}`)}
                         >
                           <FaEdit />
                         </button>
                         <button
-                          className="btn-icon btn-delete"
+                          className="w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white text-[#64748b] cursor-pointer flex items-center justify-center transition-all hover:-translate-y-[1px] hover:border-[#ef4444] hover:text-[#ef4444] hover:bg-[#fef2f2]"
                           title="Xóa"
                           onClick={() => handleDelete(doc.DocID)}
                         >
@@ -416,7 +409,7 @@ const DocumentList = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="12" className="no-data">
+                  <td colSpan="12" className="text-center p-[30px] text-[#999] border border-[#cbd5e1]">
                     Không có dữ liệu phù hợp
                   </td>
                 </tr>
@@ -424,9 +417,9 @@ const DocumentList = () => {
             </tbody>
           </table>
         </div>
-        <div className="table-footer">
-          <div>
-            Hiển thị <b>{currentItems.length}</b> / <b>{filteredDocs.length}</b>{" "}
+        <div className="p-[12px_20px] border-t border-[#cbd5e1] bg-white flex justify-between items-center rounded-b-lg">
+          <div className="text-[#334155]">
+            Hiển thị <b className="text-[#2c5282]">{currentItems.length}</b> / <b className="text-[#2c5282]">{filteredDocs.length}</b>{" "}
             văn bản
           </div>
           {totalPages > 1 && renderPagination()}

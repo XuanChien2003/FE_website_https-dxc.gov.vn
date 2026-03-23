@@ -29,6 +29,7 @@ import SlideManager from "./pages/admin/slide/SlideManager";
 import WebLinkManager from "./pages/admin/weblink/WebLinkManager";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import FloatingChatbot from "./components/FloatingChatbot";
 import UserProfile from "./pages/user/UserProfile";
 import DocumentDetail from "./pages/home/DocumentDetail";
 import NewsPage from "./pages/home/NewsPage";
@@ -45,6 +46,7 @@ const ClientLayout = () => {
         <Outlet />
       </div>
       <Footer />
+      <FloatingChatbot />
     </div>
   );
 };

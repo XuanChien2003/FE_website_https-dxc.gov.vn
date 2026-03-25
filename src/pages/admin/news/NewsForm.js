@@ -387,15 +387,18 @@ const NewsForm = () => {
     
     setIsGeneratingAI(true);
     try {
-      // Gọi trực tiếp Local AI Server (VD: LM Studio)
-      const res = await fetch("http://127.0.0.1:8045/v1/chat/completions", {
+      const apiUrl = process.env.REACT_APP_AI_API_URL || "https://api.groq.com/openai/v1/chat/completions";
+      const apiKey = process.env.REACT_APP_AI_API_KEY || "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";
+      const aiModel = process.env.REACT_APP_AI_MODEL || "llama-3.3-70b-versatile";
+
+      const res = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer sk-4a02b88bd1dd4eacb072351ae94298c0"
+          "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "gemini-3-flash",
+          model: aiModel,
           messages: [
             { role: "system", content: "Bạn là một nhà báo, biên tập viên. Hãy viết một bài tin tức bằng tiếng Việt dựa trên yêu cầu của người dùng. Trả về định dạng HTML (chỉ dùng thẻ phổ biến như p, h2, h3, ul, li; không có thẻ html, head, body)." },
             { role: "user", content: aiPrompt }
@@ -420,7 +423,7 @@ const NewsForm = () => {
       setShowAIModal(false);
     } catch (error) {
       console.error(error);
-      toast.error("Không thể kết nối với AI. Hãy chắc chắn Local AI đang chạy ở http://127.0.0.1:8045");
+      toast.error("Không thể kết nối với AI trực tuyến. Vui lòng kiểm tra lại API Key hoặc Endpoint URL trong cấu hình.");
     } finally {
       setIsGeneratingAI(false);
     }

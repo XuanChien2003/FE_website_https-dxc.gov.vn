@@ -32,15 +32,18 @@ const FloatingChatbot = () => {
     setIsLoading(true);
     
     try {
-      // Gọi trực tiếp Local AI Server (VD: LM Studio, vLLM)
-      const res = await fetch("http://127.0.0.1:8045/v1/chat/completions", {
+      const apiUrl = process.env.REACT_APP_AI_API_URL || "https://api.groq.com/openai/v1/chat/completions";
+      const apiKey = process.env.REACT_APP_AI_API_KEY || "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";
+      const aiModel = process.env.REACT_APP_AI_MODEL || "llama-3.3-70b-versatile";
+
+      const res = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer sk-4a02b88bd1dd4eacb072351ae94298c0"
+          "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "gemini-3-flash",
+          model: aiModel,
           messages: [
             { role: "system", content: "Bạn là trợ lý ảo AI của Cổng Thông tin điện tử. Hãy trả lời ngắn gọn, lịch sự bằng tiếng Việt." },
             ...messages.map(m => ({ role: m.role === "bot" ? "assistant" : m.role, content: m.content })),
@@ -60,7 +63,7 @@ const FloatingChatbot = () => {
       console.error(err);
       setMessages((prev) => [
         ...prev, 
-        { role: "bot", content: "Xin lỗi, không thể kết nối đến AI. Hãy chắc chắn rằng Local AI Server (VD: LM Studio) đang chạy ở http://127.0.0.1:8045" }
+        { role: "bot", content: "Xin lỗi, không thể kết nối đến AI trực tuyến. Vui lòng kiểm tra lại API Key hoặc cấu hình mạng." }
       ]);
     } finally {
       setIsLoading(false);

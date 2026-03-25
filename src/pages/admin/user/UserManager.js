@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../services/api";
+import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaUserCog,
@@ -52,21 +52,25 @@ const UserManager = () => {
       const term = searchParams.keyword.toLowerCase();
       results = results.filter(
         (u) =>
-          (u.Username && u.Username.toLowerCase().includes(term)) ||
-          (u.FullName && u.FullName.toLowerCase().includes(term)),
+          (u.username && u.username.toLowerCase().includes(term)) ||
+          (u.fullname && u.fullname.toLowerCase().includes(term)),
       );
     }
     if (searchParams.role !== "all") {
-      results = results.filter((u) => u.Role === searchParams.role);
+      results = results.filter((u) => u.role === searchParams.role);
     }
     setFilteredUsers(results);
   }, [searchParams, users]);
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get("/users");
-      setUsers(res.data);
-      setFilteredUsers(res.data);
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('username');
+      if (error) throw error;
+      setUsers(data || []);
+      setFilteredUsers(data || []);
     } catch (err) {
       toast.error("Lỗi tải danh sách!");
     }
@@ -94,32 +98,36 @@ const UserManager = () => {
   };
 
   const handleEdit = (item) => {
-    if (item.Role === "admin") {
+    if (item.role === "admin") {
       toast.warning("Bạn không thể sửa thông tin Quản trị viên!");
       return;
     }
 
     setFormData({
-      username: item.Username,
+      username: item.username,
       password: "",
       confirmPassword: "",
-      fullName: item.FullName,
-      role: item.Role,
-      avatar: item.Avatar || "",
+      fullName: item.fullname,
+      role: item.role,
+      avatar: item.avatar || "",
     });
-    setEditID(item.UserID);
+    setEditID(item.userid);
     setIsEditing(true);
     setShowModal(true);
   };
 
   const handleDelete = async (item) => {
-    if (item.Role === "admin") {
+    if (item.role === "admin") {
       toast.error("Không được phép xóa Quản trị viên!");
       return;
     }
-    if (window.confirm(`Xóa người dùng "${item.Username}"?`)) {
+    if (window.confirm(`Xóa người dùng "${item.username}"?`)) {
       try {
-        await api.delete(`/users/${item.UserID}`);
+        const { error } = await supabase
+          .from('users')
+          .delete()
+          .eq('userid', item.userid);
+        if (error) throw error;
         toast.success("Đã xóa!");
         fetchUsers();
       } catch (err) {
@@ -145,21 +153,36 @@ const UserManager = () => {
     try {
       if (isEditing) {
         const updateData = {
-          fullName: formData.fullName,
+          fullname: formData.fullName,
           role: formData.role,
           avatar: formData.avatar,
         };
 
-        await api.put(`/users/${editID}`, updateData);
+        const { error } = await supabase
+          .from('users')
+          .update(updateData)
+          .eq('userid', editID);
+        if (error) throw error;
         toast.success("Cập nhật thông tin thành công!");
       } else {
-        await api.post("/users", formData);
+        const payload = {
+          username: formData.username,
+          password: formData.password,
+          fullname: formData.fullName,
+          role: formData.role,
+          avatar: formData.avatar,
+          createdat: new Date().toISOString()
+        };
+        const { error } = await supabase
+          .from('users')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
       fetchUsers();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi lưu dữ liệu!");
+      toast.error(err.message || "Lỗi lưu dữ liệu!");
     }
   };
 
@@ -180,9 +203,8 @@ const UserManager = () => {
         </h2>
         <div className="flex gap-[10px]">
           <button
-            className={`bg-white border text-[#2c5282] py-[8px] px-[16px] rounded-md font-semibold flex items-center gap-[8px] cursor-pointer transition-all duration-200 hover:bg-[#eff6ff] hover:border-[#2c5282] ${
-              showSearch ? "bg-[#eff6ff] border-[#2c5282]" : "border-[#cbd5e1]"
-            }`}
+            className={`bg-white border text-[#2c5282] py-[8px] px-[16px] rounded-md font-semibold flex items-center gap-[8px] cursor-pointer transition-all duration-200 hover:bg-[#eff6ff] hover:border-[#2c5282] ${showSearch ? "bg-[#eff6ff] border-[#2c5282]" : "border-[#cbd5e1]"
+              }`}
             onClick={() => setShowSearch(!showSearch)}
           >
             {showSearch ? <FaTimes /> : <FaFilter />}
@@ -196,9 +218,8 @@ const UserManager = () => {
 
       {/* TÌM KIẾM MỞ RỘNG */}
       <div
-        className={`overflow-hidden transition-all duration-400 opacity-0 mb-0 ${
-          showSearch ? "max-h-[500px] opacity-100 mb-[20px]" : "max-h-0"
-        }`}
+        className={`overflow-hidden transition-all duration-400 opacity-0 mb-0 ${showSearch ? "max-h-[500px] opacity-100 mb-[20px]" : "max-h-0"
+          }`}
       >
         <div className="bg-white p-[25px] rounded-lg border border-[#cbd5e1] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] flex flex-col gap-[15px]">
           <div className="flex gap-[15px] w-full flex-col md:flex-row md:gap-[15px]">
@@ -251,20 +272,19 @@ const UserManager = () => {
             <tbody>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => {
-                  const isAdmin = user.Role === "admin";
+                  const isAdmin = user.role === "admin";
                   return (
-                    <tr key={user.UserID} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
-                      <td className="p-[10px_15px] border border-[#cbd5e1] align-middle break-words text-[13px] font-bold text-[#0d6efd]">{user.Username}</td>
-                      <td className="p-[10px_15px] border border-[#cbd5e1] align-middle break-words text-[13.5px]">{user.FullName}</td>
-                      <td className="p-[10px_15px] border border-[#cbd5e1] align-middle text-center break-words">{getRoleBadge(user.Role)}</td>
+                    <tr key={user.userid} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
+                      <td className="p-[10px_15px] border border-[#cbd5e1] align-middle break-words text-[13px] font-bold text-[#0d6efd]">{user.username}</td>
+                      <td className="p-[10px_15px] border border-[#cbd5e1] align-middle break-words text-[13.5px]">{user.fullname}</td>
+                      <td className="p-[10px_15px] border border-[#cbd5e1] align-middle text-center break-words">{getRoleBadge(user.role)}</td>
                       <td className="p-[10px_15px] border border-[#cbd5e1] align-middle text-center">
                         <div className="flex justify-center gap-[6px]">
                           <button
-                            className={`w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white flex items-center justify-center transition-all ${
-                              isAdmin
+                            className={`w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white flex items-center justify-center transition-all ${isAdmin
                                 ? "opacity-50 cursor-not-allowed text-[#94a3b8]"
                                 : "text-[#64748b] cursor-pointer hover:-translate-y-[1px] hover:border-[#3b82f6] hover:text-[#3b82f6] hover:bg-[#eff6ff]"
-                            }`}
+                              }`}
                             onClick={() => !isAdmin && handleEdit(user)}
                             disabled={isAdmin}
                             title={
@@ -275,11 +295,10 @@ const UserManager = () => {
                           </button>
 
                           <button
-                            className={`w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white flex items-center justify-center transition-all ${
-                              isAdmin
+                            className={`w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white flex items-center justify-center transition-all ${isAdmin
                                 ? "opacity-50 cursor-not-allowed text-[#94a3b8]"
                                 : "text-[#64748b] cursor-pointer hover:-translate-y-[1px] hover:border-[#ef4444] hover:text-[#ef4444] hover:bg-[#fef2f2]"
-                            }`}
+                              }`}
                             onClick={() => !isAdmin && handleDelete(user)}
                             disabled={isAdmin}
                             title={isAdmin ? "Không thể xóa Admin" : "Xóa"}

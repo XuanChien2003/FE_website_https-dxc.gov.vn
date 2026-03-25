@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../services/api";
+import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaNewspaper,
@@ -41,7 +41,7 @@ const NewsManager = () => {
 
     if (filterCategory !== "all") {
       results = results.filter(
-        (item) => item.CategoryID === parseInt(filterCategory)
+        (item) => item.categoryid === parseInt(filterCategory)
       );
     }
 
@@ -50,9 +50,14 @@ const NewsManager = () => {
 
   const fetchNews = async () => {
     try {
-      const res = await api.get("/news");
-      setNewsList(res.data);
-      setFilteredNews(res.data);
+      const { data, error } = await supabase
+        .from('news')
+        .select('*, categories(title)')
+        .order('publisheddate', { ascending: false });
+      
+      if (error) throw error;
+      setNewsList(data);
+      setFilteredNews(data);
     } catch (err) {
       toast.error("Lỗi tải danh sách tin tức!");
     }
@@ -60,8 +65,13 @@ const NewsManager = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await api.get("/categories");
-      setCategories(res.data);
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('stt', { ascending: true });
+        
+      if (error) throw error;
+      setCategories(data || []);
     } catch (err) {
       console.error("Lỗi tải chuyên mục:", err);
     }
@@ -70,7 +80,12 @@ const NewsManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Xác nhận xóa bài viết này?")) {
       try {
-        await api.delete(`/news/${id}`);
+        const { error } = await supabase
+          .from('news')
+          .delete()
+          .eq('newsid', id);
+          
+        if (error) throw error;
         toast.success("Xóa thành công!");
         fetchNews();
       } catch (err) {
@@ -165,8 +180,8 @@ const NewsManager = () => {
                 >
                   <option value="all">-- Tất cả chuyên mục --</option>
                   {categories.map((c) => (
-                    <option key={c.CategoryID} value={c.CategoryID}>
-                      {c.Title}
+                    <option key={c.categoryid} value={c.categoryid}>
+                      {c.title}
                     </option>
                   ))}
                 </select>
@@ -223,18 +238,18 @@ const NewsManager = () => {
             <tbody>
               {filteredNews.length > 0 ? (
                 filteredNews.map((item) => (
-                  <tr key={item.NewsID} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
+                  <tr key={item.newsid} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
                     <td
                       className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-semibold text-[#2c5282]"
-                      title={item.Title}
+                      title={item.title}
                     >
-                      {item.Title}
+                      {item.title}
                     </td>
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-center overflow-hidden">
-                      {item.ImageLink ? (
+                      {item.imagelink ? (
                         <div className="w-[80%] mx-auto max-w-[80px] h-[45px] border border-[#cbd5e1] rounded-[4px] overflow-hidden">
                           <img
-                            src={item.ImageLink}
+                            src={item.imagelink}
                             alt="thumb"
                             className="w-full h-full object-cover"
                           />
@@ -246,27 +261,27 @@ const NewsManager = () => {
                       )}
                     </td>
 
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] leading-[1.4] text-justify" title={item.Summary}>
-                      {item.Summary && item.Summary.length > 60
-                        ? item.Summary.substring(0, 60) + "..."
-                        : item.Summary}
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] leading-[1.4] text-justify" title={item.summary}>
+                      {item.summary && item.summary.length > 60
+                        ? item.summary.substring(0, 60) + "..."
+                        : item.summary}
                     </td>
 
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] text-center">
                       <span className="inline-block p-[2px_6px] rounded-[4px] text-[11px] font-semibold bg-[#e0f2fe] text-[#0369a1] border border-[#bae6fd]">
-                         {item.CategoryName || "---"}
+                         {item.categories?.title || "---"}
                       </span>
                     </td>
 
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12.5px] text-center">
-                      {formatDate(item.PublishedDate)}
+                      {formatDate(item.publisheddate)}
                     </td>
 
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] text-[#475569]">{item.CreatedBy}</td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] text-[#475569]">{item.UpdatedBy}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] text-[#475569]">{item.createdby}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] text-[#475569]">{item.updatedby}</td>
 
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] text-center">
-                      {renderStatusBadge(item.NewsStatus)}
+                      {renderStatusBadge(item.newsstatus)}
                     </td>
 
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-center">
@@ -275,7 +290,7 @@ const NewsManager = () => {
                           className="w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white text-[#64748b] cursor-pointer flex items-center justify-center transition-all hover:-translate-y-[1px] hover:border-[#3b82f6] hover:text-[#3b82f6] hover:bg-[#eff6ff]"
                           title="Sửa"
                           onClick={() =>
-                            navigate(`/admin/news/edit/${item.NewsID}`)
+                            navigate(`/admin/news/edit/${item.newsid}`)
                           }
                         >
                           <FaEdit />
@@ -283,7 +298,7 @@ const NewsManager = () => {
                         <button
                           className="w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white text-[#64748b] cursor-pointer flex items-center justify-center transition-all hover:-translate-y-[1px] hover:border-[#ef4444] hover:text-[#ef4444] hover:bg-[#fef2f2]"
                           title="Xóa"
-                          onClick={() => handleDelete(item.NewsID)}
+                          onClick={() => handleDelete(item.newsid)}
                         >
                           <FaTrash />
                         </button>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../../services/api";
+import { supabase } from "../../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaFileContract,
@@ -39,8 +39,8 @@ const TypeManager = () => {
       const term = searchParams.keyword.toLowerCase();
       const scope = searchParams.scope;
       results = results.filter((item) => {
-        const idStr = item.TypeID ? item.TypeID.toString() : "";
-        const nameStr = item.Name ? item.Name.toLowerCase() : "";
+        const idStr = item.typeid ? item.typeid.toString() : "";
+        const nameStr = item.name ? item.name.toLowerCase() : "";
 
         if (scope === "all")
           return idStr.includes(term) || nameStr.includes(term);
@@ -54,9 +54,13 @@ const TypeManager = () => {
 
   const fetchTypes = async () => {
     try {
-      const res = await api.get("/dictionaries/types");
-      setTypes(res.data);
-      setFilteredTypes(res.data);
+      const { data, error } = await supabase
+        .from('documenttypes')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      setTypes(data || []);
+      setFilteredTypes(data || []);
     } catch (err) {
       toast.error("Lỗi tải danh sách loại văn bản!");
     }
@@ -75,8 +79,8 @@ const TypeManager = () => {
   };
 
   const handleEdit = (item) => {
-    setFormData({ name: item.Name, code: item.Code });
-    setEditID(item.TypeID);
+    setFormData({ name: item.name, code: item.code });
+    setEditID(item.typeid);
     setIsEditing(true);
     setShowModal(true);
   };
@@ -84,7 +88,11 @@ const TypeManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Xác nhận xóa loại văn bản này?")) {
       try {
-        await api.delete(`/dictionaries/types/${id}`);
+        const { error } = await supabase
+          .from('documenttypes')
+          .delete()
+          .eq('typeid', id);
+        if (error) throw error;
         toast.success("Xóa thành công!");
         fetchTypes();
       } catch (err) {
@@ -102,16 +110,23 @@ const TypeManager = () => {
       };
 
       if (isEditing) {
-        await api.put(`/dictionaries/types/${editID}`, payload);
+        const { error } = await supabase
+          .from('documenttypes')
+          .update(payload)
+          .eq('typeid', editID);
+        if (error) throw error;
         toast.success("Cập nhật thành công!");
       } else {
-        await api.post("/dictionaries/types", payload);
+        const { error } = await supabase
+          .from('documenttypes')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
       fetchTypes();
     } catch (err) {
-      toast.error("Lỗi lưu dữ liệu!");
+      toast.error(err.message || "Lỗi lưu dữ liệu!");
     }
   };
 
@@ -183,11 +198,11 @@ const TypeManager = () => {
             <tbody>
               {filteredTypes.length > 0 ? (
                 filteredTypes.map((item) => (
-                  <tr key={item.TypeID} className="group even:bg-[#f8fafc] hover:bg-[#eff6ff]">
+                  <tr key={item.typeid} className="group even:bg-[#f8fafc] hover:bg-[#eff6ff]">
                     <td className="w-[80px] text-center font-bold text-[#64748b] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">
-                      {item.TypeID}
+                      {item.typeid}
                     </td>
-                    <td className="font-medium text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{item.Name}</td>
+                    <td className="font-medium text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{item.name}</td>
                     <td className="w-[120px] text-center p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">
                       <div className="flex justify-center gap-[8px]">
                         <button
@@ -198,7 +213,7 @@ const TypeManager = () => {
                         </button>
                         <button
                           className="w-[30px] h-[30px] border border-[#cbd5e1] bg-white rounded-[4px] cursor-pointer flex items-center justify-center text-[#64748b] transition-all duration-200 hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
-                          onClick={() => handleDelete(item.TypeID)}
+                          onClick={() => handleDelete(item.typeid)}
                         >
                           <FaTrash />
                         </button>

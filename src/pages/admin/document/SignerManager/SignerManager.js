@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../../services/api";
+import { supabase } from "../../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaUserTie,
@@ -31,7 +31,7 @@ const SignerManager = () => {
     } else {
       const lower = searchTerm.toLowerCase();
       const results = signers.filter((item) =>
-        item.Name?.toLowerCase().includes(lower)
+        item.name?.toLowerCase().includes(lower)
       );
       setFilteredSigners(results);
     }
@@ -39,9 +39,13 @@ const SignerManager = () => {
 
   const fetchSigners = async () => {
     try {
-      const res = await api.get("/dictionaries/signers");
-      setSigners(res.data);
-      setFilteredSigners(res.data);
+      const { data, error } = await supabase
+        .from('signers')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      setSigners(data || []);
+      setFilteredSigners(data || []);
     } catch (err) {
       toast.error("Lỗi tải danh sách người ký!");
     }
@@ -55,8 +59,8 @@ const SignerManager = () => {
   };
 
   const handleEdit = (item) => {
-    setName(item.Name);
-    setEditID(item.SignerID);
+    setName(item.name);
+    setEditID(item.signerid);
     setIsEditing(true);
     setShowModal(true);
   };
@@ -64,7 +68,11 @@ const SignerManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa người ký này?")) {
       try {
-        await api.delete(`/dictionaries/signers/${id}`);
+        const { error } = await supabase
+          .from('signers')
+          .delete()
+          .eq('signerid', id);
+        if (error) throw error;
         toast.success("Xóa thành công!");
         fetchSigners();
       } catch (err) {
@@ -79,17 +87,23 @@ const SignerManager = () => {
       const payload = { name: name };
 
       if (isEditing) {
-        await api.put(`/dictionaries/signers/${editID}`, payload);
+        const { error } = await supabase
+          .from('signers')
+          .update(payload)
+          .eq('signerid', editID);
+        if (error) throw error;
         toast.success("Cập nhật thành công!");
       } else {
-        await api.post("/dictionaries/signers", payload);
+        const { error } = await supabase
+          .from('signers')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
       fetchSigners();
     } catch (err) {
-      const msg = err.response?.data?.error || "Lỗi lưu dữ liệu!";
-      toast.error(msg);
+      toast.error(err.message || "Lỗi lưu dữ liệu!");
     }
   };
 
@@ -129,11 +143,11 @@ const SignerManager = () => {
             <tbody>
               {filteredSigners.length > 0 ? (
                 filteredSigners.map((item, index) => (
-                  <tr key={item.SignerID} className="group hover:bg-[#f1f5f9]">
+                  <tr key={item.signerid} className="group hover:bg-[#f1f5f9]">
                     <td className="w-[80px] text-center font-bold text-[#64748b] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">
                       {index + 1}
                     </td>
-                    <td className="font-medium text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{item.Name}</td>
+                    <td className="font-medium text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{item.name}</td>
                     <td className="w-[120px] text-center p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">
                       <div className="flex justify-center gap-[8px]">
                         <button
@@ -145,7 +159,7 @@ const SignerManager = () => {
                         </button>
                         <button
                           className="w-[30px] h-[30px] border border-[#e2e8f0] bg-white rounded-[4px] cursor-pointer flex items-center justify-center text-[#64748b] transition-all duration-200 hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
-                          onClick={() => handleDelete(item.SignerID)}
+                          onClick={() => handleDelete(item.signerid)}
                           title="Xóa người ký"
                         >
                           <FaTrash />

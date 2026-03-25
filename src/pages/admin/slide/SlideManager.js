@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../services/api";
+import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaImages,
@@ -39,7 +39,7 @@ const SlideManager = () => {
     } else {
       const lower = searchTerm.toLowerCase();
       const results = slides.filter((item) =>
-        item.Name?.toLowerCase().includes(lower)
+        item.name?.toLowerCase().includes(lower)
       );
       setFilteredSlides(results);
     }
@@ -47,9 +47,13 @@ const SlideManager = () => {
 
   const fetchSlides = async () => {
     try {
-      const res = await api.get("/slides");
-      setSlides(res.data);
-      setFilteredSlides(res.data);
+      const { data, error } = await supabase
+        .from('slides')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      setSlides(data || []);
+      setFilteredSlides(data || []);
     } catch (err) {
       toast.error("Lỗi tải danh sách Slide!");
     }
@@ -76,11 +80,11 @@ const SlideManager = () => {
 
   const handleEdit = (item) => {
     setFormData({
-      name: item.Name,
-      imageLink: item.ImageLink,
-      description: item.Description || "",
+      name: item.name,
+      imageLink: item.imagelink,
+      description: item.description || "",
     });
-    setEditID(item.SlideID);
+    setEditID(item.slideid);
     setIsEditing(true);
     setShowModal(true);
   };
@@ -88,7 +92,11 @@ const SlideManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Xác nhận xóa Slide này?")) {
       try {
-        await api.delete(`/slides/${id}`);
+        const { error } = await supabase
+          .from('slides')
+          .delete()
+          .eq('slideid', id);
+        if (error) throw error;
         toast.success("Xóa thành công!");
         fetchSlides();
       } catch (err) {
@@ -100,18 +108,30 @@ const SlideManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData };
+      const payload = {
+        name: formData.name,
+        imagelink: formData.imageLink,
+        description: formData.description,
+        modifieddate: new Date().toISOString()
+      };
       if (isEditing) {
-        await api.put(`/slides/${editID}`, payload);
+        const { error } = await supabase
+          .from('slides')
+          .update(payload)
+          .eq('slideid', editID);
+        if (error) throw error;
         toast.success("Cập nhật thành công!");
       } else {
-        await api.post("/slides", payload);
+        const { error } = await supabase
+          .from('slides')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
       fetchSlides();
     } catch (err) {
-      toast.error("Lỗi lưu dữ liệu!");
+      toast.error(err.message || "Lỗi lưu dữ liệu!");
     }
   };
 
@@ -156,15 +176,15 @@ const SlideManager = () => {
             <tbody>
               {filteredSlides.length > 0 ? (
                 filteredSlides.map((item, index) => (
-                  <tr key={item.SlideID} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
+                  <tr key={item.slideid} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-semibold text-center">{index + 1}</td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-[13px] font-bold text-[#2c5282]">{item.Name}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-[13px] font-bold text-[#2c5282]">{item.name}</td>
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-center overflow-hidden">
-                      {item.ImageLink ? (
+                      {item.imagelink ? (
                         <div className="w-[120px] h-[60px] mx-auto border border-[#cbd5e1] rounded-[4px] overflow-hidden shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
                           <img
-                            src={item.ImageLink}
-                            alt={item.Name}
+                            src={item.imagelink}
+                            alt={item.name}
                             className="w-full h-full object-cover"
                           />
                         </div>
@@ -172,8 +192,8 @@ const SlideManager = () => {
                         <span className="italic text-[#999] text-[12px]">No Image</span>
                       )}
                     </td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] leading-[1.4]">{item.Description}</td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-[12.5px] text-center">{formatDate(item.ModifiedDate)}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] leading-[1.4]">{item.description}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-[12.5px] text-center">{formatDate(item.modifieddate)}</td>
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-center">
                       <div className="flex justify-center gap-[4px]">
                         <button
@@ -185,7 +205,7 @@ const SlideManager = () => {
                         </button>
                         <button
                           className="w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white text-[#64748b] cursor-pointer flex items-center justify-center transition-all hover:-translate-y-[1px] hover:border-[#ef4444] hover:text-[#ef4444] hover:bg-[#fef2f2]"
-                          onClick={() => handleDelete(item.SlideID)}
+                          onClick={() => handleDelete(item.slideid)}
                           title="Xóa"
                         >
                           <FaTrash />

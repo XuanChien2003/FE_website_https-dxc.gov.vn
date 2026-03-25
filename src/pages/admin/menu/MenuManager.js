@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../services/api";
+import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaSitemap,
@@ -49,7 +49,7 @@ const MenuManager = () => {
       const lower = searchTerm.toLowerCase();
       // Khi tìm kiếm -> Hiển thị dạng phẳng (List)
       const results = menus.filter((item) =>
-        item.Title?.toLowerCase().includes(lower)
+        item.title?.toLowerCase().includes(lower)
       );
       setFilteredMenus(results);
     }
@@ -57,13 +57,17 @@ const MenuManager = () => {
 
   const fetchMenus = async () => {
     try {
-      const res = await api.get("/menus");
-      setMenus(res.data);
-      setFilteredMenus(res.data);
+      const { data, error } = await supabase
+        .from('menus')
+        .select('*')
+        .order('stt');
+      if (error) throw error;
+      setMenus(data || []);
+      setFilteredMenus(data || []);
 
       // Mặc định mở tất cả node
       const initialExpanded = {};
-      res.data.forEach((m) => (initialExpanded[m.MenuID] = true));
+      (data || []).forEach((m) => (initialExpanded[m.menuid] = true));
       setExpandedNodes(initialExpanded);
     } catch (err) {
       toast.error("Lỗi tải danh sách menu!");
@@ -78,22 +82,22 @@ const MenuManager = () => {
 
     // Tạo Map
     data.forEach((item) => {
-      map[item.MenuID] = { ...item, children: [] };
+      map[item.menuid] = { ...item, children: [] };
     });
 
     // Xếp con vào cha
     data.forEach((item) => {
-      if (item.ParentID && item.ParentID !== 0 && map[item.ParentID]) {
-        map[item.ParentID].children.push(map[item.MenuID]);
+      if (item.parentid && item.parentid !== 0 && map[item.parentid]) {
+        map[item.parentid].children.push(map[item.menuid]);
       } else {
-        tree.push(map[item.MenuID]);
+        tree.push(map[item.menuid]);
       }
     });
 
     // Sắp xếp theo STT
     const sortTree = (nodes) => {
       return nodes
-        .sort((a, b) => (a.STT || 0) - (b.STT || 0))
+        .sort((a, b) => (a.stt || 0) - (b.stt || 0))
         .map((node) => {
           if (node.children.length > 0) node.children = sortTree(node.children);
           return node;
@@ -108,7 +112,7 @@ const MenuManager = () => {
 
   const expandAll = () => {
     const newExpanded = {};
-    menus.forEach((m) => (newExpanded[m.MenuID] = true));
+    menus.forEach((m) => (newExpanded[m.menuid] = true));
     setExpandedNodes(newExpanded);
   };
 
@@ -122,17 +126,17 @@ const MenuManager = () => {
       <ul className="list-none p-0 m-0">
         {nodes.map((node) => {
           const hasChildren = node.children && node.children.length > 0;
-          const isExpanded = !!expandedNodes[node.MenuID];
+          const isExpanded = !!expandedNodes[node.menuid];
 
           return (
-            <li key={node.MenuID} className="mb-[2px] relative">
+            <li key={node.menuid} className="mb-[2px] relative">
               <div className="flex items-center p-[6px_5px] rounded-[4px] transition-colors duration-100 cursor-default hover:bg-[#f1f5f9] group/item">
                 {/* 1. Toggle Icon */}
                 <span
                   className={`flex items-center justify-center w-[24px] h-[24px] rounded-[3px] mr-[5px] text-[#64748b] text-[14px] ${hasChildren ? "cursor-pointer hover:bg-[#e2e8f0] hover:text-[#2c5282]" : ""}`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (hasChildren) toggleNode(node.MenuID);
+                    if (hasChildren) toggleNode(node.menuid);
                   }}
                 >
                   {hasChildren ? (
@@ -148,7 +152,7 @@ const MenuManager = () => {
 
                 {/* 2. Icon Folder/Link */}
                 <span className="flex items-center mr-[8px] text-[16px]">
-                  {hasChildren || node.ParentID === 0 ? (
+                  {hasChildren || node.parentid === 0 ? (
                     isExpanded ? (
                       <FaFolderOpen style={{ color: "#f59e0b" }} />
                     ) : (
@@ -161,9 +165,9 @@ const MenuManager = () => {
 
                 {/* 3. Info */}
                 <div className="flex-1 flex items-center gap-[10px] cursor-pointer select-none" onClick={() => handleEdit(node)}>
-                  <span className="font-semibold text-[#333]">{node.Title}</span>
-                  {node.Url && <span className="text-[12px] text-[#64748b] italic">({node.Url})</span>}
-                  {!node.IsShow && <span className="text-[#ef4444] text-[12px] font-semibold">(Ẩn)</span>}
+                  <span className="font-semibold text-[#333]">{node.title}</span>
+                  {node.url && <span className="text-[12px] text-[#64748b] italic">({node.url})</span>}
+                  {!node.isshow && <span className="text-[#ef4444] text-[12px] font-semibold">(Ẩn)</span>}
                 </div>
 
                 {/* 4. Actions */}
@@ -177,7 +181,7 @@ const MenuManager = () => {
                   </button>
                   <button
                     className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
-                    onClick={() => handleDelete(node.MenuID)}
+                    onClick={() => handleDelete(node.menuid)}
                     title="Xóa"
                   >
                     <FaTrash />
@@ -208,13 +212,13 @@ const MenuManager = () => {
 
   const handleEdit = (item) => {
     setFormData({
-      title: item.Title,
-      url: item.Url,
-      stt: item.STT,
-      isShow: item.IsShow,
-      parentID: item.ParentID || 0,
+      title: item.title,
+      url: item.url,
+      stt: item.stt,
+      isShow: item.isshow,
+      parentID: item.parentid || 0,
     });
-    setEditID(item.MenuID);
+    setEditID(item.menuid);
     setIsEditing(true);
     setShowModal(true);
   };
@@ -222,7 +226,11 @@ const MenuManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Xác nhận xóa menu này?")) {
       try {
-        await api.delete(`/menus/${id}`);
+        const { error } = await supabase
+          .from('menus')
+          .delete()
+          .eq('menuid', id);
+        if (error) throw error;
         toast.success("Xóa thành công!");
         fetchMenus();
       } catch (err) {
@@ -234,18 +242,31 @@ const MenuManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData };
+      const payload = {
+        title: formData.title,
+        url: formData.url,
+        stt: formData.stt,
+        isshow: formData.isShow,
+        parentid: formData.parentID === 0 ? null : formData.parentID
+      };
       if (isEditing) {
-        await api.put(`/menus/${editID}`, payload);
+        const { error } = await supabase
+          .from('menus')
+          .update(payload)
+          .eq('menuid', editID);
+        if (error) throw error;
         toast.success("Cập nhật thành công!");
       } else {
-        await api.post("/menus", payload);
+        const { error } = await supabase
+          .from('menus')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
       fetchMenus();
     } catch (err) {
-      toast.error("Lỗi lưu dữ liệu!");
+      toast.error(err.message || "Lỗi lưu dữ liệu!");
     }
   };
 
@@ -294,12 +315,12 @@ const MenuManager = () => {
             // LIST PHẲNG (Khi tìm kiếm)
             <ul className="list-none p-0 m-0">
               {filteredMenus.map((node) => (
-                <li key={node.MenuID} className="mb-[2px] relative">
+                <li key={node.menuid} className="mb-[2px] relative">
                   <div className="flex items-center p-[6px_5px] rounded-[4px] transition-colors duration-100 cursor-default hover:bg-[#f1f5f9] group/item">
                     <span className="w-[6px] h-[6px] bg-[#cbd5e1] rounded-full mx-[9px]"></span>
                     <div className="flex-1 flex items-center gap-[10px] cursor-pointer select-none" onClick={() => handleEdit(node)}>
-                      <span className="font-semibold text-[#333]">{node.Title}</span>
-                      <span className="text-[12px] text-[#64748b] italic">({node.Url})</span>
+                      <span className="font-semibold text-[#333]">{node.title}</span>
+                      <span className="text-[12px] text-[#64748b] italic">({node.url})</span>
                     </div>
                     <div className="hidden gap-[5px] ml-[10px] group-hover/item:flex">
                       <button
@@ -310,7 +331,7 @@ const MenuManager = () => {
                       </button>
                       <button
                         className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
-                        onClick={() => handleDelete(node.MenuID)}
+                        onClick={() => handleDelete(node.menuid)}
                       >
                         <FaTrash />
                       </button>
@@ -407,12 +428,12 @@ const MenuManager = () => {
                       {menus
                         .filter(
                           (m) =>
-                            m.MenuID !== editID && // Không chọn chính nó
-                            m.ParentID === 0 // Chỉ chọn menu gốc làm cha
+                            m.menuid !== editID && // Không chọn chính nó
+                            (!m.parentid || m.parentid === 0) // Chỉ chọn menu gốc làm cha
                         )
                         .map((m) => (
-                          <option key={m.MenuID} value={m.MenuID}>
-                            |-- {m.Title}
+                          <option key={m.menuid} value={m.menuid}>
+                            |-- {m.title}
                           </option>
                         ))}
                     </select>

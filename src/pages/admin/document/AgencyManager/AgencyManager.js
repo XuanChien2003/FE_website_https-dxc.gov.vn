@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../../services/api";
+import { supabase } from "../../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaBuilding,
@@ -44,8 +44,8 @@ const AgencyManager = () => {
       const term = searchParams.keyword.toLowerCase();
       const scope = searchParams.scope;
       results = results.filter((item) => {
-        const idStr = item.AgencyID ? item.AgencyID.toString() : "";
-        const nameStr = item.Name ? item.Name.toLowerCase() : "";
+        const idStr = item.agencyid ? item.agencyid.toString() : "";
+        const nameStr = item.name ? item.name.toLowerCase() : "";
         if (scope === "all")
           return idStr.includes(term) || nameStr.includes(term);
         if (scope === "id") return idStr.includes(term);
@@ -55,16 +55,20 @@ const AgencyManager = () => {
     }
     if (searchParams.isDefault !== "all") {
       const isTrue = searchParams.isDefault === "true";
-      results = results.filter((item) => item.IsDefault === isTrue);
+      results = results.filter((item) => item.isdefault === isTrue);
     }
     setFilteredAgencies(results);
   }, [searchParams, agencies]);
 
   const fetchAgencies = async () => {
     try {
-      const res = await api.get("/dictionaries/agencies");
-      setAgencies(res.data);
-      setFilteredAgencies(res.data);
+      const { data, error } = await supabase
+        .from('agencies')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      setAgencies(data || []);
+      setFilteredAgencies(data || []);
     } catch (err) {
       toast.error("Lỗi tải dữ liệu!");
     }
@@ -83,8 +87,8 @@ const AgencyManager = () => {
   };
 
   const handleEdit = (item) => {
-    setFormData({ name: item.Name, isDefault: item.IsDefault });
-    setEditID(item.AgencyID);
+    setFormData({ name: item.name, isDefault: item.isdefault });
+    setEditID(item.agencyid);
     setIsEditing(true);
     setShowModal(true);
   };
@@ -92,7 +96,11 @@ const AgencyManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Xác nhận xóa cơ quan này?")) {
       try {
-        await api.delete(`/dictionaries/agencies/${id}`);
+        const { error } = await supabase
+          .from('agencies')
+          .delete()
+          .eq('agencyid', id);
+        if (error) throw error;
         toast.success("Đã xóa thành công!");
         fetchAgencies();
       } catch (err) {
@@ -104,11 +112,22 @@ const AgencyManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const payload = {
+        name: formData.name,
+        isdefault: formData.isDefault
+      };
       if (isEditing) {
-        await api.put(`/dictionaries/agencies/${editID}`, formData);
+        const { error } = await supabase
+          .from('agencies')
+          .update(payload)
+          .eq('agencyid', editID);
+        if (error) throw error;
         toast.success("Cập nhật thành công!");
       } else {
-        await api.post("/dictionaries/agencies", formData);
+        const { error } = await supabase
+          .from('agencies')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
@@ -202,11 +221,11 @@ const AgencyManager = () => {
             <tbody>
               {filteredAgencies.length > 0 ? (
                 filteredAgencies.map((agency) => (
-                  <tr key={agency.AgencyID} className="group even:bg-[#f8fafc] hover:bg-[#eff6ff]">
-                    <td className="w-[80px] text-center font-bold text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{agency.AgencyID}</td>
-                    <td className="font-medium text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{agency.Name}</td>
+                  <tr key={agency.agencyid} className="group even:bg-[#f8fafc] hover:bg-[#eff6ff]">
+                    <td className="w-[80px] text-center font-bold text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{agency.agencyid}</td>
+                    <td className="font-medium text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{agency.name}</td>
                     <td className="w-[120px] text-center p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">
-                      {agency.IsDefault ? (
+                      {agency.isdefault ? (
                         <FaCheckCircle className="text-[#22c55e] text-[20px] mx-auto" />
                       ) : (
                         <span className="text-[#ccc] font-bold">-</span>
@@ -223,7 +242,7 @@ const AgencyManager = () => {
                         </button>
                         <button
                           className="w-[30px] h-[30px] border border-[#cbd5e1] bg-white rounded-[4px] cursor-pointer flex items-center justify-center text-[#64748b] transition-all duration-200 hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
-                          onClick={() => handleDelete(agency.AgencyID)}
+                          onClick={() => handleDelete(agency.agencyid)}
                           title="Xóa"
                         >
                           <FaTrash />

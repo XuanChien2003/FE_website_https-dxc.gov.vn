@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import api from "../services/api";
+import { supabase } from "../../supabaseClient";
 import { FaCalendarAlt, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 const NewsPage = () => {
@@ -28,16 +28,11 @@ const NewsPage = () => {
       setLoading(true);
       try {
         const [resNews, resCats] = await Promise.all([
-          api.get("/news"), // API cũ: Trả về mảng [...]
-          api.get("/categories"),
+          supabase.from('news').select('*').order('publisheddate', { ascending: false }),
+          supabase.from('categories').select('*').order('stt', { ascending: true })
         ]);
 
-        // Sắp xếp tin mới nhất lên đầu
-        const sortedNews = (resNews.data || []).sort(
-          (a, b) => new Date(b.PublishedDate) - new Date(a.PublishedDate)
-        );
-
-        setAllNews(sortedNews);
+        setAllNews(resNews.data || []);
         setCategories(resCats.data || []);
 
         // Nếu có param ?cat=... trên URL thì set state
@@ -59,7 +54,7 @@ const NewsPage = () => {
     // Lọc theo Danh mục
     if (selectedCategory !== "all") {
       result = result.filter(
-        (item) => item.CategoryID === Number(selectedCategory)
+        (item) => item.categoryid === Number(selectedCategory)
       );
     }
 
@@ -68,8 +63,8 @@ const NewsPage = () => {
       const lowerText = searchText.toLowerCase();
       result = result.filter(
         (item) =>
-          item.Title.toLowerCase().includes(lowerText) ||
-          (item.Summary && item.Summary.toLowerCase().includes(lowerText))
+          item.title.toLowerCase().includes(lowerText) ||
+          (item.summary && item.summary.toLowerCase().includes(lowerText))
       );
     }
 
@@ -123,8 +118,8 @@ const NewsPage = () => {
           >
             <option value="all">--- Tất cả các mục ---</option>
             {categories.map((cat) => (
-              <option key={cat.CategoryID} value={cat.CategoryID}>
-                {cat.CategoryName || cat.Title}
+              <option key={cat.categoryid} value={cat.categoryid}>
+                {cat.title}
               </option>
             ))}
           </select>
@@ -147,25 +142,25 @@ const NewsPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[24px] mb-[40px]">
               {currentItems.length > 0 ? (
                 currentItems.map((news) => (
-                  <div key={news.NewsID} className="bg-white border border-[#e5e7eb] rounded-lg overflow-hidden flex flex-col shadow-[0_2px_5px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_5px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 group/card">
-                    <Link to={`/news/${news.NewsID}`} className="block w-full h-[200px] overflow-hidden">
+                  <div key={news.newsid} className="bg-white border border-[#e5e7eb] rounded-lg overflow-hidden flex flex-col shadow-[0_2px_5px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_5px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 group/card">
+                    <Link to={`/news/${news.newsid}`} className="block w-full h-[200px] overflow-hidden">
                       <img
                         src={
-                          news.ImageLink ||
+                          news.imagelink ||
                           "https://via.placeholder.com/400x250"
                         }
-                        alt={news.Title}
+                        alt={news.title}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover/card:scale-105"
                       />
                     </Link>
                     <div className="p-[15px] flex-1 flex flex-col">
                       <h3 className="m-0 mb-2.5 text-[15px] leading-[1.4] font-bold line-clamp-3 overflow-hidden">
-                        <Link to={`/news/${news.NewsID}`} className="text-[#333] no-underline hover:text-gov-red transition-colors">
-                          {news.Title}
+                        <Link to={`/news/${news.newsid}`} className="text-[#333] no-underline hover:text-gov-red transition-colors">
+                          {news.title}
                         </Link>
                       </h3>
                       <div className="mt-auto text-[12px] text-[#888] flex items-center gap-[5px]">
-                        <FaCalendarAlt /> {formatDate(news.PublishedDate)}
+                        <FaCalendarAlt /> {formatDate(news.publisheddate)}
                       </div>
                     </div>
                   </div>

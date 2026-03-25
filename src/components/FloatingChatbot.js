@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaCommentDots, FaTimes, FaPaperPlane, FaRobot, FaUser } from "react-icons/fa";
-import api from "../pages/services/api";
+// import api from "../pages/services/api"; // Decommissioned
 import "./FloatingChatbot.css";
 
 const FloatingChatbot = () => {
@@ -30,13 +30,38 @@ const FloatingChatbot = () => {
     setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
     setInput("");
     setIsLoading(true);
-
+    
     try {
-      const res = await api.post("/ai/chat", { message: userMsg });
-      setMessages((prev) => [...prev, { role: "bot", content: res.data.reply }]);
+      // Gọi trực tiếp Local AI Server (VD: LM Studio, vLLM)
+      const res = await fetch("http://127.0.0.1:8045/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer sk-4a02b88bd1dd4eacb072351ae94298c0"
+        },
+        body: JSON.stringify({
+          model: "gemini-3-flash",
+          messages: [
+            { role: "system", content: "Bạn là trợ lý ảo AI của Cổng Thông tin điện tử. Hãy trả lời ngắn gọn, lịch sự bằng tiếng Việt." },
+            ...messages.map(m => ({ role: m.role === "bot" ? "assistant" : m.role, content: m.content })),
+            { role: "user", content: userMsg }
+          ],
+          temperature: 0.7
+        })
+      });
+
+      if (!res.ok) throw new Error("Lỗi kết nối AI");
+
+      const data = await res.json();
+      const reply = data.choices[0].message.content;
+      
+      setMessages((prev) => [...prev, { role: "bot", content: reply }]);
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [...prev, { role: "bot", content: "Xin lỗi, hiện tại tôi đang gặp sự cố kết nối AI. Vui lòng thử lại sau!" }]);
+      setMessages((prev) => [
+        ...prev, 
+        { role: "bot", content: "Xin lỗi, không thể kết nối đến AI. Hãy chắc chắn rằng Local AI Server (VD: LM Studio) đang chạy ở http://127.0.0.1:8045" }
+      ]);
     } finally {
       setIsLoading(false);
     }

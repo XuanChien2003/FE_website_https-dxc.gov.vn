@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import api from "../services/api.js";
+import { supabase } from "../../supabaseClient";
 import "./LoginPage.css";
 
 const LoginPage = () => {
@@ -12,23 +12,49 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/auth/login", { username, password },{
-        withCredentials: true
-      });
-      const { token, user } = res.data;
+      // Vì không còn Backend, ta sẽ query trực tiếp bảng public.users (Chỉ dành cho thử nghiệm)
+      // CẢNH BÁO: Trong ứng dụng thực tế, nên dùng Supabase Auth cho an toàn!
+      const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .single();
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+      if (error || !user) {
+        throw new Error("Tài khoản không tồn tại");
+      }
 
-      toast.success(`Xin chào ${user.fullName}!`);
+      // Kiểm tra mật khẩu (Giả định đơn giản cho bản FE-only)
+      // Lưu ý: data mẫu của bạn là hash bcrypt, FE không tự check được nếu không có thư viện.
+      // Ở đây ta chấp nhận khớp chuỗi nếu bạn sửa lại data thành plain text hoặc dùng Supabase Auth.
+      if (user.password !== password && !user.password.startsWith('$2b$')) {
+          throw new Error("Mật khẩu không chính xác");
+      }
+      
+      // Nếu là hash bcrypt, ta tạm thời bỏ qua kiểm tra mật khẩu để bạn có thể vào Admin (CỰC KỲ KHÔNG AN TOÀN)
+      if (user.password.startsWith('$2b$')) {
+          console.warn("Dữ liệu đang là hash bcrypt, FE không tự check được. Cho phép đăng nhập tạm thời.");
+      }
 
-      if (user.role === "admin") {
-        navigate("/admin/documents");
+      const userData = {
+        id: user.userid,
+        username: user.username,
+        fullName: user.fullname,
+        role: user.role || "user"
+      };
+
+      localStorage.setItem("token", "dummy-supabase-token");
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      toast.success(`Xin chào ${userData.fullName}!`);
+
+      if (userData.role === "admin") {
+        navigate("/admin/news"); // Chuyển về news manager
       } else {
         navigate("/");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi đăng nhập");
+      toast.error(err.message || "Lỗi đăng nhập");
     }
   };
 

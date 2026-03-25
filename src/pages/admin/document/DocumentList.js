@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../services/api";
+import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaSearch,
@@ -52,33 +52,33 @@ const DocumentList = () => {
       results = results.filter((doc) => {
         if (scope === "all") {
           return (
-            doc.DocNumber?.toLowerCase().includes(term) ||
-            doc.AgencyName?.toLowerCase().includes(term) ||
-            doc.TypeName?.toLowerCase().includes(term) ||
-            doc.FieldName?.toLowerCase().includes(term) ||
-            doc.SignerName?.toLowerCase().includes(term) ||
-            doc.Title?.toLowerCase().includes(term) ||
-            doc.CreatedBy?.toLowerCase().includes(term) ||
-            doc.UpdatedBy?.toLowerCase().includes(term)
+            doc.number?.toLowerCase().includes(term) ||
+            doc.agencies?.name?.toLowerCase().includes(term) ||
+            doc.documenttypes?.name?.toLowerCase().includes(term) ||
+            doc.fields?.name?.toLowerCase().includes(term) ||
+            doc.signers?.name?.toLowerCase().includes(term) ||
+            doc.title?.toLowerCase().includes(term) ||
+            doc.createdby?.toLowerCase().includes(term) ||
+            doc.updatedby?.toLowerCase().includes(term)
           );
         }
 
         // Tìm theo cột cụ thể
         if (scope === "DocNumber")
-          return doc.DocNumber?.toLowerCase().includes(term);
+          return doc.number?.toLowerCase().includes(term);
         if (scope === "AgencyName")
-          return doc.AgencyName?.toLowerCase().includes(term);
+          return doc.agencies?.name?.toLowerCase().includes(term);
         if (scope === "TypeName")
-          return doc.TypeName?.toLowerCase().includes(term);
+          return doc.documenttypes?.name?.toLowerCase().includes(term);
         if (scope === "FieldName")
-          return doc.FieldName?.toLowerCase().includes(term);
+          return doc.fields?.name?.toLowerCase().includes(term);
         if (scope === "SignerName")
-          return doc.SignerName?.toLowerCase().includes(term);
-        if (scope === "Title") return doc.Title?.toLowerCase().includes(term);
+          return doc.signers?.name?.toLowerCase().includes(term);
+        if (scope === "Title") return doc.title?.toLowerCase().includes(term);
         if (scope === "CreatedBy")
-          return doc.CreatedBy?.toLowerCase().includes(term);
+          return doc.createdby?.toLowerCase().includes(term);
         if (scope === "UpdatedBy")
-          return doc.UpdatedBy?.toLowerCase().includes(term);
+          return doc.updatedby?.toLowerCase().includes(term);
         return true;
       });
     }
@@ -86,19 +86,19 @@ const DocumentList = () => {
     // 2. Lọc theo Trạng thái (Riêng biệt)
     if (searchParams.publishStatus && searchParams.publishStatus !== "all") {
       results = results.filter(
-        (doc) => doc.PublishStatus === searchParams.publishStatus
+        (doc) => doc.status === searchParams.publishStatus
       );
     }
 
     // 3. Lọc theo Ngày
     if (searchParams.dateFrom) {
       results = results.filter(
-        (doc) => new Date(doc.IssueDate) >= new Date(searchParams.dateFrom)
+        (doc) => new Date(doc.publisheddate) >= new Date(searchParams.dateFrom)
       );
     }
     if (searchParams.dateTo) {
       results = results.filter(
-        (doc) => new Date(doc.IssueDate) <= new Date(searchParams.dateTo)
+        (doc) => new Date(doc.publisheddate) <= new Date(searchParams.dateTo)
       );
     }
 
@@ -108,9 +108,14 @@ const DocumentList = () => {
 
   const fetchDocuments = async () => {
     try {
-      const res = await api.get("/documents");
-      setDocs(res.data);
-      setFilteredDocs(res.data);
+      const { data, error } = await supabase
+        .from('documents')
+        .select('*, agencies(name), documenttypes(name), fields(name), signers(name)')
+        .order('publisheddate', { ascending: false });
+        
+      if (error) throw error;
+      setDocs(data || []);
+      setFilteredDocs(data || []);
     } catch (err) {
       toast.error("Lỗi tải dữ liệu!");
     }
@@ -125,7 +130,11 @@ const DocumentList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Xác nhận xóa văn bản này?")) {
       try {
-        await api.delete(`/documents/${id}`);
+        const { error } = await supabase
+          .from('documents')
+          .delete()
+          .eq('docid', id);
+        if (error) throw error;
         toast.success("Đã xóa!");
         fetchDocuments();
       } catch (err) {
@@ -147,8 +156,8 @@ const DocumentList = () => {
   };
 
   const getStatusClass = (s) => {
-    if (s === "Đã xuất bản") return "bg-[#22c55e] text-white";
-    if (s === "Chưa xuất bản") return "bg-[#f59e0b] text-white";
+    if (s === "Active") return "bg-[#22c55e] text-white";
+    if (s === "Chưa xuất bản" || s === "Inactive") return "bg-[#f59e0b] text-white";
     return "bg-[#e2e8f0] text-[#475569]";
   };
 
@@ -367,24 +376,24 @@ const DocumentList = () => {
             <tbody>
               {currentItems.length > 0 ? (
                 currentItems.map((doc) => (
-                  <tr key={doc.DocID} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-semibold text-[#2c5282] text-center">{doc.DocNumber}</td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12.5px] text-center">{displayDate(doc.IssueDate)}</td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12.5px] text-center">{displayDate(doc.EffectiveDate)}</td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px]">{doc.AgencyName}</td>
+                  <tr key={doc.docid} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-semibold text-[#2c5282] text-center">{doc.number}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12.5px] text-center">{displayDate(doc.publisheddate)}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12.5px] text-center">{displayDate(doc.effectivedate)}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px]">{doc.agencies?.name}</td>
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] text-center">
-                      <span className={`inline-block p-[2px_6px] rounded-[4px] text-[11px] font-semibold whitespace-nowrap ${getTypeClass(doc.TypeName)}`}>
-                        {doc.TypeName}
+                      <span className={`inline-block p-[2px_6px] rounded-[4px] text-[11px] font-semibold whitespace-nowrap ${getTypeClass(doc.documenttypes?.name)}`}>
+                        {doc.documenttypes?.name}
                       </span>
                     </td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px]">{doc.FieldName}</td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px]">{doc.SignerName}</td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] leading-[1.4] text-justify">{doc.Title}</td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] text-[#475569]">{doc.CreatedBy}</td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] text-[#475569]">{doc.UpdatedBy}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px]">{doc.fields?.name}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px]">{doc.signers?.name}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] leading-[1.4] text-justify">{doc.title}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] text-[#475569]">{doc.createdby}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[12px] text-[#475569]">{doc.updatedby}</td>
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] text-center">
-                      <span className={`inline-block p-[2px_8px] rounded-[50px] text-[11px] font-semibold whitespace-nowrap ${getStatusClass(doc.PublishStatus)}`}>
-                        {doc.PublishStatus || "Chưa cập nhật"}
+                      <span className={`inline-block p-[2px_8px] rounded-[50px] text-[11px] font-semibold whitespace-nowrap ${getStatusClass(doc.status)}`}>
+                        {doc.status || "Chưa cập nhật"}
                       </span>
                     </td>
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] text-center">
@@ -392,14 +401,14 @@ const DocumentList = () => {
                         <button
                           className="w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white text-[#64748b] cursor-pointer flex items-center justify-center transition-all hover:-translate-y-[1px] hover:border-[#3b82f6] hover:text-[#3b82f6] hover:bg-[#eff6ff]"
                           title="Sửa"
-                          onClick={() => navigate(`edit/${doc.DocID}`)}
+                          onClick={() => navigate(`edit/${doc.docid}`)}
                         >
                           <FaEdit />
                         </button>
                         <button
                           className="w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white text-[#64748b] cursor-pointer flex items-center justify-center transition-all hover:-translate-y-[1px] hover:border-[#ef4444] hover:text-[#ef4444] hover:bg-[#fef2f2]"
                           title="Xóa"
-                          onClick={() => handleDelete(doc.DocID)}
+                          onClick={() => handleDelete(doc.docid)}
                         >
                           <FaTrash />
                         </button>

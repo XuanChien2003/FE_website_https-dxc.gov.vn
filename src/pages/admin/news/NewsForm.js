@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "../../services/api";
+import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaSave,
@@ -239,14 +239,14 @@ const NewsForm = () => {
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
-    categoryID: "",
-    imageLink: "",
+    categoryid: "",
+    imagelink: "",
     summary: "",
     content: "",
-    isFeatured: false,
+    isfeatured: false,
     note: "",
-    publishedDate: "",
-    newsStatus: "Chờ duyệt",
+    publisheddate: "",
+    newsstatus: "Chờ duyệt",
   });
 
   // --- STATE CHO AI ---
@@ -290,8 +290,13 @@ const NewsForm = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await api.get("/categories");
-      setCategories(res.data);
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('stt', { ascending: true });
+        
+      if (error) throw error;
+      setCategories(data || []);
     } catch (err) {
       console.error(err);
     }
@@ -299,22 +304,28 @@ const NewsForm = () => {
 
   const fetchNewsDetail = async (newsId) => {
     try {
-      const res = await api.get(`/news/${newsId}`);
-      const item = res.data;
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .eq('newsid', newsId)
+        .single();
+        
+      if (error) throw error;
+      
       setFormData({
-        title: item.Title,
-        categoryID: item.CategoryID,
-        imageLink: item.ImageLink,
-        summary: item.Summary,
-        content: item.Content,
-        isFeatured: item.IsFeatured,
-        note: item.Note,
-        publishedDate: formatDateTimeLocal(item.PublishedDate),
-        newsStatus: item.NewsStatus || "Chờ duyệt",
+        title: data.title,
+        categoryid: data.categoryid,
+        imagelink: data.imagelink,
+        summary: data.summary,
+        content: data.content,
+        isfeatured: data.isfeatured,
+        note: data.note,
+        publisheddate: formatDateTimeLocal(data.publisheddate),
+        newsstatus: data.newsstatus || "Chờ duyệt",
       });
 
       if (editor) {
-        editor.commands.setContent(item.Content);
+        editor.commands.setContent(data.content);
       }
     } catch (err) {
       toast.error("Lỗi tải thông tin bài viết!");
@@ -335,47 +346,81 @@ const NewsForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
       const payload = {
-        ...formData,
-        categoryID: parseInt(formData.categoryID),
+        title: formData.title,
+        categoryid: parseInt(formData.categoryid),
+        imagelink: formData.imagelink,
+        summary: formData.summary,
         content: editor ? editor.getHTML() : formData.content,
+        isfeatured: formData.isfeatured,
+        note: formData.note,
+        publisheddate: formData.publisheddate,
+        newsstatus: formData.newsstatus,
+        updatedby: user.username || "admin"
       };
+
       if (isEditing) {
-        await api.put(`/news/${id}`, payload);
+        const { error } = await supabase
+          .from('news')
+          .update(payload)
+          .eq('newsid', id);
+        if (error) throw error;
         toast.success("Cập nhật thành công!");
       } else {
-        await api.post("/news", payload);
+        payload.createdby = user.username || "admin";
+        const { error } = await supabase
+          .from('news')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       navigate("/admin/news");
     } catch (err) {
-      toast.error("Lỗi lưu dữ liệu!");
+      toast.error("Lỗi lưu dữ liệu: " + (err.message || ""));
     }
   };
 
   // --- HÀM XỬ LÝ AI GENERATE ---
   const handleGenerateAI = async () => {
-    if (!aiPrompt.trim()) {
-      toast.warning("Vui lòng nhập yêu cầu cho AI!");
-      return;
-    }
-
+    if (!aiPrompt.trim()) return toast.warning("Vui lòng nhập yêu cầu cho AI!");
+    
     setIsGeneratingAI(true);
-
     try {
-      const res = await api.post("/ai/generate", { prompt: aiPrompt });
-      const aiContent = res.data.content;
+      // Gọi trực tiếp Local AI Server (VD: LM Studio)
+      const res = await fetch("http://127.0.0.1:8045/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer sk-4a02b88bd1dd4eacb072351ae94298c0"
+        },
+        body: JSON.stringify({
+          model: "gemini-3-flash",
+          messages: [
+            { role: "system", content: "Bạn là một nhà báo, biên tập viên. Hãy viết một bài tin tức bằng tiếng Việt dựa trên yêu cầu của người dùng. Trả về định dạng HTML (chỉ dùng thẻ phổ biến như p, h2, h3, ul, li; không có thẻ html, head, body)." },
+            { role: "user", content: aiPrompt }
+          ],
+          temperature: 0.7
+        })
+      });
 
+      if (!res.ok) throw new Error("Lỗi kết nối AI");
+
+      const data = await res.json();
+      const articleHtml = data.choices[0].message.content;
+
+      // Nhúng nội dung vào Tiptap Editor
       if (editor) {
-        editor.chain().focus().insertContent(aiContent).run();
+        editor.commands.setContent(articleHtml);
+      } else {
+        setFormData(prev => ({ ...prev, content: articleHtml }));
       }
-
-      toast.success("Đã tạo nội dung xong!");
+      
+      toast.success("AI đã tạo bài viết thành công!");
       setShowAIModal(false);
-      setAiPrompt("");
     } catch (error) {
       console.error(error);
-      toast.error("Lỗi khi gọi AI! Hãy kiểm tra Server.");
+      toast.error("Không thể kết nối với AI. Hãy chắc chắn Local AI đang chạy ở http://127.0.0.1:8045");
     } finally {
       setIsGeneratingAI(false);
     }
@@ -454,16 +499,16 @@ const NewsForm = () => {
               </label>
               <select
                 className="w-full p-[8px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
-                value={formData.categoryID}
+                value={formData.categoryid}
                 onChange={(e) =>
-                  setFormData({ ...formData, categoryID: e.target.value })
+                  setFormData({ ...formData, categoryid: e.target.value })
                 }
                 required
               >
                 <option value="">-- Chọn chuyên mục --</option>
                 {categories.map((c) => (
-                  <option key={c.CategoryID} value={c.CategoryID}>
-                    {c.Title}
+                  <option key={c.categoryid} value={c.categoryid}>
+                    {c.title}
                   </option>
                 ))}
               </select>
@@ -473,13 +518,13 @@ const NewsForm = () => {
               <label className="font-bold text-[14px] mb-[5px] block text-[#444]">Trạng thái</label>
               <select
                 className="w-full p-[8px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 font-bold"
-                value={formData.newsStatus}
+                value={formData.newsstatus}
                 onChange={(e) =>
-                  setFormData({ ...formData, newsStatus: e.target.value })
+                  setFormData({ ...formData, newsstatus: e.target.value })
                 }
                 style={{
                   color:
-                    formData.newsStatus === "Đã xuất bản" ? "green" : "orange",
+                    formData.newsstatus === "Đã xuất bản" ? "green" : "orange",
                 }}
               >
                 <option value="Chờ duyệt">Chờ duyệt</option>
@@ -495,18 +540,18 @@ const NewsForm = () => {
                 <input
                   type="text"
                   className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
-                  value={formData.imageLink}
+                  value={formData.imagelink}
                   onChange={(e) =>
-                    setFormData({ ...formData, imageLink: e.target.value })
+                    setFormData({ ...formData, imagelink: e.target.value })
                   }
                   placeholder="https://..."
                 />
               </div>
               <div className="mt-[10px] w-full h-[150px] bg-[#f8f9fa] border border-dashed border-[#ced4da] rounded-[4px] flex items-center justify-center overflow-hidden relative">
-                {formData.imageLink ? (
+                {formData.imagelink ? (
                   <>
                     <img
-                      src={formData.imageLink}
+                      src={formData.imagelink}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
@@ -514,7 +559,7 @@ const NewsForm = () => {
                       type="button"
                       className="absolute top-[5px] right-[5px] bg-black/50 text-white border-none rounded-full w-[24px] h-[24px] cursor-pointer flex items-center justify-center hover:bg-black/70 transition-colors"
                       onClick={() =>
-                        setFormData({ ...formData, imageLink: "" })
+                        setFormData({ ...formData, imagelink: "" })
                       }
                       title="Xóa ảnh"
                     >
@@ -533,9 +578,9 @@ const NewsForm = () => {
                 <input
                   type="datetime-local"
                   className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
-                  value={formData.publishedDate}
+                  value={formData.publisheddate}
                   onChange={(e) =>
-                    setFormData({ ...formData, publishedDate: e.target.value })
+                    setFormData({ ...formData, publisheddate: e.target.value })
                   }
                 />
               </div>
@@ -546,9 +591,9 @@ const NewsForm = () => {
                 <input
                   type="checkbox"
                   className="w-[20px] h-[20px] cursor-pointer"
-                  checked={formData.isFeatured}
+                  checked={formData.isfeatured}
                   onChange={(e) =>
-                    setFormData({ ...formData, isFeatured: e.target.checked })
+                    setFormData({ ...formData, isfeatured: e.target.checked })
                   }
                 />
                 <span className="font-bold text-[#856404]">Đánh dấu Tin nổi bật</span>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../services/api";
+import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaPlus,
@@ -45,7 +45,7 @@ const CategoryManager = () => {
       const lower = searchTerm.toLowerCase();
       // Khi tìm kiếm -> Lọc phẳng (Flat list) để dễ nhìn
       const results = categories.filter((item) =>
-        item.Title?.toLowerCase().includes(lower)
+        item.title?.toLowerCase().includes(lower)
       );
       setFilteredCats(results);
     }
@@ -53,13 +53,19 @@ const CategoryManager = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await api.get("/categories");
-      setCategories(res.data);
-      setFilteredCats(res.data);
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('stt');
 
-      // Mặc định: MỞ TẤT CẢ khi mới tải trang (để người dùng thấy hết)
+      if (error) throw error;
+
+      setCategories(data || []);
+      setFilteredCats(data || []);
+
+      // Mặc định: MỞ TẤT CẢ khi mới tải trang
       const initialExpanded = {};
-      res.data.forEach((c) => (initialExpanded[c.CategoryID] = true));
+      (data || []).forEach((c) => (initialExpanded[c.categoryid] = true));
       setExpandedNodes(initialExpanded);
     } catch (err) {
       toast.error("Lỗi tải danh sách chuyên mục!");
@@ -75,24 +81,22 @@ const CategoryManager = () => {
 
     // Tạo Map
     data.forEach((cat) => {
-      map[cat.CategoryID] = { ...cat, children: [] };
+      map[cat.categoryid] = { ...cat, children: [] };
     });
 
     // Xếp con vào cha
     data.forEach((cat) => {
-      // Kiểm tra ParentID hợp lệ và tồn tại trong map
-      if (cat.ParentID && cat.ParentID !== 0 && map[cat.ParentID]) {
-        map[cat.ParentID].children.push(map[cat.CategoryID]);
+      if (cat.parentid && cat.parentid !== 0 && map[cat.parentid]) {
+        map[cat.parentid].children.push(map[cat.categoryid]);
       } else {
-        // Nếu không có cha hoặc cha không tồn tại -> Là gốc
-        tree.push(map[cat.CategoryID]);
+        tree.push(map[cat.categoryid]);
       }
     });
 
     // Hàm sắp xếp đệ quy theo STT
     const sortTree = (nodes) => {
       return nodes
-        .sort((a, b) => (a.STT || 0) - (b.STT || 0))
+        .sort((a, b) => (a.stt || 0) - (b.stt || 0))
         .map((node) => {
           if (node.children.length > 0) node.children = sortTree(node.children);
           return node;
@@ -124,20 +128,19 @@ const CategoryManager = () => {
       <ul className="list-none p-0 m-0">
         {nodes.map((node) => {
           const hasChildren = node.children && node.children.length > 0;
-          const isExpanded = !!expandedNodes[node.CategoryID];
+          const isExpanded = !!expandedNodes[node.categoryid];
 
           return (
-            <li key={node.CategoryID} className="mb-[2px] relative">
+            <li key={node.categoryid} className="mb-[2px] relative">
               <div className="flex items-center p-[6px_5px] rounded-[4px] transition-colors duration-100 cursor-default hover:bg-[#f1f5f9] group/item">
                 {/* 1. Icon Đóng/Mở (+/-) */}
                 <span
-                  className={`flex items-center justify-center w-[24px] h-[24px] rounded-[3px] mr-[5px] text-[#64748b] text-[14px] ${
-                    hasChildren ? "cursor-pointer hover:bg-[#e2e8f0] hover:text-[#2c5282]" : ""
-                  }`}
+                  className={`flex items-center justify-center w-[24px] h-[24px] rounded-[3px] mr-[5px] text-[#64748b] text-[14px] ${hasChildren ? "cursor-pointer hover:bg-[#e2e8f0] hover:text-[#2c5282]" : ""
+                    }`}
                   onClick={(e) => {
                     // Ngăn sự kiện nổi bọt để tránh click nhầm vào dòng
                     e.stopPropagation();
-                    if (hasChildren) toggleNode(node.CategoryID);
+                    if (hasChildren) toggleNode(node.categoryid);
                   }}
                 >
                   {hasChildren ? (
@@ -166,9 +169,9 @@ const CategoryManager = () => {
 
                 {/* 3. Tên & STT */}
                 <span className="flex-1 font-medium text-[#333] cursor-pointer select-none hover:text-[#0d6efd]" onClick={() => handleEdit(node)}>
-                  {node.Title}
-                  {node.STT > 0 && (
-                    <span className="text-[11px] text-[#999] ml-[8px] font-normal italic"> (STT: {node.STT})</span>
+                  {node.title}
+                  {node.stt > 0 && (
+                    <span className="text-[11px] text-[#999] ml-[8px] font-normal italic"> (STT: {node.stt})</span>
                   )}
                 </span>
 
@@ -183,7 +186,7 @@ const CategoryManager = () => {
                   </button>
                   <button
                     className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
-                    onClick={() => handleDelete(node.CategoryID)}
+                    onClick={() => handleDelete(node.categoryid)}
                     title="Xóa"
                   >
                     <FaTrash />
@@ -214,11 +217,11 @@ const CategoryManager = () => {
 
   const handleEdit = (item) => {
     setFormData({
-      title: item.Title,
-      stt: item.STT,
-      parentID: item.ParentID || 0,
+      title: item.title,
+      stt: item.stt,
+      parentID: item.parentid || 0,
     });
-    setEditID(item.CategoryID);
+    setEditID(item.categoryid);
     setIsEditing(true);
     setShowModal(true);
   };
@@ -226,7 +229,11 @@ const CategoryManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Xác nhận xóa chuyên mục này?")) {
       try {
-        await api.delete(`/categories/${id}`);
+        const { error } = await supabase
+          .from('categories')
+          .delete()
+          .eq('categoryid', id);
+        if (error) throw error;
         toast.success("Xóa thành công!");
         fetchCategories();
       } catch (err) {
@@ -238,18 +245,29 @@ const CategoryManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData };
+      const payload = {
+        title: formData.title,
+        stt: formData.stt,
+        parentid: formData.parentID === 0 ? null : formData.parentID
+      };
       if (isEditing) {
-        await api.put(`/categories/${editID}`, payload);
+        const { error } = await supabase
+          .from('categories')
+          .update(payload)
+          .eq('categoryid', editID);
+        if (error) throw error;
         toast.success("Cập nhật thành công!");
       } else {
-        await api.post("/categories", payload);
+        const { error } = await supabase
+          .from('categories')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
       fetchCategories();
     } catch (err) {
-      toast.error("Lỗi lưu dữ liệu!");
+      toast.error(err.message || "Lỗi lưu dữ liệu!");
     }
   };
 
@@ -298,10 +316,10 @@ const CategoryManager = () => {
             // List phẳng khi search
             <ul className="list-none p-0 m-0">
               {filteredCats.map((node) => (
-                <li key={node.CategoryID} className="mb-[2px] relative">
+                <li key={node.categoryid} className="mb-[2px] relative">
                   <div className="flex items-center p-[6px_5px] rounded-[4px] transition-colors duration-100 cursor-default hover:bg-[#f1f5f9] group/item">
                     <span className="w-[6px] h-[6px] bg-[#cbd5e1] rounded-full mx-[9px]"></span>
-                    <span className="flex-1 font-medium text-[#333] cursor-pointer select-none hover:text-[#0d6efd]">{node.Title}</span>
+                    <span className="flex-1 font-medium text-[#333] cursor-pointer select-none hover:text-[#0d6efd]">{node.title}</span>
                     <div className="hidden gap-[5px] ml-[10px] group-hover/item:flex">
                       <button
                         className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#eff6ff] hover:text-[#0d6efd] hover:border-[#0d6efd]"
@@ -311,7 +329,7 @@ const CategoryManager = () => {
                       </button>
                       <button
                         className="w-[26px] h-[26px] border border-[#ddd] bg-white rounded-[3px] cursor-pointer flex items-center justify-center text-[#555] text-[12px] hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
-                        onClick={() => handleDelete(node.CategoryID)}
+                        onClick={() => handleDelete(node.categoryid)}
                       >
                         <FaTrash />
                       </button>
@@ -383,10 +401,10 @@ const CategoryManager = () => {
                   >
                     <option value="0">|-- Chuyên mục gốc --</option>
                     {categories
-                      .filter((c) => c.CategoryID !== editID)
+                      .filter((c) => c.categoryid !== editID)
                       .map((c) => (
-                        <option key={c.CategoryID} value={c.CategoryID}>
-                          |-- {c.Title}
+                        <option key={c.categoryid} value={c.categoryid}>
+                          |-- {c.title}
                         </option>
                       ))}
                   </select>

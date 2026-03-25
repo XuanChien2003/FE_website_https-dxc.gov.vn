@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom"; // <--- 1. Thêm useLocation
 import { FaSearch, FaBars, FaTimes, FaAngleDown, FaHome } from "react-icons/fa";
 import "./Header.css";
-import api from "../pages/services/api";
+import { supabase } from "../supabaseClient";
 
 const RealTimeClock = () => {
   const [time, setTime] = useState(new Date());
@@ -50,9 +50,14 @@ const Header = () => {
   useEffect(() => {
     const fetchMenus = async () => {
       try {
-        const res = await api.get("/menus");
-        const activeMenus = (res.data || []).filter((m) => m.IsShow);
-        const tree = buildMenuTree(activeMenus);
+        const { data, error } = await supabase
+          .from('menus')
+          .select('*')
+          .filter('isshow', 'eq', true)
+          .order('stt', { ascending: true });
+        
+        if (error) throw error;
+        const tree = buildMenuTree(data || []);
         setMenuTree(tree);
       } catch (err) {
         console.error("Lỗi tải menu:", err);
@@ -65,16 +70,16 @@ const Header = () => {
     const map = {};
     const tree = [];
     list.forEach((item) => {
-      map[item.MenuID] = { ...item, children: [] };
+      map[item.menuid] = { ...item, children: [] };
     });
     list.forEach((item) => {
-      if (item.ParentID && item.ParentID !== 0 && map[item.ParentID]) {
-        map[item.ParentID].children.push(map[item.MenuID]);
+      if (item.parentid && item.parentid !== 0 && map[item.parentid]) {
+        map[item.parentid].children.push(map[item.menuid]);
       } else {
-        tree.push(map[item.MenuID]);
+        tree.push(map[item.menuid]);
       }
     });
-    return tree.sort((a, b) => (a.STT || 0) - (b.STT || 0));
+    return tree.sort((a, b) => (a.stt || 0) - (b.stt || 0));
   };
 
   const handleSearch = (e) => {
@@ -92,11 +97,11 @@ const Header = () => {
   // Hàm kiểm tra xem menu này có đang active không
   const checkActive = (menu) => {
     // 1. Nếu URL trùng khớp hoàn toàn
-    if (location.pathname === menu.Url) return true;
+    if (location.pathname === menu.url) return true;
 
     // 2. Nếu là menu cha, kiểm tra xem có con nào đang active không
     if (menu.children && menu.children.length > 0) {
-      return menu.children.some((child) => child.Url === location.pathname);
+      return menu.children.some((child) => child.url === location.pathname);
     }
     return false;
   };
@@ -148,28 +153,28 @@ const Header = () => {
 
             {menuTree.map((menu) => {
               const hasChildren = menu.children && menu.children.length > 0;
-              const isExpanded = mobileExpanded[menu.MenuID];
+              const isExpanded = mobileExpanded[menu.menuid];
               const isActive = checkActive(menu); // <--- 3. Kiểm tra Active
 
               return (
                 <li
-                  key={menu.MenuID}
+                  key={menu.menuid}
                   className={`gov-menu-item ${hasChildren ? "has-sub" : ""} ${
                     isActive ? "active" : ""
                   }`}
                 >
                   <div className="menu-link-wrap">
                     <Link
-                      to={menu.Url || "#"}
+                      to={menu.url || "#"}
                       className="gov-link"
                       onClick={() => !hasChildren && setIsMobileMenuOpen(false)}
                     >
-                      {menu.Title}
+                      {menu.title}
                     </Link>
                     {hasChildren && (
                       <span
                         className="mobile-submenu-arrow"
-                        onClick={(e) => toggleMobileSubmenu(menu.MenuID, e)}
+                        onClick={(e) => toggleMobileSubmenu(menu.menuid, e)}
                       >
                         <FaAngleDown />
                       </span>
@@ -180,16 +185,16 @@ const Header = () => {
                     <ul className={`gov-submenu ${isExpanded ? "show" : ""}`}>
                       {menu.children.map((child) => (
                         <li
-                          key={child.MenuID}
+                          key={child.menuid}
                           className={
-                            location.pathname === child.Url ? "active-sub" : ""
+                            location.pathname === child.url ? "active-sub" : ""
                           }
                         >
                           <Link
-                            to={child.Url || "#"}
+                            to={child.url || "#"}
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            {child.Title}
+                            {child.title}
                           </Link>
                         </li>
                       ))}

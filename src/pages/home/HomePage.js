@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import api from "../services/api";
+import { supabase } from "../../supabaseClient";
 import {
   FaFileAlt,
   FaLink,
@@ -26,25 +26,45 @@ const HomePage = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [resSlides, resNews, resDocs, resLinks] = await Promise.all([
-          api.get("/slides"),
-          api.get("/news"),
-          api.get("/documents"),
-          api.get("/weblinks"),
-        ]);
+        
+        // Fetch Slides
+        const { data: slidesData, error: slidesError } = await supabase
+          .from('slides')
+          .select('*')
+          .order('slideid', { ascending: true }); // Default order if DisplayOrder is missing
 
-        let listSlides = resSlides.data || [];
-        listSlides.sort((a, b) => (a.DisplayOrder || 0) - (b.DisplayOrder || 0));
-        setSlides(listSlides);
+        // Fetch News
+        const { data: newsData, error: newsError } = await supabase
+          .from('news')
+          .select('*')
+          .order('publisheddate', { ascending: false });
 
-        let allNews = resNews.data || [];
-        allNews.sort((a, b) => new Date(b.PublishedDate) - new Date(a.PublishedDate));
+        // Fetch Documents
+        const { data: docsData, error: docsError } = await supabase
+          .from('documents')
+          .select('*')
+          .order('publisheddate', { ascending: false });
 
+        // Fetch WebLinks
+        const { data: linksData, error: linksError } = await supabase
+          .from('weblinks')
+          .select('*')
+          .filter('isshow', 'eq', true)
+          .order('stt', { ascending: true });
+
+        if (slidesError) console.error("Error slides:", slidesError);
+        if (newsError) console.error("Error news:", newsError);
+        if (docsError) console.error("Error docs:", docsError);
+        if (linksError) console.error("Error links:", linksError);
+
+        setSlides(slidesData || []);
+        
+        let allNews = newsData || [];
         const getNewsByCategory = (catId, count, excludeIds = []) => {
-          let filtered = allNews.filter((n) => n.CategoryID === catId);
+          let filtered = allNews.filter((n) => n.categoryid === catId);
           if (filtered.length < count) {
             const remaining = allNews.filter(
-              (n) => n.CategoryID !== catId && !excludeIds.includes(n.NewsID)
+              (n) => n.categoryid !== catId && !excludeIds.includes(n.newsid)
             );
             filtered = [...filtered, ...remaining.slice(0, count - filtered.length)];
           }
@@ -56,8 +76,8 @@ const HomePage = () => {
         setNewsActivityCenter(getNewsByCategory(17, 5));
         setNewsDigital(getNewsByCategory(16, 5));
         setNewsPolicy(getNewsByCategory(10, 5));
-        setDocuments(resDocs.data || []);
-        setWebLinks(resLinks.data || []);
+        setDocuments(docsData || []);
+        setWebLinks(linksData || []);
       } catch (error) {
         console.error("Error loading data:", error);
       } finally {
@@ -88,21 +108,21 @@ const HomePage = () => {
 
   const FirstNewsItem = ({ news }) => (
     <div className="flex flex-col gap-[10px] mb-[12px] group/firstnews">
-      <Link to={`/news/${news.NewsID}`} className="w-full h-[190px] rounded-md overflow-hidden block">
+      <Link to={`/news/${news.newsid}`} className="w-full h-[190px] rounded-md overflow-hidden block">
         <img
-          src={news.ImageLink || "https://via.placeholder.com/300x200"}
-          alt={news.Title}
+          src={news.imagelink || "https://via.placeholder.com/300x200"}
+          alt={news.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover/firstnews:scale-[1.05]"
         />
       </Link>
       <div>
         <h4 className="m-0 text-[15px] leading-[1.4] mb-1">
-          <Link to={`/news/${news.NewsID}`} className="font-bold text-gov-text group-hover/firstnews:text-gov-red transition-colors duration-300">
-            {news.Title}
+          <Link to={`/news/${news.newsid}`} className="font-bold text-gov-text group-hover/firstnews:text-gov-red transition-colors duration-300">
+            {news.title}
           </Link>
         </h4>
         <p className="text-[13px] text-gov-text-sub m-0 line-clamp-2 leading-[1.5] text-justify">
-          {news.Summary}
+          {news.summary}
         </p>
       </div>
     </div>
@@ -111,9 +131,9 @@ const HomePage = () => {
   const NewsListItem = ({ news }) => (
     <div className="text-[14px] flex items-start py-[3px]">
       <FaCaretRight className="text-gov-red mt-[3px] mr-[8px] text-[13px] flex-shrink-0" />
-      <Link to={`/news/${news.NewsID}`} title={news.Title} className="text-gov-text leading-[1.5] hover:text-gov-red transition-colors duration-300">
-        {news.Title}{" "}
-        <span className="text-[12px] text-slate-400 font-normal ml-1 whitespace-nowrap">({formatDate(news.PublishedDate)})</span>
+      <Link to={`/news/${news.newsid}`} title={news.title} className="text-gov-text leading-[1.5] hover:text-gov-red transition-colors duration-300">
+        {news.title}{" "}
+        <span className="text-[12px] text-slate-400 font-normal ml-1 whitespace-nowrap">({formatDate(news.publisheddate)})</span>
       </Link>
     </div>
   );
@@ -126,7 +146,7 @@ const HomePage = () => {
         <div className="border-b border-gov-border my-[10px]"></div>
         <div className="flex flex-col gap-[6px]">
           {data.slice(1).map((item) => (
-            <NewsListItem key={item.NewsID} news={item} />
+            <NewsListItem key={item.newsid} news={item} />
           ))}
         </div>
       </div>
@@ -148,41 +168,41 @@ const HomePage = () => {
               {bigNews && (
                 <div>
                   <Link
-                    to={`/news/${bigNews.NewsID}`}
+                    to={`/news/${bigNews.newsid}`}
                     className="block w-full h-[300px] md:h-[380px] overflow-hidden mb-[14px] rounded-md relative group/thumb"
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none rounded-md z-10"></div>
                     <img
-                      src={bigNews.ImageLink || "https://via.placeholder.com/600x400"}
-                      alt={bigNews.Title}
+                      src={bigNews.imagelink || "https://via.placeholder.com/600x400"}
+                      alt={bigNews.title}
                       className="w-full h-full object-cover transition-transform duration-[600ms] group-hover/thumb:scale-[1.04]"
                     />
                   </Link>
                   <h2 className="text-[20px] m-0 mb-[8px] leading-[1.35] font-bold tracking-[-0.3px]">
-                    <Link to={`/news/${bigNews.NewsID}`} className="text-gov-text hover:text-gov-red transition-colors duration-300">
-                      {bigNews.Title}
+                    <Link to={`/news/${bigNews.newsid}`} className="text-gov-text hover:text-gov-red transition-colors duration-300">
+                      {bigNews.title}
                     </Link>
                   </h2>
                   <p className="text-gov-text-sub text-[14px] leading-[1.6] text-justify mb-[14px] line-clamp-2 overflow-hidden">
-                    {bigNews.Summary}
+                    {bigNews.summary}
                   </p>
                 </div>
               )}
               {/* Sub news grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-[14px] border-t border-gov-border pt-[14px] mb-[12px]">
                 {subNews.map((news) => (
-                  <div key={news.NewsID} className="flex flex-row md:flex-col items-center md:items-stretch gap-[10px] group/subitem">
+                  <div key={news.newsid} className="flex flex-row md:flex-col items-center md:items-stretch gap-[10px] group/subitem">
                     <Link
-                      to={`/news/${news.NewsID}`}
+                      to={`/news/${news.newsid}`}
                       className="w-[110px] md:w-full h-[75px] md:h-[120px] flex-shrink-0 overflow-hidden rounded-md"
                     >
-                      <img src={news.ImageLink} alt={news.Title} className="w-full h-full object-cover transition-transform duration-500 group-hover/subitem:scale-[1.05]" />
+                      <img src={news.imagelink} alt={news.title} className="w-full h-full object-cover transition-transform duration-500 group-hover/subitem:scale-[1.05]" />
                     </Link>
                     <Link
-                      to={`/news/${news.NewsID}`}
+                      to={`/news/${news.newsid}`}
                       className="text-[13.5px] font-semibold leading-[1.5] text-gov-text line-clamp-3 group-hover/subitem:text-gov-red transition-colors duration-300"
                     >
-                      {news.Title}
+                      {news.title}
                     </Link>
                   </div>
                 ))}
@@ -199,13 +219,13 @@ const HomePage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fit,minmax(260px,1fr))] lg:grid-cols-1 gap-[12px]">
             {slides.map((slide) => (
               <a
-                key={slide.SlideID}
-                href={slide.LinkUrl}
+                key={slide.slideid}
+                href={slide.linkurl || "#"}
                 target="_blank"
                 rel="noreferrer"
                 className="block rounded-lg overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-[2px] hover:shadow-md"
               >
-                <img src={slide.ImageLink} alt={slide.Name} className="w-full h-auto block object-cover" />
+                <img src={slide.imagelink} alt={slide.name} className="w-full h-auto block object-cover" />
               </a>
             ))}
           </div>
@@ -243,12 +263,12 @@ const HomePage = () => {
               </div>
               <ul className="list-none py-[6px] px-[6px] m-0 rounded-b-lg">
                 {webLinks
-                  .filter((l) => l.IsShow)
+                  .filter((l) => l.isshow)
                   .map((link) => (
-                    <li key={link.LinkID} className="py-[8px] px-[12px] border-b border-gov-border flex items-center gap-[10px] transition-all duration-300 last:border-b-0 hover:bg-gov-red-light rounded-md">
+                    <li key={link.linkid} className="py-[8px] px-[12px] border-b border-gov-border flex items-center gap-[10px] transition-all duration-300 last:border-b-0 hover:bg-gov-red-light rounded-md">
                       <FaLink className="text-gov-red text-[12px] flex-shrink-0" />
-                      <a href={link.Url} target="_blank" rel="noreferrer" className="font-semibold text-[13px] text-gov-text flex-1 hover:text-gov-red transition-colors duration-300">
-                        {link.Name}
+                      <a href={link.url} target="_blank" rel="noreferrer" className="font-semibold text-[13px] text-gov-text flex-1 hover:text-gov-red transition-colors duration-300">
+                        {link.name}
                       </a>
                     </li>
                   ))}
@@ -264,15 +284,15 @@ const HomePage = () => {
               </div>
               <div className="p-[12px_14px]">
                 {documents.slice(0, 5).map((doc) => (
-                  <div key={doc.DocID} className="mb-[10px] border-b border-dashed border-gov-border pb-[10px] last:border-none last:pb-0 last:mb-0 hover:translate-x-[2px] transition-transform duration-300">
+                  <div key={doc.docid} className="mb-[10px] border-b border-dashed border-gov-border pb-[10px] last:border-none last:pb-0 last:mb-0 hover:translate-x-[2px] transition-transform duration-300">
                     <Link
-                      to={`/documents/${doc.DocID}`}
+                      to={`/documents/${doc.docid}`}
                       className="block font-semibold text-[13px] text-gov-text mb-[4px] leading-[1.5] hover:text-gov-red transition-colors duration-300 line-clamp-2"
                     >
-                      {doc.Title}
+                      {doc.title}
                     </Link>
                     <div className="text-[12px] text-gov-text-sub flex items-center gap-[4px]">
-                      Số: <b className="text-gov-text font-semibold">{doc.DocNumber}</b> - NH: {formatDate(doc.IssueDate)}
+                      Số: <b className="text-gov-text font-semibold">{doc.number}</b> - NH: {formatDate(doc.publisheddate)}
                     </div>
                   </div>
                 ))}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import api from "../../services/api";
+import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import { FaSave, FaFileAlt, FaPen, FaTimes } from "react-icons/fa";
 
@@ -10,16 +10,16 @@ const DocumentForm = () => {
   const isEditing = !!id;
 
   const [formData, setFormData] = useState({
-    docNumber: "",
+    number: "",
     title: "",
-    link: "",
-    agencyID: "",
-    signerID: "",
-    typeID: "",
-    fieldID: "",
-    issueDate: "",
-    effectiveDate: "",
-    publishStatus: "Đã xuất bản",
+    filelink: "",
+    agencyid: "",
+    signerid: "",
+    typeid: "",
+    fieldid: "",
+    publisheddate: "",
+    effectivedate: "",
+    status: "Active",
   });
 
   const [agencies, setAgencies] = useState([]);
@@ -35,19 +35,25 @@ const DocumentForm = () => {
 
   const fetchDocument = async () => {
     try {
-      const res = await api.get(`/documents/${id}`);
-      const doc = res.data;
+      const { data: doc, error } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('docid', id)
+        .single();
+        
+      if (error) throw error;
+      
       setFormData({
-        docNumber: doc.DocNumber || "",
-        title: doc.Title || "",
-        link: doc.Link || "",
-        agencyID: doc.AgencyID || "",
-        signerID: doc.SignerID || "",
-        typeID: doc.TypeID || "",
-        fieldID: doc.FieldID || "",
-        issueDate: doc.IssueDate ? doc.IssueDate.split("T")[0] : "",
-        effectiveDate: doc.EffectiveDate ? doc.EffectiveDate.split("T")[0] : "",
-        publishStatus: doc.PublishStatus || "Đã xuất bản",
+        number: doc.number || "",
+        title: doc.title || "",
+        filelink: doc.filelink || "",
+        agencyid: doc.agencyid || "",
+        signerid: doc.signerid || "",
+        typeid: doc.typeid || "",
+        fieldid: doc.fieldid || "",
+        publisheddate: doc.publisheddate ? doc.publisheddate.split("T")[0] : "",
+        effectivedate: doc.effectivedate ? doc.effectivedate.split("T")[0] : "",
+        status: doc.status || "Active",
       });
     } catch (err) {
       toast.error("Lỗi tải dữ liệu!");
@@ -58,15 +64,15 @@ const DocumentForm = () => {
   const fetchDropdownData = async () => {
     try {
       const [resAgency, resSigner, resType, resField] = await Promise.all([
-        api.get("/dictionaries/agencies"),
-        api.get("/dictionaries/signers"),
-        api.get("/dictionaries/types"),
-        api.get("/dictionaries/fields"),
+        supabase.from('agencies').select('*').order('name'),
+        supabase.from('signers').select('*').order('name'),
+        supabase.from('documenttypes').select('*').order('name'),
+        supabase.from('fields').select('*').order('name'),
       ]);
-      setAgencies(resAgency.data);
-      setSigners(resSigner.data);
-      setTypes(resType.data);
-      setFields(resField.data);
+      setAgencies(resAgency.data || []);
+      setSigners(resSigner.data || []);
+      setTypes(resType.data || []);
+      setFields(resField.data || []);
     } catch (err) {
       toast.error("Lỗi tải danh mục!");
     }
@@ -76,24 +82,39 @@ const DocumentForm = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
       const payload = {
-        ...formData,
-        agencyID: parseInt(formData.agencyID),
-        signerID: parseInt(formData.signerID),
-        typeID: parseInt(formData.typeID),
-        fieldID: parseInt(formData.fieldID),
+        number: formData.number,
+        title: formData.title,
+        filelink: formData.filelink,
+        agencyid: parseInt(formData.agencyid),
+        signerid: parseInt(formData.signerid),
+        typeid: parseInt(formData.typeid),
+        fieldid: parseInt(formData.fieldid),
+        publisheddate: formData.publisheddate,
+        effectivedate: formData.effectivedate,
+        status: formData.status,
+        updatedby: user.username || "admin"
       };
 
       if (isEditing) {
-        await api.put(`/documents/${id}`, payload);
+        const { error } = await supabase
+          .from('documents')
+          .update(payload)
+          .eq('docid', id);
+        if (error) throw error;
         toast.success("Cập nhật thành công!");
       } else {
-        await api.post("/documents", payload);
+        payload.createdby = user.username || "admin";
+        const { error } = await supabase
+          .from('documents')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       navigate("/admin/documents");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi khi lưu dữ liệu!");
+      toast.error(err.message || "Lỗi khi lưu dữ liệu!");
     } finally {
       setLoading(false);
     }
@@ -121,9 +142,9 @@ const DocumentForm = () => {
                   type="text"
                   className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
                   placeholder="VD: 749/QĐ-TTg"
-                  value={formData.docNumber}
+                  value={formData.number}
                   onChange={(e) =>
-                    setFormData({ ...formData, docNumber: e.target.value })
+                    setFormData({ ...formData, number: e.target.value })
                   }
                   required
                   autoFocus
@@ -138,16 +159,16 @@ const DocumentForm = () => {
               <div className="relative w-full">
                 <select
                   className="w-full p-[9px_12px] pr-[30px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23666%22_stroke-width=%222%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22%3e%3cpolyline_points=%226_9_12_15_18_9%22%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[position:right_12px_center] bg-[length:14px]"
-                  value={formData.typeID}
+                  value={formData.typeid}
                   onChange={(e) =>
-                    setFormData({ ...formData, typeID: e.target.value })
+                    setFormData({ ...formData, typeid: e.target.value })
                   }
                   required
                 >
                   <option value="">-- Chọn loại --</option>
                   {types.map((t) => (
-                    <option key={t.TypeID} value={t.TypeID}>
-                      {t.Name}
+                    <option key={t.typeid} value={t.typeid}>
+                      {t.name}
                     </option>
                   ))}
                 </select>
@@ -161,16 +182,16 @@ const DocumentForm = () => {
               <div className="relative w-full">
                 <select
                   className="w-full p-[9px_12px] pr-[30px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23666%22_stroke-width=%222%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22%3e%3cpolyline_points=%226_9_12_15_18_9%22%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[position:right_12px_center] bg-[length:14px]"
-                  value={formData.fieldID}
+                  value={formData.fieldid}
                   onChange={(e) =>
-                    setFormData({ ...formData, fieldID: e.target.value })
+                    setFormData({ ...formData, fieldid: e.target.value })
                   }
                   required
                 >
                   <option value="">-- Chọn lĩnh vực --</option>
                   {fields.map((f) => (
-                    <option key={f.FieldID} value={f.FieldID}>
-                      {f.Name}
+                    <option key={f.fieldid} value={f.fieldid}>
+                      {f.name}
                     </option>
                   ))}
                 </select>
@@ -182,13 +203,13 @@ const DocumentForm = () => {
               <div className="relative w-full">
                 <select
                   className="w-full p-[9px_12px] pr-[30px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23666%22_stroke-width=%222%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22%3e%3cpolyline_points=%226_9_12_15_18_9%22%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[position:right_12px_center] bg-[length:14px]"
-                  value={formData.publishStatus}
+                  value={formData.status}
                   onChange={(e) =>
-                    setFormData({ ...formData, publishStatus: e.target.value })
+                    setFormData({ ...formData, status: e.target.value })
                   }
                 >
-                  <option value="Đã xuất bản">Đã xuất bản</option>
-                  <option value="Chờ duyệt">Chưa xuất bản</option>
+                  <option value="Active">Đã xuất bản (Active)</option>
+                  <option value="Inactive">Chưa xuất bản (Inactive)</option>
                 </select>
               </div>
             </div>
@@ -203,16 +224,16 @@ const DocumentForm = () => {
               <div className="relative w-full">
                 <select
                   className="w-full p-[9px_12px] pr-[30px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23666%22_stroke-width=%222%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22%3e%3cpolyline_points=%226_9_12_15_18_9%22%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[position:right_12px_center] bg-[length:14px]"
-                  value={formData.agencyID}
+                  value={formData.agencyid}
                   onChange={(e) =>
-                    setFormData({ ...formData, agencyID: e.target.value })
+                    setFormData({ ...formData, agencyid: e.target.value })
                   }
                   required
                 >
                   <option value="">-- Chọn cơ quan --</option>
                   {agencies.map((a) => (
-                    <option key={a.AgencyID} value={a.AgencyID}>
-                      {a.Name}
+                    <option key={a.agencyid} value={a.agencyid}>
+                      {a.name}
                     </option>
                   ))}
                 </select>
@@ -226,16 +247,16 @@ const DocumentForm = () => {
               <div className="relative w-full">
                 <select
                   className="w-full p-[9px_12px] pr-[30px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15 cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg_xmlns=%22http://www.w3.org/2000/svg%22_viewBox=%220_0_24_24%22_fill=%22none%22_stroke=%22%23666%22_stroke-width=%222%22_stroke-linecap=%22round%22_stroke-linejoin=%22round%22%3e%3cpolyline_points=%226_9_12_15_18_9%22%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-[position:right_12px_center] bg-[length:14px]"
-                  value={formData.signerID}
+                  value={formData.signerid}
                   onChange={(e) =>
-                    setFormData({ ...formData, signerID: e.target.value })
+                    setFormData({ ...formData, signerid: e.target.value })
                   }
                   required
                 >
                   <option value="">-- Chọn người ký --</option>
                   {signers.map((s) => (
-                    <option key={s.SignerID} value={s.SignerID}>
-                      {s.Name}
+                    <option key={s.signerid} value={s.signerid}>
+                      {s.name}
                     </option>
                   ))}
                 </select>
@@ -248,9 +269,9 @@ const DocumentForm = () => {
                 <input
                   type="date"
                   className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
-                  value={formData.issueDate}
+                  value={formData.publisheddate}
                   onChange={(e) =>
-                    setFormData({ ...formData, issueDate: e.target.value })
+                    setFormData({ ...formData, publisheddate: e.target.value })
                   }
                 />
               </div>
@@ -262,9 +283,9 @@ const DocumentForm = () => {
                 <input
                   type="date"
                   className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
-                  value={formData.effectiveDate}
+                  value={formData.effectivedate}
                   onChange={(e) =>
-                    setFormData({ ...formData, effectiveDate: e.target.value })
+                    setFormData({ ...formData, effectivedate: e.target.value })
                   }
                 />
               </div>
@@ -280,9 +301,9 @@ const DocumentForm = () => {
                   type="url"
                   className="w-full p-[9px_12px] border border-[#ccc] rounded-[4px] text-[14px] h-[40px] outline-none bg-white transition-all duration-200 focus:border-[#0d6efd] focus:ring-[3px] focus:ring-[#0d6efd]/15"
                   placeholder="https://..."
-                  value={formData.link}
+                  value={formData.filelink}
                   onChange={(e) =>
-                    setFormData({ ...formData, link: e.target.value })
+                    setFormData({ ...formData, filelink: e.target.value })
                   }
                 />
               </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../../services/api";
+import { supabase } from "../../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaLayerGroup,
@@ -39,8 +39,8 @@ const FieldManager = () => {
       const term = searchParams.keyword.toLowerCase();
       const scope = searchParams.scope;
       results = results.filter((item) => {
-        const idStr = item.FieldID ? item.FieldID.toString() : "";
-        const nameStr = item.Name ? item.Name.toLowerCase() : "";
+        const idStr = item.fieldid ? item.fieldid.toString() : "";
+        const nameStr = item.name ? item.name.toLowerCase() : "";
 
         if (scope === "all")
           return idStr.includes(term) || nameStr.includes(term);
@@ -54,9 +54,13 @@ const FieldManager = () => {
 
   const fetchFields = async () => {
     try {
-      const res = await api.get("/dictionaries/fields");
-      setFields(res.data);
-      setFilteredFields(res.data);
+      const { data, error } = await supabase
+        .from('fields')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      setFields(data || []);
+      setFilteredFields(data || []);
     } catch (err) {
       toast.error("Lỗi tải danh sách lĩnh vực!");
     }
@@ -75,8 +79,8 @@ const FieldManager = () => {
   };
 
   const handleEdit = (item) => {
-    setFormData({ name: item.Name, code: item.Code });
-    setEditID(item.FieldID);
+    setFormData({ name: item.name, code: item.code });
+    setEditID(item.fieldid);
     setIsEditing(true);
     setShowModal(true);
   };
@@ -84,7 +88,11 @@ const FieldManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Xác nhận xóa lĩnh vực này?")) {
       try {
-        await api.delete(`/dictionaries/fields/${id}`);
+        const { error } = await supabase
+          .from('fields')
+          .delete()
+          .eq('fieldid', id);
+        if (error) throw error;
         toast.success("Xóa thành công!");
         fetchFields();
       } catch (err) {
@@ -102,16 +110,23 @@ const FieldManager = () => {
       };
 
       if (isEditing) {
-        await api.put(`/dictionaries/fields/${editID}`, payload);
+        const { error } = await supabase
+          .from('fields')
+          .update(payload)
+          .eq('fieldid', editID);
+        if (error) throw error;
         toast.success("Cập nhật thành công!");
       } else {
-        await api.post("/dictionaries/fields", payload);
+        const { error } = await supabase
+          .from('fields')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
       fetchFields();
     } catch (err) {
-      toast.error("Lỗi lưu dữ liệu!");
+      toast.error(err.message || "Lỗi lưu dữ liệu!");
     }
   };
 
@@ -186,11 +201,11 @@ const FieldManager = () => {
             <tbody>
               {filteredFields.length > 0 ? (
                 filteredFields.map((item) => (
-                  <tr key={item.FieldID} className="group even:bg-[#f8fafc] hover:bg-[#eff6ff]">
+                  <tr key={item.fieldid} className="group even:bg-[#f8fafc] hover:bg-[#eff6ff]">
                     <td className="w-[80px] text-center font-bold text-[#2c5282] p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">
-                      {item.FieldID}
+                      {item.fieldid}
                     </td>
-                    <td className="font-medium p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{item.Name}</td>
+                    <td className="font-medium p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">{item.name}</td>
                     <td className="w-[120px] text-center p-[10px_15px] border-b border-[#cbd5e1] border-r border-[#f1f5f9] align-middle">
                       <div className="flex justify-center gap-[8px]">
                         <button
@@ -201,7 +216,7 @@ const FieldManager = () => {
                         </button>
                         <button
                           className="w-[30px] h-[30px] border border-[#cbd5e1] bg-white rounded-[4px] cursor-pointer flex items-center justify-center text-[#64748b] transition-all duration-200 hover:bg-[#fef2f2] hover:text-[#ef4444] hover:border-[#ef4444]"
-                          onClick={() => handleDelete(item.FieldID)}
+                          onClick={() => handleDelete(item.fieldid)}
                         >
                           <FaTrash />
                         </button>

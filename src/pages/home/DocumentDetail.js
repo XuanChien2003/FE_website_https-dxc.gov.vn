@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import api from "../services/api";
+import { supabase } from "../../supabaseClient";
 import {
   FaDownload,
   FaFilePdf,
@@ -18,8 +18,14 @@ const DocumentDetail = () => {
     const fetchDocDetail = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/documents/${id}`);
-        setDoc(response.data);
+        const { data, error } = await supabase
+          .from('documents')
+          .select('*, documenttypes(name), fields(name), agencies(name), signers(name)')
+          .eq('docid', id)
+          .single();
+
+        if (error) throw error;
+        setDoc(data);
       } catch (error) {
         console.error("Lỗi tải văn bản:", error);
       } finally {
@@ -53,13 +59,13 @@ const DocumentDetail = () => {
         </div>
 
         {/* Tiêu đề văn bản */}
-        <h1 className="text-2xl text-primary font-bold mb-2.5 leading-snug uppercase">{doc.Title}</h1>
+        <h1 className="text-2xl text-primary font-bold mb-2.5 leading-snug uppercase">{doc.title}</h1>
         <div className="flex gap-5 text-gray-500 text-[13px] mb-7 border-b border-gray-200 pb-4">
           <span className="flex items-center gap-1.5">
-            <FaCalendarAlt /> Ngày ban hành: {formatDate(doc.IssueDate)}
+            <FaCalendarAlt /> Ngày ban hành: {formatDate(doc.publisheddate)}
           </span>
           <span className="flex items-center gap-1.5">
-            <FaBuilding /> Cơ quan: {doc.Organization || "Bộ VHTTDL"}
+            <FaBuilding /> Cơ quan: {doc.agencies?.name || "Đang cập nhật"}
           </span>
         </div>
 
@@ -70,36 +76,36 @@ const DocumentDetail = () => {
             <tbody className="block md:table-row-group">
               <tr className="md:border-b-0 border-b-2 border-gray-100 mb-4 md:mb-0 block md:table-row">
                 <td className="bg-gray-100 font-semibold text-gray-700 md:w-[180px] md:border-r border-border-color block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">Số ký hiệu:</td>
-                <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top text-accent font-bold">{doc.DocNumber}</td>
+                <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top text-accent font-bold">{doc.number}</td>
                 <td className="bg-gray-100 font-semibold text-gray-700 md:w-[180px] md:border-r border-border-color block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">Loại văn bản:</td>
-                <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">{doc.DocType || "Quyết định"}</td>
+                <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">{doc.documenttypes?.name || "Quyết định"}</td>
               </tr>
               <tr className="md:border-b-0 border-b-2 border-gray-100 mb-4 md:mb-0 block md:table-row">
                 <td className="bg-gray-100 font-semibold text-gray-700 md:w-[180px] md:border-r border-border-color block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">Ngày ban hành:</td>
-                <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">{formatDate(doc.IssueDate)}</td>
+                <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">{formatDate(doc.publisheddate)}</td>
                 <td className="bg-gray-100 font-semibold text-gray-700 md:w-[180px] md:border-r border-border-color block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">Ngày hiệu lực:</td>
                 <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">
-                  {formatDate(doc.EffectDate) || "Đang cập nhật"}
+                  {formatDate(doc.effectivedate) || "Đang cập nhật"}
                 </td>
               </tr>
               <tr className="md:border-b-0 border-b-2 border-gray-100 mb-4 md:mb-0 block md:table-row">
                 <td className="bg-gray-100 font-semibold text-gray-700 md:w-[180px] md:border-r border-border-color block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">Cơ quan ban hành:</td>
                 <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">
-                  {doc.Organization || "Bộ Văn hóa, Thể thao và Du lịch"}
+                  {doc.agencies?.name || "Đang cập nhật"}
                 </td>
                 <td className="bg-gray-100 font-semibold text-gray-700 md:w-[180px] md:border-r border-border-color block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">Người ký:</td>
-                <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">{doc.Signer || "Lãnh đạo Bộ"}</td>
+                <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">{doc.signers?.name || "Lãnh đạo Bộ"}</td>
               </tr>
               <tr className="md:border-b-0 border-b-2 border-gray-100 mb-4 md:mb-0 block md:table-row">
                 <td className="bg-gray-100 font-semibold text-gray-700 md:w-[180px] md:border-r border-border-color block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top">Lĩnh vực:</td>
                 <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b border-border-color align-top" colSpan="3">
-                  {doc.Field || "Chuyển đổi số"}
+                  {doc.fields?.name || "Chuyển đổi số"}
                 </td>
               </tr>
               <tr className="block md:table-row">
                 <td className="bg-gray-100 font-semibold text-gray-700 md:w-[180px] md:border-r border-border-color block md:table-cell w-full p-3 md:py-3 md:px-4 border-b-0 align-top">Trích yếu:</td>
                 <td className="text-gray-800 block md:table-cell w-full p-3 md:py-3 md:px-4 border-b-0 align-top leading-relaxed text-justify" colSpan="3">
-                  {doc.Title}
+                  {doc.title}
                 </td>
               </tr>
             </tbody>
@@ -113,13 +119,13 @@ const DocumentDetail = () => {
             <FaFilePdf className="text-[40px] text-accent" />
             <div className="flex-1 flex flex-col mb-2.5 md:mb-0">
               <span className="font-semibold text-[15px] text-gray-800">
-                {doc.FileName || `VanBan_${doc.DocNumber}.pdf`}
+                {doc.filename || `VanBan_${doc.number}.pdf`}
               </span>
               <span className="text-[13px] text-gray-500">(Dung lượng: 2.5 MB)</span>
             </div>
             {/* Nếu có link tải thật thì dùng thẻ a, nếu không thì button giả */}
             <a
-              href={doc.FileUrl || "#"}
+              href={doc.fileurl || "#"}
               className="bg-primary text-white py-2.5 px-5 no-underline rounded font-medium flex items-center gap-2 transition hover:bg-blue-900"
               target="_blank"
               rel="noreferrer"
@@ -130,10 +136,10 @@ const DocumentDetail = () => {
         </div>
 
         {/* Nội dung chi tiết (Nếu có HTML content) */}
-        {doc.Content && (
+        {doc.content && (
           <div className="doc-content-html">
             <h3 className="bg-primary text-white py-2.5 px-4 m-0 text-[15px] font-semibold uppercase">NỘI DUNG CHI TIẾT</h3>
-            <div dangerouslySetInnerHTML={{ __html: doc.Content }} className="p-4 bg-white border border-border-color border-t-0 rounded-b" />
+            <div dangerouslySetInnerHTML={{ __html: doc.content }} className="p-4 bg-white border border-border-color border-t-0 rounded-b" />
           </div>
         )}
       </div>

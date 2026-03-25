@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../../services/api";
+import { supabase } from "../../../supabaseClient";
 import { toast } from "react-toastify";
 import {
   FaLink,
@@ -44,9 +44,8 @@ const WebLinkManager = () => {
       const lower = searchTerm.toLowerCase();
       const results = links.filter(
         (item) =>
-          // FIX: Dùng item.Name và item.Url (khớp với DB)
-          (item.Name && item.Name.toLowerCase().includes(lower)) ||
-          (item.Url && item.Url.toLowerCase().includes(lower)),
+          (item.name && item.name.toLowerCase().includes(lower)) ||
+          (item.url && item.url.toLowerCase().includes(lower)),
       );
       setFilteredLinks(results);
     }
@@ -54,10 +53,13 @@ const WebLinkManager = () => {
 
   const fetchLinks = async () => {
     try {
-      const res = await api.get("/weblinks");
-      // API trả về mảng các object có key viết hoa: LinkID, Name, Url...
-      setLinks(res.data);
-      setFilteredLinks(res.data);
+      const { data, error } = await supabase
+        .from('weblinks')
+        .select('*')
+        .order('stt');
+      if (error) throw error;
+      setLinks(data || []);
+      setFilteredLinks(data || []);
     } catch (err) {
       toast.error("Lỗi tải danh sách liên kết!");
     }
@@ -79,17 +81,15 @@ const WebLinkManager = () => {
   };
 
   const handleEdit = (item) => {
-    // FIX: Map dữ liệu từ DB (Viết hoa) sang Form (Viết thường)
     setFormData({
-      name: item.Name,
-      url: item.Url,
-      imageLink: item.ImageLink,
-      description: item.Description,
-      stt: item.STT,
-      isShow: item.IsShow,
+      name: item.name,
+      url: item.url,
+      imageLink: item.imagelink,
+      description: item.description,
+      stt: item.stt,
+      isShow: item.isshow,
     });
-    // FIX: Dùng LinkID để sửa
-    setEditID(item.LinkID);
+    setEditID(item.linkid);
     setIsEditing(true);
     setShowModal(true);
   };
@@ -97,7 +97,11 @@ const WebLinkManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Xác nhận xóa liên kết này?")) {
       try {
-        await api.delete(`/weblinks/${id}`);
+        const { error } = await supabase
+          .from('weblinks')
+          .delete()
+          .eq('linkid', id);
+        if (error) throw error;
         toast.success("Xóa thành công!");
         fetchLinks();
       } catch (err) {
@@ -109,18 +113,32 @@ const WebLinkManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData, stt: parseInt(formData.stt) || 0 };
+      const payload = {
+        name: formData.name,
+        url: formData.url,
+        imagelink: formData.imageLink,
+        description: formData.description,
+        stt: parseInt(formData.stt) || 0,
+        isshow: formData.isShow
+      };
       if (isEditing) {
-        await api.put(`/weblinks/${editID}`, payload);
+        const { error } = await supabase
+          .from('weblinks')
+          .update(payload)
+          .eq('linkid', editID);
+        if (error) throw error;
         toast.success("Cập nhật thành công!");
       } else {
-        await api.post("/weblinks", payload);
+        const { error } = await supabase
+          .from('weblinks')
+          .insert([payload]);
+        if (error) throw error;
         toast.success("Thêm mới thành công!");
       }
       setShowModal(false);
       fetchLinks();
     } catch (err) {
-      toast.error("Lỗi lưu dữ liệu!");
+      toast.error(err.message || "Lỗi lưu dữ liệu!");
     }
   };
 
@@ -166,13 +184,13 @@ const WebLinkManager = () => {
             <tbody>
               {filteredLinks.length > 0 ? (
                 filteredLinks.map((item) => (
-                  <tr key={item.LinkID} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-semibold text-center">{item.STT}</td>
+                  <tr key={item.linkid} className="even:bg-[#f8fafc] hover:bg-[#e2e8f0] group">
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-semibold text-center">{item.stt}</td>
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-center overflow-hidden">
-                      {item.ImageLink ? (
+                      {item.imagelink ? (
                         <div className="w-[40px] h-[40px] mx-auto bg-white border border-[#ddd] rounded-[4px] p-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.1)] flex items-center justify-center">
                           <img
-                            src={item.ImageLink}
+                            src={item.imagelink}
                             alt="logo"
                             className="max-w-full max-h-full object-contain"
                             onError={(e) => {
@@ -185,20 +203,20 @@ const WebLinkManager = () => {
                         <FaGlobe size={24} className="text-[#ccc] mx-auto" />
                       )}
                     </td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-bold text-[#2c5282]">{item.Name}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] font-bold text-[#2c5282]">{item.name}</td>
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words">
                       <a
-                        href={item.Url}
+                        href={item.url}
                         target="_blank"
                         rel="noreferrer"
                         className="text-[#0d6efd] no-underline hover:underline text-[13px]"
                       >
-                        {item.Url}
+                        {item.url}
                       </a>
                     </td>
-                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] leading-[1.4]">{item.Description}</td>
+                    <td className="p-[8px_4px] border border-[#cbd5e1] align-middle break-words text-[13px] leading-[1.4]">{item.description}</td>
                     <td className="p-[8px_4px] border border-[#cbd5e1] align-middle text-center">
-                      {item.IsShow ? (
+                      {item.isshow ? (
                         <FaCheckCircle className="text-green-600 mx-auto text-[16px]" />
                       ) : (
                         <FaTimesCircle className="text-[#ccc] mx-auto text-[16px]" />
@@ -215,7 +233,7 @@ const WebLinkManager = () => {
                         </button>
                         <button
                           className="w-[26px] h-[26px] rounded-[4px] border border-[#cbd5e1] bg-white text-[#64748b] cursor-pointer flex items-center justify-center transition-all hover:-translate-y-[1px] hover:border-[#ef4444] hover:text-[#ef4444] hover:bg-[#fef2f2]"
-                          onClick={() => handleDelete(item.LinkID)}
+                          onClick={() => handleDelete(item.linkid)}
                           title="Xóa"
                         >
                           <FaTrash />
@@ -322,8 +340,8 @@ const WebLinkManager = () => {
                         alt="Preview"
                         className="max-w-full max-h-full object-contain"
                         onError={(e) =>
-                          (e.target.src =
-                            "https://via.placeholder.com/100x50?text=Error")
+                        (e.target.src =
+                          "https://via.placeholder.com/100x50?text=Error")
                         }
                       />
                       <button

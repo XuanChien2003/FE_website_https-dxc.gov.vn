@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import api from "../services/api";
+import { supabase } from "../../supabaseClient";
 import {
   FaSearch,
   FaFileAlt,
@@ -51,17 +51,15 @@ const DocumentsPage = () => {
           resSigners,
           resLinks,
         ] = await Promise.all([
-          api.get("/documents"),
-          api.get("/dictionaries/fields"),
-          api.get("/dictionaries/types"),
-          api.get("/dictionaries/agencies"),
-          api.get("/dictionaries/signers"),
-          api.get("/weblinks"),
+          supabase.from('documents').select('*').order('publisheddate', { ascending: false }),
+          supabase.from('fields').select('*').order('name', { ascending: true }),
+          supabase.from('documenttypes').select('*').order('name', { ascending: true }),
+          supabase.from('agencies').select('*').order('name', { ascending: true }),
+          supabase.from('signers').select('*').order('name', { ascending: true }),
+          supabase.from('weblinks').select('*').filter('isshow', 'eq', true).order('stt', { ascending: true }),
         ]);
 
         const allDocs = resDocs.data || [];
-        allDocs.sort((a, b) => new Date(b.IssueDate) - new Date(a.IssueDate));
-
         setDocuments(allDocs);
         setFilteredDocs(allDocs);
         setNewDocs(allDocs.slice(0, 5));
@@ -87,20 +85,20 @@ const DocumentsPage = () => {
     if (filters.keyword) {
       const k = filters.keyword.toLowerCase();
       result = result.filter((d) => {
-        const docNum = d.DocNumber ? d.DocNumber.toLowerCase() : "";
-        const title = d.Title ? d.Title.toLowerCase() : "";
+        const docNum = d.number ? d.number.toLowerCase() : "";
+        const title = d.title ? d.title.toLowerCase() : "";
         return docNum.includes(k) || title.includes(k);
       });
     }
 
     if (filters.fieldID)
-      result = result.filter((d) => d.FieldID === filters.fieldID);
+      result = result.filter((d) => d.fieldid === Number(filters.fieldID));
     if (filters.typeID)
-      result = result.filter((d) => d.TypeID === filters.typeID);
+      result = result.filter((d) => d.typeid === Number(filters.typeID));
     if (filters.agencyID)
-      result = result.filter((d) => d.AgencyID === filters.agencyID);
+      result = result.filter((d) => d.agencyid === Number(filters.agencyID));
     if (filters.signerID)
-      result = result.filter((d) => d.SignerID === filters.signerID);
+      result = result.filter((d) => d.signerid === Number(filters.signerID));
 
     setFilteredDocs(result);
     setCurrentPage(1);
@@ -167,8 +165,8 @@ const DocumentsPage = () => {
                 >
                   <option value="">-- Lĩnh vực --</option>
                   {fields.map((f) => (
-                    <option key={f.FieldID} value={f.FieldID}>
-                      {f.Name}
+                    <option key={f.fieldid} value={f.fieldid}>
+                      {f.name}
                     </option>
                   ))}
                 </select>
@@ -182,8 +180,8 @@ const DocumentsPage = () => {
                 >
                   <option value="">-- Loại văn bản --</option>
                   {types.map((t) => (
-                    <option key={t.TypeID} value={t.TypeID}>
-                      {t.Name}
+                    <option key={t.typeid} value={t.typeid}>
+                      {t.name}
                     </option>
                   ))}
                 </select>
@@ -197,8 +195,8 @@ const DocumentsPage = () => {
                 >
                   <option value="">-- Cơ quan ban hành --</option>
                   {agencies.map((a) => (
-                    <option key={a.AgencyID} value={a.AgencyID}>
-                      {a.Name}
+                    <option key={a.agencyid} value={a.agencyid}>
+                      {a.name}
                     </option>
                   ))}
                 </select>
@@ -212,8 +210,8 @@ const DocumentsPage = () => {
                 >
                   <option value="">-- Người ký --</option>
                   {signers.map((s) => (
-                    <option key={s.SignerID} value={s.SignerID}>
-                      {s.Name}
+                    <option key={s.signerid} value={s.signerid}>
+                      {s.name}
                     </option>
                   ))}
                 </select>
@@ -235,19 +233,19 @@ const DocumentsPage = () => {
               <tbody>
                 {currentDocs.length > 0 ? (
                   currentDocs.map((doc, index) => (
-                    <tr key={doc.DocID} className="hover:bg-[#fcebeb]">
+                    <tr key={doc.docid} className="hover:bg-[#fcebeb]">
                       <td className="text-center py-2.5 px-3 text-[#333] align-middle border border-[#dcdcdc]">
                         {indexOfFirstItem + index + 1}
                       </td>
                       <td className="text-gov-red font-semibold whitespace-nowrap text-center py-2.5 px-3 align-middle border border-[#dcdcdc]">
-                        {doc.DocNumber}
+                        {doc.number}
                       </td>
                       <td className="text-center py-2.5 px-3 text-[#333] align-middle border border-[#dcdcdc]">
-                        {formatDate(doc.IssueDate)}
+                        {formatDate(doc.publisheddate)}
                       </td>
                       <td className="py-2.5 px-3 text-[#333] align-middle border border-[#dcdcdc]">
-                        <Link to={`/documents/${doc.DocID}`} title={doc.Title} className="text-[#333] no-underline font-medium leading-relaxed block text-justify hover:text-gov-red hover:underline">
-                          {doc.Title}
+                        <Link to={`/documents/${doc.docid}`} title={doc.title} className="text-[#333] no-underline font-medium leading-relaxed block text-justify hover:text-gov-red hover:underline">
+                          {doc.title}
                         </Link>
                       </td>
                     </tr>
@@ -290,12 +288,12 @@ const DocumentsPage = () => {
             </div>
             <ul className="list-none p-0 m-0">
               {webLinks
-                .filter((l) => l.IsShow)
+                .filter((l) => l.isshow)
                 .map((link) => (
-                  <li key={link.LinkID} className="py-3 px-[15px] border-b border-dashed border-[#eee] flex items-center gap-2.5 transition hover:bg-[#f9f9f9] last:border-b-0">
+                  <li key={link.linkid} className="py-3 px-[15px] border-b border-dashed border-[#eee] flex items-center gap-2.5 transition hover:bg-[#f9f9f9] last:border-b-0">
                     <FaAngleRight className="text-[#999] text-[12px]" />
-                    <a href={link.Url} target="_blank" rel="noreferrer" className="font-semibold text-[13px] text-[#333] no-underline hover:text-gov-red">
-                      {link.Name}
+                    <a href={link.url} target="_blank" rel="noreferrer" className="font-semibold text-[13px] text-[#333] no-underline hover:text-gov-red">
+                      {link.name}
                     </a>
                   </li>
                 ))}
@@ -311,16 +309,16 @@ const DocumentsPage = () => {
             </div>
             <div className="py-2.5 px-[15px]">
               {newDocs.map((doc) => (
-                <div key={doc.DocID} className="mb-[15px] border-b border-dashed border-[#eee] pb-2.5 last:border-b-0 last:mb-0 last:pb-0">
+                <div key={doc.docid} className="mb-[15px] border-b border-dashed border-[#eee] pb-2.5 last:border-b-0 last:mb-0 last:pb-0">
                   <Link
-                    to={`/documents/${doc.DocID}`}
-                    title={doc.Title}
+                    to={`/documents/${doc.docid}`}
+                    title={doc.title}
                     className="block text-[13.5px] font-bold text-[#333] no-underline leading-snug mb-1 text-justify hover:text-gov-red"
                   >
-                    {doc.Title}
+                    {doc.title}
                   </Link>
                   <div className="text-[12px] text-[#666]">
-                    Số: <b>{doc.DocNumber}</b> - {formatDate(doc.IssueDate)}
+                    Số: <b>{doc.number}</b> - {formatDate(doc.publisheddate)}
                   </div>
                 </div>
               ))}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../services/api";
+import { supabase } from "../../supabaseClient";
 import { toast } from "react-toastify";
 import { FaUser, FaLock, FaSave, FaCamera, FaSpinner } from "react-icons/fa";
 
@@ -12,7 +12,7 @@ const UserProfile = () => {
   const currentUser = userString ? JSON.parse(userString) : null;
   // Lưu ý: Đảm bảo khi login, BE trả về id hoặc userID, và FE lưu vào localStorage đúng key.
   // Ví dụ: BE trả về { id: 1, username: 'admin'... } -> FE lưu.
-  const currentId = currentUser ? currentUser.id || currentUser.UserID : null;
+  const currentId = currentUser ? currentUser.userid || currentUser.UserID || currentUser.id : null;
 
   // State Info
   const [formData, setFormData] = useState({
@@ -40,15 +40,19 @@ const UserProfile = () => {
   const fetchUserInfo = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/users/${currentId}`);
-      const data = res.data;
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('userid', currentId)
+        .single();
 
-      // Map dữ liệu từ BE (Chữ Hoa) sang State (Chữ thường)
+      if (error) throw error;
+
       setFormData({
-        fullName: data.FullName || "",
-        username: data.Username || "",
-        role: data.Role || "",
-        avatar: data.Avatar || "",
+        fullName: data.fullname || "",
+        username: data.username || "",
+        role: data.role || "",
+        avatar: data.avatar || "",
       });
     } catch (err) {
       toast.error("Lỗi tải thông tin người dùng!");
@@ -62,23 +66,24 @@ const UserProfile = () => {
     if (!currentId) return;
 
     try {
-      // Gửi dữ liệu lên BE (khớp với req.body trong controller update)
-      await api.put(`/users/${currentId}`, {
-        fullName: formData.fullName,
-        role: formData.role, // Vẫn gửi role cũ để BE không bị null
-        avatar: formData.avatar,
-      });
+      const { error } = await supabase
+        .from('users')
+        .update({
+          fullname: formData.fullName,
+          avatar: formData.avatar,
+        })
+        .eq('userid', currentId);
+
+      if (error) throw error;
 
       // Cập nhật localStorage để Header hiển thị ngay
       if (currentUser) {
         const updatedUser = {
           ...currentUser,
-          fullName: formData.fullName, // Cập nhật tên mới
-          avatar: formData.avatar, // Cập nhật ảnh mới
+          fullname: formData.fullName,
+          avatar: formData.avatar,
         };
         localStorage.setItem("user", JSON.stringify(updatedUser));
-
-        // Dispatch event để Header (nếu ở file khác) biết mà render lại
         window.dispatchEvent(new Event("storage"));
       }
 
@@ -101,17 +106,17 @@ const UserProfile = () => {
     }
 
     try {
-      // Gửi password mới lên BE
-      await api.put(`/users/${currentId}/password`, {
-        newPassword: passData.newPassword,
-      });
+      const { error } = await supabase
+        .from('users')
+        .update({ password: passData.newPassword })
+        .eq('userid', currentId);
+
+      if (error) throw error;
 
       toast.success("Đổi mật khẩu thành công!");
       setPassData({ newPassword: "", confirmPassword: "" });
     } catch (err) {
-      // Hiển thị lỗi chi tiết từ BE trả về
-      const msg = err.response?.data?.message || "Lỗi đổi mật khẩu!";
-      toast.error(msg);
+      toast.error(err.message || "Lỗi đổi mật khẩu!");
     }
   };
 

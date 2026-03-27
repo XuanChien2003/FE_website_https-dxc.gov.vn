@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
+import { removeVietnameseTones } from "../../utils/stringUtils";
 import {
   FaSearch,
   FaFileAlt,
@@ -82,10 +83,10 @@ const DocumentsPage = () => {
     let result = documents;
 
     if (filters.keyword) {
-      const k = filters.keyword.toLowerCase();
+      const k = removeVietnameseTones(filters.keyword);
       result = result.filter((d) => {
-        const docNum = d.number ? d.number.toLowerCase() : "";
-        const title = d.title ? d.title.toLowerCase() : "";
+        const docNum = d.number ? removeVietnameseTones(d.number) : "";
+        const title = d.title ? removeVietnameseTones(d.title) : "";
         return docNum.includes(k) || title.includes(k);
       });
     }

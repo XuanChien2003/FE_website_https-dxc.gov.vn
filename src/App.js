@@ -33,6 +33,7 @@ import FloatingChatbot from "./components/FloatingChatbot";
 import UserProfile from "./pages/user/UserProfile";
 import DocumentDetail from "./pages/home/DocumentDetail";
 import NewsPage from "./pages/home/NewsPage";
+import SearchPage from "./pages/home/SearchPage";
 import UserManager from "./pages/admin/user/UserManager";
 
 const ClientLayout = () => {
@@ -80,6 +81,7 @@ function App() {
           <Route path="news/:id" element={<NewsDetail />} />
           <Route path="documents" element={<DocumentsPage />} />
           <Route path="/documents/:id" element={<DocumentDetail />} />
+          <Route path="/search" element={<SearchPage />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
 

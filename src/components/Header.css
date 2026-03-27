@@ -1,7 +1,10 @@
 :root {
-  --gov-red: #be1e2d; /* Đỏ cờ */
-  --gov-red-dark: #8b121d; /* Đỏ mận */
-  --gov-yellow: #ffcd00; /* Vàng sao */
+  --gov-red: #be1e2d;
+  /* Đỏ cờ */
+  --gov-red-dark: #8b121d;
+  /* Đỏ mận */
+  --gov-yellow: #ffcd00;
+  /* Vàng sao */
   --gov-text: #333333;
   --gov-gray: #666666;
   --gov-bg-light: #fff;
@@ -33,6 +36,7 @@
   background-repeat: no-repeat;
   background-position: 98% center;
   background-size: 80px;
+  margin-bottom: 10px;
 }
 
 .branding-container {
@@ -105,6 +109,7 @@
   position: relative;
   border-right: 1px solid rgba(255, 255, 255, 0.15);
 }
+
 .gov-menu-item:first-child {
   border-left: 1px solid rgba(255, 255, 255, 0.15);
 }
@@ -112,18 +117,20 @@
 /* --- MENU LINK CHÍNH (Đã giảm font-size) --- */
 a.gov-link {
   display: block;
-  padding: 16px 10px 16px; /* Giảm padding ngang chút */
+  padding: 16px 10px 16px;
+  /* Giảm padding ngang chút */
   color: #fff;
   text-decoration: none;
-  font-size: 13px; /* <--- GIẢM FONT XUỐNG 13PX */
+  font-size: 13px;
+  /* <--- GIẢM FONT XUỐNG 13PX */
   font-weight: 700;
   text-transform: uppercase;
   white-space: nowrap;
   transition: all 0.3s ease;
 }
 
-.gov-menu-item:hover > a.gov-link,
-.gov-menu-item.active > a.gov-link {
+.gov-menu-item:hover>a.gov-link,
+.gov-menu-item.active>a.gov-link {
   background-color: var(--gov-red-dark);
   color: var(--gov-yellow);
 }
@@ -133,13 +140,15 @@ a.gov-link {
 .home-icon:hover a {
   color: var(--gov-yellow);
 }
+
 .home-icon a {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
   padding: 0 15px;
-  font-size: 16px; /* Giảm icon một chút cho cân đối */
+  font-size: 16px;
+  /* Giảm icon một chút cho cân đối */
   color: #fff;
   transition: all 0.3s;
 }
@@ -165,6 +174,7 @@ a.gov-link {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -178,6 +188,7 @@ a.gov-link {
 .gov-submenu li {
   border-bottom: 1px solid #eee;
 }
+
 .gov-submenu li:last-child {
   border-bottom: none;
 }
@@ -185,10 +196,12 @@ a.gov-link {
 /* --- MENU CON (Đã giảm font-size) --- */
 .gov-submenu li a {
   display: block;
-  padding: 10px 15px; /* Giảm padding dọc */
+  padding: 10px 15px;
+  /* Giảm padding dọc */
   color: var(--gov-text);
   text-decoration: none;
-  font-size: 13px; /* <--- GIẢM FONT XUỐNG 13PX */
+  font-size: 13px;
+  /* <--- GIẢM FONT XUỐNG 13PX */
   font-weight: 500;
   transition: all 0.2s ease;
 }
@@ -207,7 +220,8 @@ a.gov-link {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 20px;
-  padding: 3px 10px; /* Giảm padding form search cho gọn */
+  padding: 3px 10px;
+  /* Giảm padding form search cho gọn */
   transition: background 0.3s;
 }
 
@@ -220,11 +234,13 @@ a.gov-link {
   background: transparent;
   border: none;
   outline: none;
-  font-size: 12px; /* Giảm font input */
+  font-size: 12px;
+  /* Giảm font input */
   color: #fff;
   padding: 2px 5px;
   width: 150px;
 }
+
 .nav-search input::placeholder {
   color: rgba(255, 255, 255, 0.8);
 }
@@ -233,6 +249,7 @@ a.gov-link {
 .nav-search form:focus-within input {
   color: #333;
 }
+
 .nav-search form:hover input::placeholder,
 .nav-search form:focus-within input::placeholder {
   color: #999;
@@ -245,6 +262,7 @@ a.gov-link {
   cursor: pointer;
   font-size: 13px;
 }
+
 .nav-search form:hover button,
 .nav-search form:focus-within button {
   color: var(--gov-red);
@@ -254,8 +272,10 @@ a.gov-link {
 .date-bar {
   background-color: var(--gov-bg-light);
   border-bottom: 1px solid #e5e5e5;
-  padding: 10px 0px 10px; /* Giảm padding thanh ngày tháng */
-  font-size: 12px; /* Giảm font thanh ngày tháng */
+  padding: 10px 0px 10px;
+  /* Giảm padding thanh ngày tháng */
+  font-size: 12px;
+  /* Giảm font thanh ngày tháng */
   color: var(--gov-gray);
   font-weight: 500;
 }
@@ -290,13 +310,16 @@ a.gov-link {
     background-image: none;
     padding: 10px 0;
   }
+
   .brand-logo {
     height: 50px;
   }
+
   .ministry-title {
     font-size: 11px;
     margin-bottom: 2px;
   }
+
   .portal-title {
     font-size: 16px;
     font-weight: 700;
@@ -315,6 +338,7 @@ a.gov-link {
     border-bottom: none;
     background: var(--gov-red);
   }
+
   .gov-nav.open {
     display: block;
   }
@@ -364,6 +388,7 @@ a.gov-link {
     border: none;
     animation: none;
   }
+
   .gov-submenu.show {
     display: block;
   }
@@ -384,14 +409,17 @@ a.gov-link {
     padding: 15px;
     background: rgba(0, 0, 0, 0.1);
   }
+
   .nav-search form {
     background: #fff;
     border: none;
   }
+
   .nav-search input {
     color: #333;
     width: 100%;
   }
+
   .nav-search button {
     color: var(--gov-red);
   }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom"; // <--- 1. Thêm useLocation
+import { Link, useLocation, useNavigate } from "react-router-dom"; // <--- 1. Thêm useLocation, useNavigate
 import { FaSearch, FaBars, FaTimes, FaAngleDown, FaHome } from "react-icons/fa";
 import "./Header.css";
 import { supabase } from "../supabaseClient";
@@ -46,6 +46,7 @@ const Header = () => {
   const [mobileExpanded, setMobileExpanded] = useState({});
 
   const location = useLocation(); // <--- 2. Lấy đường dẫn hiện tại
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMenus = async () => {
@@ -85,7 +86,8 @@ const Header = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      alert(`Tìm kiếm: ${searchTerm}`);
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+      setIsMobileMenuOpen(false);
     }
   };
 

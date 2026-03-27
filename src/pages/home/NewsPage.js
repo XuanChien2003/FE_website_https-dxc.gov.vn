@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
+import { removeVietnameseTones } from "../../utils/stringUtils";
 import { FaCalendarAlt, FaAngleLeft, FaAngleRight, FaHome } from "react-icons/fa";
 
 const NewsPage = () => {
@@ -60,11 +61,11 @@ const NewsPage = () => {
 
     // Lọc theo Từ khóa
     if (searchText) {
-      const lowerText = searchText.toLowerCase();
+      const lowerText = removeVietnameseTones(searchText);
       result = result.filter(
         (item) =>
-          item.title.toLowerCase().includes(lowerText) ||
-          (item.summary && item.summary.toLowerCase().includes(lowerText))
+          (item.title && removeVietnameseTones(item.title).includes(lowerText)) ||
+          (item.summary && removeVietnameseTones(item.summary).includes(lowerText))
       );
     }
 

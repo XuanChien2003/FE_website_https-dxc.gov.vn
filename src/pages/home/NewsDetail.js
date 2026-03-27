@@ -9,6 +9,7 @@ import {
   FaTwitter,
   FaAngleRight,
 } from "react-icons/fa";
+import "./NewsDetail.css";
 
 const NewsDetail = () => {
   const { id } = useParams(); // Lấy ID từ URL
@@ -67,20 +68,22 @@ const NewsDetail = () => {
           {/* CỘT TRÁI: NỘI DUNG CHÍNH */}
           <div>
             {/* Breadcrumb */}
-            <div className="text-[14px] text-[#666] mb-5 border-b border-[#eee] pb-2.5 flex items-center flex-wrap">
-              <Link to="/" className="text-[#0056b3] no-underline hover:underline mx-1">Trang chủ</Link> /
-              <Link to="/news" className="text-[#0056b3] no-underline hover:underline mx-1">Tin tức</Link> /
-              <span className="text-[#999] ml-1">{news.categories?.title || "Chi tiết"}</span>
-            </div>
+            <nav className="text-[13px] text-gray-500 mb-6 flex items-center flex-wrap gap-2">
+              <Link to="/" className="text-secondary hover:text-primary transition-colors">Trang chủ</Link> 
+              <FaAngleRight className="text-[10px] text-gray-400" />
+              <Link to="/news" className="text-secondary hover:text-primary transition-colors">Tin tức</Link> 
+              <FaAngleRight className="text-[10px] text-gray-400" />
+              <span className="text-primary font-medium">{news.categories?.title || "Chi tiết"}</span>
+            </nav>
 
             {/* Tiêu đề */}
-            <h1 className="text-2xl text-primary font-bold mb-2.5 leading-snug">{news.title}</h1>
-            <div className="flex gap-5 text-gray-400 text-[13px] mb-7 border-b border-gray-100 pb-4 italic">
-              <span className="flex items-center gap-1.5">
-                <FaCalendarAlt /> Ngày đăng: {formatDate(news.publisheddate)}
+            <h1 className="text-2xl lg:text-3xl text-primary font-extrabold mb-4 leading-tight">{news.title}</h1>
+            <div className="flex flex-wrap gap-6 text-gray-500 text-[13px] mb-8 border-b border-gray-100 pb-5">
+              <span className="flex items-center gap-2">
+                <FaCalendarAlt className="text-primary/70" /> <b>Ngày đăng:</b> {formatDate(news.publisheddate)}
               </span>
-              <span className="flex items-center gap-1.5">
-                <FaTag /> Danh mục: {news.categories?.title || "Chung"}
+              <span className="flex items-center gap-2">
+                <FaTag className="text-primary/70" /> <b>Danh mục:</b> {news.categories?.title || "Chung"}
               </span>
             </div>
 
@@ -129,22 +132,25 @@ const NewsDetail = () => {
           </div>
 
           {/* CỘT PHẢI: TIN LIÊN QUAN */}
-          <div>
+          <aside className="lg:border-l lg:pl-10">
             <div>
-              <h3 className="text-[18px] text-[#da251d] uppercase border-b-2 border-[#da251d] pb-2 mb-[15px] font-bold">TIN LIÊN QUAN</h3>
-              <ul className="list-none p-0 m-0">
+              <h3 className="text-[18px] text-[#da251d] uppercase border-b-2 border-[#da251d] pb-2 mb-[20px] font-bold tracking-wider">TIN LIÊN QUAN</h3>
+              <ul className="space-y-4">
                 {relatedNews.map((item) => (
-                  <li key={item.newsid} className="group">
-                    <Link to={`/news/${item.newsid}`} className="text-gray-700 hover:text-primary transition-colors flex items-start gap-2 py-1">
-                      <span className="text-primary mt-1.5">•</span>
-                      <span className="flex-1">{item.title}</span>
-                      <span className="text-gray-400 text-xs ml-2 whitespace-nowrap mt-1">({formatDate(item.publisheddate)})</span>
+                  <li key={item.newsid} className="border-b border-gray-50 pb-3 last:border-0">
+                    <Link to={`/news/${item.newsid}`} className="group block">
+                      <h4 className="text-gray-800 group-hover:text-primary transition-colors text-[14px] font-medium leading-snug mb-1">
+                        {item.title}
+                      </h4>
+                      <span className="text-gray-400 text-[11px] flex items-center gap-1">
+                        <FaCalendarAlt className="text-[10px]" /> {formatDate(item.publisheddate)}
+                      </span>
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </div>

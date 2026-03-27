@@ -56,7 +56,7 @@ const SearchPage = () => {
       }
     };
     fetchSearchResults();
-  }, [keyword]);
+  }, [keyword, normalizedKeyword]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";

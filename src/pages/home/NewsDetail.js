@@ -69,21 +69,21 @@ const NewsDetail = () => {
           <div>
             {/* Breadcrumb */}
             <nav className="text-[13px] text-gray-500 mb-6 flex items-center flex-wrap gap-2">
-              <Link to="/" className="text-secondary hover:text-primary transition-colors">Trang chủ</Link> 
+              <Link to="/" className="text-secondary hover:text-black transition-colors">Trang chủ</Link> 
               <FaAngleRight className="text-[10px] text-gray-400" />
-              <Link to="/news" className="text-secondary hover:text-primary transition-colors">Tin tức</Link> 
+              <Link to="/news" className="text-secondary hover:text-black transition-colors">Tin tức</Link> 
               <FaAngleRight className="text-[10px] text-gray-400" />
-              <span className="text-primary font-medium">{news.categories?.title || "Chi tiết"}</span>
+              <span className="text-black font-medium">{news.categories?.title || "Chi tiết"}</span>
             </nav>
 
             {/* Tiêu đề */}
-            <h1 className="text-2xl lg:text-3xl text-primary font-extrabold mb-4 leading-tight">{news.title}</h1>
+            <h1 className="text-2xl lg:text-3xl text-black font-extrabold mb-4 leading-tight">{news.title}</h1>
             <div className="flex flex-wrap gap-6 text-gray-500 text-[13px] mb-8 border-b border-gray-100 pb-5">
               <span className="flex items-center gap-2">
-                <FaCalendarAlt className="text-primary/70" /> <b>Ngày đăng:</b> {formatDate(news.publisheddate)}
+                <FaCalendarAlt className="text-black/70" /> <b>Ngày đăng:</b> {formatDate(news.publisheddate)}
               </span>
               <span className="flex items-center gap-2">
-                <FaTag className="text-primary/70" /> <b>Danh mục:</b> {news.categories?.title || "Chung"}
+                <FaTag className="text-black/70" /> <b>Danh mục:</b> {news.categories?.title || "Chung"}
               </span>
             </div>
 
@@ -100,14 +100,14 @@ const NewsDetail = () => {
 
         {/* Nội dung chi tiết */}
             <div className="text-[17px] leading-[1.8] text-[#333] mb-12 text-justify space-y-4">
-              <div className="font-bold italic text-gray-600 mb-6 bg-gray-50 p-4 border-l-4 border-primary rounded-r">
+              <div className="font-bold italic text-gray-600 mb-6 bg-gray-50 p-4 border-l-4 border-black rounded-r">
                 {news.summary}
               </div>
               <div className="news-content-detail" dangerouslySetInnerHTML={{ __html: news.content }} />
             </div>
 
             {/* Tác giả / Nguồn cuối bài */}
-            <div className="text-right mt-[30px] font-bold text-[15px] text-[#2c5282]">
+            <div className="text-right mt-[30px] font-bold text-[15px] text-black">
               <strong>Tác giả:</strong> {news.createdby || "Admin"}
             </div>
 
@@ -139,7 +139,7 @@ const NewsDetail = () => {
                 {relatedNews.map((item) => (
                   <li key={item.newsid} className="border-b border-gray-50 pb-3 last:border-0">
                     <Link to={`/news/${item.newsid}`} className="group block">
-                      <h4 className="text-gray-800 group-hover:text-primary transition-colors text-[14px] font-medium leading-snug mb-1">
+                      <h4 className="text-gray-800 group-hover:text-black transition-colors text-[14px] font-medium leading-snug mb-1">
                         {item.title}
                       </h4>
                       <span className="text-gray-400 text-[11px] flex items-center gap-1">

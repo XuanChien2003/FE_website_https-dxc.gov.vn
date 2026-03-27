@@ -47,31 +47,33 @@ const DocumentDetail = () => {
   if (!doc) return <div className="text-center py-20 text-red-500 font-medium">Không tìm thấy văn bản!</div>;
 
   return (
-    <div className="bg-white py-8 min-h-[80vh] font-sans">
-      <div className="max-w-[1000px] mx-auto px-4">
-        {/* Breadcrumb / Nút quay lại */}
-        <div className="mb-5 text-sm text-gray-600 flex items-center gap-2">
-          <Link to="/" className="no-underline text-primary flex items-center gap-1 font-medium hover:text-accent">
-            <FaArrowLeft /> Quay lại trang chủ
-          </Link>
+    <div className="bg-gov-bg-body py-8 min-h-[80vh] font-sans">
+      <div className="max-w-[1280px] mx-auto px-4">
+        {/* Breadcrumb */}
+        <nav className="text-[13px] text-gray-500 mb-6 flex items-center flex-wrap gap-2">
+          <Link to="/" className="hover:text-black hover:underline transition-colors">Trang chủ</Link>
           <span className="text-gray-400">/</span>
-          <span className="text-gray-600">Chi tiết văn bản</span>
-        </div>
+          <Link to="/documents" className="hover:text-black hover:underline transition-colors">Văn bản</Link>
+          <span className="text-gray-400">/</span>
+          <span className="text-black font-semibold">Chi tiết văn bản</span>
+        </nav>
 
         {/* Tiêu đề văn bản */}
-        <h1 className="text-2xl text-primary font-bold mb-2.5 leading-snug uppercase">{doc.title}</h1>
-        <div className="flex gap-5 text-gray-500 text-[13px] mb-7 border-b border-gray-200 pb-4">
-          <span className="flex items-center gap-1.5">
-            <FaCalendarAlt /> Ngày ban hành: {formatDate(doc.publisheddate)}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <FaBuilding /> Cơ quan: {doc.agencies?.name || "Đang cập nhật"}
-          </span>
+        <div className="bg-white p-6 rounded-lg border border-gov-border shadow-sm">
+          <h1 className="text-xl text-gov-red font-bold mb-3 leading-snug uppercase">{doc.title}</h1>
+          <div className="flex flex-wrap gap-5 text-gray-500 text-[13px] border-t border-gray-100 pt-3 mt-3">
+            <span className="flex items-center gap-1.5">
+              <FaCalendarAlt className="text-gov-red" /> Ngày ban hành: <b className="text-gray-700">{formatDate(doc.publisheddate)}</b>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <FaBuilding className="text-gov-red" /> Cơ quan: <b className="text-gray-700">{doc.agencies?.name || "Đang cập nhật"}</b>
+            </span>
+          </div>
         </div>
 
         {/* Khung thông tin thuộc tính (Dạng bảng) */}
-        <div className="mb-7 border border-border-color rounded overflow-hidden">
-          <h3 className="bg-primary text-white py-2.5 px-4 m-0 text-[15px] font-semibold uppercase">THÔNG TIN THUỘC TÍNH</h3>
+        <div className="mt-6 mb-7 border border-gov-border rounded-lg overflow-hidden shadow-sm">
+          <h3 className="bg-gradient-to-br from-gov-red to-[#aa1a28] text-white py-3 px-4 m-0 text-[15px] font-bold uppercase tracking-wide">THÔNG TIN THUỘC TÍNH</h3>
           <table className="w-full border-collapse text-sm block md:table">
             <tbody className="block md:table-row-group">
               <tr className="md:border-b-0 border-b-2 border-gray-100 mb-4 md:mb-0 block md:table-row">
@@ -113,20 +115,19 @@ const DocumentDetail = () => {
         </div>
 
         {/* Khu vực Tải về */}
-        <div className="mb-7 border border-border-color rounded">
-          <h3 className="bg-primary text-white py-2.5 px-4 m-0 text-[15px] font-semibold uppercase">VĂN BẢN TOÀN VĂN</h3>
+        <div className="mb-7 border border-gov-border rounded-lg overflow-hidden shadow-sm">
+          <h3 className="bg-gradient-to-br from-gov-red to-[#aa1a28] text-white py-3 px-4 m-0 text-[15px] font-bold uppercase tracking-wide">VĂN BẢN TOÀN VĂN</h3>
           <div className="p-5 flex flex-col md:flex-row items-center gap-4 bg-white text-center md:text-left">
-            <FaFilePdf className="text-[40px] text-accent" />
+            <FaFilePdf className="text-[40px] text-gov-red" />
             <div className="flex-1 flex flex-col mb-2.5 md:mb-0">
               <span className="font-semibold text-[15px] text-gray-800">
                 {doc.filename || `VanBan_${doc.number}.pdf`}
               </span>
               <span className="text-[13px] text-gray-500">(Dung lượng: 2.5 MB)</span>
             </div>
-            {/* Nếu có link tải thật thì dùng thẻ a, nếu không thì button giả */}
             <a
               href={doc.fileurl || "#"}
-              className="bg-primary text-white py-2.5 px-5 no-underline rounded font-medium flex items-center gap-2 transition hover:bg-blue-900"
+              className="bg-gov-red text-white py-2.5 px-5 no-underline rounded-lg font-semibold flex items-center gap-2 transition hover:bg-gov-red-dark shadow-sm"
               target="_blank"
               rel="noreferrer"
             >
@@ -137,9 +138,9 @@ const DocumentDetail = () => {
 
         {/* Nội dung chi tiết (Nếu có HTML content) */}
         {doc.content && (
-          <div className="doc-content-html">
-            <h3 className="bg-primary text-white py-2.5 px-4 m-0 text-[15px] font-semibold uppercase">NỘI DUNG CHI TIẾT</h3>
-            <div dangerouslySetInnerHTML={{ __html: doc.content }} className="p-4 bg-white border border-border-color border-t-0 rounded-b" />
+          <div className="doc-content-html mb-7 border border-gov-border rounded-lg overflow-hidden shadow-sm">
+            <h3 className="bg-gradient-to-br from-gov-red to-[#aa1a28] text-white py-3 px-4 m-0 text-[15px] font-bold uppercase tracking-wide">NỘI DUNG CHI TIẾT</h3>
+            <div dangerouslySetInnerHTML={{ __html: doc.content }} className="p-5 bg-white" />
           </div>
         )}
       </div>

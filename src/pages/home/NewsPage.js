@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../../supabaseClient";
-import { FaCalendarAlt, FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { FaCalendarAlt, FaAngleLeft, FaAngleRight, FaHome } from "react-icons/fa";
 
 const NewsPage = () => {
   // 1. State lưu TOÀN BỘ tin từ API (API cũ trả về hết 1 lần)
@@ -105,18 +105,30 @@ const NewsPage = () => {
   };
 
   return (
-    <div className="bg-[#fdfdfd] font-sans min-h-screen py-[30px] pb-[60px]">
-      <div className="max-w-[1200px] mx-auto px-[15px]">
-        <h1 className="text-center text-gov-red text-[28px] font-bold mb-[25px] uppercase">Tin tức</h1>
+    <div className="bg-gov-bg-body font-sans min-h-screen py-[25px] pb-[60px]">
+      <div className="max-w-[1280px] mx-auto px-[15px]">
+        {/* Breadcrumb */}
+        <nav className="text-[13px] text-gray-500 mb-5 flex items-center flex-wrap gap-2">
+          <Link to="/" className="hover:text-black hover:underline transition-colors flex items-center gap-1">
+            <FaHome className="text-[11px]" /> Trang chủ
+          </Link>
+          <span className="text-gray-300">/</span>
+          <span className="text-black font-semibold">Tin tức</span>
+        </nav>
+
+        {/* Page Header */}
+        <div className="bg-gradient-to-br from-gov-red to-[#aa1a28] text-white py-3 px-5 rounded-t-lg border-b-[3px] border-gov-yellow flex items-center mb-0">
+          <h1 className="m-0 text-[16px] uppercase font-bold tracking-[0.5px]">TẤT CẢ TIN TỨC</h1>
+        </div>
 
         {/* Filter Section */}
-        <div className="flex flex-col gap-[15px] mb-[30px] bg-white p-[5px]">
+        <div className="bg-white p-4 border border-gov-border border-t-0 rounded-b-lg shadow-sm mb-[25px] flex flex-col sm:flex-row gap-[12px]">
           <select
             value={selectedCategory}
             onChange={handleCategoryChange}
-            className="w-full py-2.5 px-[15px] border border-[#e5e7eb] rounded text-[14px] text-[#555] outline-none bg-white focus:border-[#aaa] transition-colors"
+            className="flex-1 py-2.5 px-4 border border-gov-border rounded-md text-[14px] text-gov-text outline-none bg-white focus:border-gov-red transition-colors"
           >
-            <option value="all">--- Tất cả các mục ---</option>
+            <option value="all">—— Tất cả các mục ——</option>
             {categories.map((cat) => (
               <option key={cat.categoryid} value={cat.categoryid}>
                 {cat.title}
@@ -129,7 +141,7 @@ const NewsPage = () => {
             placeholder="Nhập từ khóa tìm kiếm..."
             value={searchText}
             onChange={handleSearchChange}
-            className="w-full py-2.5 px-[15px] border border-[#e5e7eb] rounded text-[14px] text-[#555] outline-none bg-white focus:border-[#aaa] transition-colors"
+            className="flex-1 py-2.5 px-4 border border-gov-border rounded-md text-[14px] text-gov-text outline-none bg-white focus:border-gov-red transition-colors"
           />
         </div>
 

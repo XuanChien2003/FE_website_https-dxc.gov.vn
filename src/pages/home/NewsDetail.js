@@ -69,11 +69,11 @@ const NewsDetail = () => {
           <div>
             {/* Breadcrumb */}
             <nav className="text-[13px] text-gray-500 mb-6 flex items-center flex-wrap gap-2">
-              <Link to="/" className="text-secondary hover:text-black transition-colors">Trang chủ</Link> 
+              <Link to="/" className="text-gray-500 hover:text-black hover:underline transition-colors">Trang chủ</Link> 
               <FaAngleRight className="text-[10px] text-gray-400" />
-              <Link to="/news" className="text-secondary hover:text-black transition-colors">Tin tức</Link> 
+              <Link to="/news" className="text-gray-500 hover:text-black hover:underline transition-colors">Tin tức</Link> 
               <FaAngleRight className="text-[10px] text-gray-400" />
-              <span className="text-black font-medium">{news.categories?.title || "Chi tiết"}</span>
+              <span className="text-black font-semibold">{news.categories?.title || "Chi tiết"}</span>
             </nav>
 
             {/* Tiêu đề */}

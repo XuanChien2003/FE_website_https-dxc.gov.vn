@@ -56,7 +56,7 @@ const Header = () => {
           .select('*')
           .filter('isshow', 'eq', true)
           .order('stt', { ascending: true });
-        
+
         if (error) throw error;
         const tree = buildMenuTree(data || []);
         setMenuTree(tree);
@@ -115,18 +115,10 @@ const Header = () => {
         <div className="container branding-container">
           <Link to="/" className="brand-box">
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Emblem_of_the_Socialist_Republic_of_Vietnam.svg/2021px-Emblem_of_the_Socialist_Republic_of_Vietnam.svg.png"
-              alt="Quốc Huy"
+              src="/logo-header.png"
+              alt="Logo Header"
               className="brand-logo"
             />
-            <div className="brand-info">
-              <h2 className="ministry-title">
-                BỘ VĂN HÓA, THỂ THAO VÀ DU LỊCH
-              </h2>
-              <h1 className="portal-title">
-                CỔNG THÔNG TIN ĐIỆN TỬ CHUYỂN ĐỔI SỐ
-              </h1>
-            </div>
           </Link>
 
           <button
@@ -144,9 +136,8 @@ const Header = () => {
           <ul className="gov-menu">
             {/* Home Icon */}
             <li
-              className={`gov-menu-item home-icon ${
-                location.pathname === "/" ? "active" : ""
-              }`}
+              className={`gov-menu-item home-icon ${location.pathname === "/" ? "active" : ""
+                }`}
             >
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
                 <FaHome />
@@ -161,9 +152,8 @@ const Header = () => {
               return (
                 <li
                   key={menu.menuid}
-                  className={`gov-menu-item ${hasChildren ? "has-sub" : ""} ${
-                    isActive ? "active" : ""
-                  }`}
+                  className={`gov-menu-item ${hasChildren ? "has-sub" : ""} ${isActive ? "active" : ""
+                    }`}
                 >
                   <div className="menu-link-wrap">
                     <Link

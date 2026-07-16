@@ -22,21 +22,21 @@
 /* --- 1. HEADER BRANDING --- */
 .site-header {
   font-family: var(--font-main);
-  background-color: #fff;
-  border-bottom: 1px solid #e5e5e5;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  background-color: var(--gov-red);
+  border-bottom: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 1000;
 }
 
 .header-branding {
-  background: #fff;
+  background-color: var(--gov-red);
   padding: 15px 0;
   background-image: url("https://upload.wikimedia.org/wikipedia/commons/2/23/Trong_dong.svg");
   background-repeat: no-repeat;
   background-position: 98% center;
-  background-size: 80px;
-  margin-bottom: 10px;
+  background-size: 150px;
+  margin-bottom: 0;
 }
 
 .branding-container {
@@ -55,7 +55,8 @@
 .brand-logo {
   height: 70px;
   width: auto;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .brand-info {
@@ -74,12 +75,12 @@
 
 .portal-title {
   font-size: 24px;
-  color: var(--gov-red);
+  color: var(--gov-yellow);
   text-transform: uppercase;
   margin: 0;
   font-weight: 800;
   line-height: 1.2;
-  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.05);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* --- 2. NAVIGATION BAR --- */
@@ -297,7 +298,7 @@ a.gov-link {
   background: none;
   border: none;
   font-size: 26px;
-  color: var(--gov-red);
+  color: #fff;
   cursor: pointer;
 }
 

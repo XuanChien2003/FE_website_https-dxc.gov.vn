@@ -11,15 +11,10 @@ const Footer = () => {
         <div className="footer-col info-col">
           <div className="footer-brand-box">
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Emblem_of_the_Socialist_Republic_of_Vietnam.svg/2021px-Emblem_of_the_Socialist_Republic_of_Vietnam.svg.png"
-              alt="Logo"
+              src="/logo footer.png"
+              alt="Logo Footer"
               className="footer-logo-img"
             />
-            <h2 className="footer-org-name">
-              BỘ VĂN HÓA, THỂ THAO VÀ DU LỊCH
-              <br />
-              <span>TRUNG TÂM CÔNG NGHỆ THÔNG TIN</span>
-            </h2>
           </div>
 
           <div className="footer-contact-info">

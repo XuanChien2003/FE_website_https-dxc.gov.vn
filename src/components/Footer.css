@@ -46,8 +46,10 @@
 }
 
 .footer-logo-img {
-  width: 55px;
-  height: auto;
+  height: 65px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
   margin-top: 2px;
 }
 

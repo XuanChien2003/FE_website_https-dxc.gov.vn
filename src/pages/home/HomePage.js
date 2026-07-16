@@ -93,7 +93,47 @@ const HomePage = () => {
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
-  if (loading) return <div className="text-center py-10 font-medium text-gov-text-sub">Đang tải dữ liệu...</div>;
+  const isNew = (dateString) => {
+    if (!dateString) return false;
+    const published = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - published);
+    const diffHours = diffTime / (1000 * 60 * 60);
+    return diffHours <= 24;
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-gov-bg-body font-sans text-gov-text text-[14px] w-full min-h-screen antialiased">
+        <div className="max-w-[1280px] mx-auto px-4 pt-[20px] pb-[30px]">
+          {/* Skeleton Section 1 */}
+          <div className="grid grid-cols-1 lg:grid-cols-[2.2fr_1fr] gap-[18px] mb-[20px]">
+            <div>
+              <div className="skeleton h-[40px] w-full mb-4"></div>
+              <div className="bg-white border border-gov-border p-[16px] rounded-lg shadow-sm">
+                <div className="skeleton h-[300px] md:h-[380px] w-full mb-4"></div>
+                <div className="skeleton h-[28px] w-3/4 mb-2"></div>
+                <div className="skeleton h-[18px] w-full mb-4"></div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-[14px] pt-[14px]">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex flex-col gap-2">
+                      <div className="skeleton h-[120px] w-full"></div>
+                      <div className="skeleton h-[16px] w-full"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="skeleton h-[140px] w-full"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const bigNews = featuredNews[0];
   const subNews = featuredNews.slice(1, 4);
@@ -108,12 +148,17 @@ const HomePage = () => {
 
   const FirstNewsItem = ({ news }) => (
     <div className="flex flex-col gap-[10px] mb-[12px] group/firstnews">
-      <Link to={`/news/${news.newsid}`} className="w-full h-[190px] rounded-md overflow-hidden block">
+      <Link to={`/news/${news.newsid}`} className="w-full h-[190px] rounded-md overflow-hidden block relative">
         <img
           src={news.imagelink || "https://via.placeholder.com/300x200"}
           alt={news.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover/firstnews:scale-[1.05]"
         />
+        {isNew(news.publisheddate) && (
+          <span className="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow z-10">
+            MỚI
+          </span>
+        )}
       </Link>
       <div>
         <h4 className="m-0 text-[15px] leading-[1.4] mb-1">
@@ -133,6 +178,11 @@ const HomePage = () => {
       <FaCaretRight className="text-gov-red mt-[3px] mr-[8px] text-[13px] flex-shrink-0" />
       <Link to={`/news/${news.newsid}`} title={news.title} className="text-gov-text leading-[1.5] hover:text-gov-red transition-colors duration-300">
         {news.title}{" "}
+        {isNew(news.publisheddate) && (
+          <span className="bg-red-600 text-white text-[9px] font-bold px-1 py-0.2 rounded ml-1 align-middle">
+            MỚI
+          </span>
+        )}
         <span className="text-[12px] text-slate-400 font-normal ml-1 whitespace-nowrap">({formatDate(news.publisheddate)})</span>
       </Link>
     </div>
@@ -154,7 +204,7 @@ const HomePage = () => {
   );
 
   return (
-    <div className="bg-gov-bg-body font-sans text-gov-text text-[14px] w-full min-h-screen antialiased">
+    <div className="bg-gov-bg-body font-sans text-gov-text text-[14px] w-full min-h-screen antialiased fade-in-up">
       <div className="max-w-[1280px] mx-auto px-4 pt-[20px] pb-[30px]">
 
         {/* SECTION 1: TIN NỔI BẬT + SLIDE */}
@@ -177,6 +227,11 @@ const HomePage = () => {
                       alt={bigNews.title}
                       className="w-full h-full object-cover transition-transform duration-[600ms] group-hover/thumb:scale-[1.04]"
                     />
+                    {isNew(bigNews.publisheddate) && (
+                      <span className="absolute top-3 left-3 bg-red-600 text-white text-[11px] font-bold px-2.5 py-1 rounded shadow z-20">
+                        MỚI
+                      </span>
+                    )}
                   </Link>
                   <h2 className="text-[20px] m-0 mb-[8px] leading-[1.35] font-bold tracking-[-0.3px]">
                     <Link to={`/news/${bigNews.newsid}`} className="text-gov-text hover:text-gov-red transition-colors duration-300">

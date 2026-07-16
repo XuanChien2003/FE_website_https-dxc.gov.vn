@@ -30,13 +30,34 @@
 }
 
 .header-branding {
-  background-color: var(--gov-red);
-  padding: 15px 0;
+  background: linear-gradient(135deg, #be1e2d 0%, #a01a26 50%, #8b121d 100%);
+  padding: 18px 0;
+  margin-bottom: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Trống đồng quay chậm */
+.header-branding::after {
+  content: '';
+  position: absolute;
+  right: 3%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 160px;
+  height: 160px;
   background-image: url("https://upload.wikimedia.org/wikipedia/commons/2/23/Trong_dong.svg");
   background-repeat: no-repeat;
-  background-position: 98% center;
-  background-size: 150px;
-  margin-bottom: 0;
+  background-size: contain;
+  background-position: center;
+  opacity: 0.12;
+  animation: spinDrum 40s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spinDrum {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to { transform: translateY(-50%) rotate(360deg); }
 }
 
 .branding-container {
@@ -53,10 +74,15 @@
 }
 
 .brand-logo {
-  height: 70px;
+  height: 80px;
   width: auto;
   flex-shrink: 0;
   object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.brand-box:hover .brand-logo {
+  transform: scale(1.03);
 }
 
 .brand-info {
@@ -160,14 +186,17 @@ a.gov-link {
   position: absolute;
   top: 100%;
   left: 0;
-  background-color: #fff;
-  min-width: 240px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  min-width: 260px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   list-style: none;
-  padding: 0;
+  padding: 4px 0;
   z-index: 999;
   border-top: 3px solid var(--gov-yellow);
-  animation: fadeIn 0.2s ease-in-out;
+  border-radius: 0 0 8px 8px;
+  animation: fadeIn 0.25s ease-in-out;
 }
 
 @keyframes fadeIn {
@@ -274,9 +303,7 @@ a.gov-link {
   background-color: var(--gov-bg-light);
   border-bottom: 1px solid #e5e5e5;
   padding: 10px 0px 10px;
-  /* Giảm padding thanh ngày tháng */
   font-size: 12px;
-  /* Giảm font thanh ngày tháng */
   color: var(--gov-gray);
   font-weight: 500;
 }
@@ -290,6 +317,19 @@ a.gov-link {
 .hotline {
   color: var(--gov-red);
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hotline::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
 /* --- MOBILE RESPONSIVE --- */

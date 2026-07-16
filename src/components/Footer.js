@@ -71,6 +71,11 @@ const Footer = () => {
           </ul>
         </div>
       </div>
+
+      {/* Copyright Bar */}
+      <div className="main-footer-bottom">
+        <p>© {new Date().getFullYear()} Trung tâm Công nghệ thông tin — Bộ Văn hóa, Thể thao và Du lịch. Bản quyền thuộc về BVHTTDL.</p>
+      </div>
     </footer>
   );
 };

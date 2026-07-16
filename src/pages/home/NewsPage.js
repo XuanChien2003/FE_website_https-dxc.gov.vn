@@ -105,6 +105,28 @@ const NewsPage = () => {
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
+  const getCategoryTitle = (categoryId) => {
+    const cat = categories.find((c) => c.categoryid === categoryId);
+    return cat ? cat.title : "Tin tức";
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 2;
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - delta && i <= currentPage + delta)
+      ) {
+        pages.push(i);
+      } else if (pages[pages.length - 1] !== "...") {
+        pages.push("...");
+      }
+    }
+    return pages;
+  };
+
   return (
     <div className="bg-gov-bg-body font-sans min-h-screen py-[25px] pb-[60px]">
       <div className="max-w-[1280px] mx-auto px-[15px]">
@@ -148,7 +170,16 @@ const NewsPage = () => {
 
         {/* Loading State */}
         {loading ? (
-          <div className="text-center p-[50px] text-gray-500 font-medium">Đang tải dữ liệu...</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[24px] mb-[40px]">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white border border-[#e5e7eb] rounded-lg overflow-hidden flex flex-col p-4 shadow-sm">
+                <div className="skeleton h-[200px] w-full mb-3"></div>
+                <div className="skeleton h-[20px] w-3/4 mb-2"></div>
+                <div className="skeleton h-[16px] w-full mb-4"></div>
+                <div className="skeleton h-[14px] w-1/4 mt-auto"></div>
+              </div>
+            ))}
+          </div>
         ) : (
           <>
             {/* Grid News List */}
@@ -156,7 +187,7 @@ const NewsPage = () => {
               {currentItems.length > 0 ? (
                 currentItems.map((news) => (
                   <div key={news.newsid} className="bg-white border border-[#e5e7eb] rounded-lg overflow-hidden flex flex-col shadow-[0_2px_5px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_5px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 group/card">
-                    <Link to={`/news/${news.newsid}`} className="block w-full h-[200px] overflow-hidden">
+                    <Link to={`/news/${news.newsid}`} className="block w-full h-[200px] overflow-hidden relative">
                       <img
                         src={
                           news.imagelink ||
@@ -165,13 +196,19 @@ const NewsPage = () => {
                         alt={news.title}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover/card:scale-105"
                       />
+                      <span className="absolute top-2 left-2 bg-gov-red text-white text-[11px] font-bold px-2 py-0.5 rounded shadow z-10">
+                        {getCategoryTitle(news.categoryid)}
+                      </span>
                     </Link>
                     <div className="p-[15px] flex-1 flex flex-col">
-                      <h3 className="m-0 mb-2.5 text-[15px] leading-[1.4] font-bold line-clamp-3 overflow-hidden">
+                      <h3 className="m-0 mb-2 text-[15px] leading-[1.4] font-bold line-clamp-2 overflow-hidden">
                         <Link to={`/news/${news.newsid}`} className="text-[#333] no-underline hover:text-gov-red transition-colors">
                           {news.title}
                         </Link>
                       </h3>
+                      <p className="text-[13px] text-gray-500 m-0 mb-4 line-clamp-2 leading-[1.5] text-justify">
+                        {news.summary}
+                      </p>
                       <div className="mt-auto text-[12px] text-[#888] flex items-center gap-[5px]">
                         <FaCalendarAlt /> {formatDate(news.publisheddate)}
                       </div>
@@ -196,8 +233,14 @@ const NewsPage = () => {
                   <FaAngleLeft />
                 </button>
 
-                {[...Array(totalPages)].map((_, index) => {
-                  const pageNum = index + 1;
+                {getPageNumbers().map((pageNum, index) => {
+                  if (pageNum === "...") {
+                    return (
+                      <span key={`dots-${index}`} className="px-2 text-[#777] font-semibold select-none">
+                        ...
+                      </span>
+                    );
+                  }
                   return (
                     <button
                       key={pageNum}

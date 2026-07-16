@@ -25,7 +25,8 @@ Nhiệm vụ của bạn là:
 1. Viết lại một Tiêu đề khách quan, phù hợp văn phong cơ quan nhà nước.
 2. Viết đoạn Tóm tắt (khoảng 4-5 câu) đầy đủ ý chính, rõ ràng.
 3. Viết phần Nội dung chi tiết (dài khoảng 3-5 đoạn văn, sử dụng các thẻ HTML như <p>, <strong> để trình bày cho đẹp). Viết mở rộng, chi tiết và phân tích sâu hơn dựa trên nội dung gốc, với hành văn trang trọng, chuẩn mực của báo chí nhà nước.
-4. Chắc chắn trả về JSON hợp lệ với 3 trường: "title", "summary" và "content".
+4. Phân loại bài viết vào một trong các ID chuyên mục sau: 1 (Tin tức tổng hợp), 2 (Thông báo), 3 (Văn bản pháp quy), 4 (Tin tức trong nước), 5 (Tin tức quốc tế), 6 (Thông báo tuyển dụng), 7 (Thông báo đào tạo), 8 (Hoạt động đơn vị).
+5. Chắc chắn trả về JSON hợp lệ với 4 trường: "title", "summary", "content" và "categoryId" (kiểu số nguyên).
 Không trả về bất kỳ giải thích nào bên ngoài JSON.`;
 
   try {
@@ -50,13 +51,14 @@ Không trả về bất kỳ giải thích nào bên ngoài JSON.`;
       return {
         title: parsed.title || originalTitle,
         summary: parsed.summary || originalSnippet,
-        content: parsed.content || originalSnippet
+        content: parsed.content || originalSnippet,
+        categoryId: parsed.categoryId || 1
       };
     }
-    return { title: originalTitle, summary: originalSnippet, content: originalSnippet };
+    return { title: originalTitle, summary: originalSnippet, content: originalSnippet, categoryId: 1 };
   } catch (error) {
     console.error("Lỗi khi gọi AI API:", error.message || error);
-    return { title: originalTitle, summary: originalSnippet, content: originalSnippet };
+    return { title: originalTitle, summary: originalSnippet, content: originalSnippet, categoryId: 1 };
   }
 }
 
@@ -103,7 +105,7 @@ async function fetchAndSaveNews() {
     summary: aiResult.summary,
     content: fullContent,
     imagelink: imageUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaan-6fYNdJBoZtSm16UYlr7S9fFm5OV42Dw&s',
-    categoryid: 1, 
+    categoryid: aiResult.categoryId || 1, 
     isfeatured: true,
     createdby: 'Xuan Chien',
     newsstatus: 'Đã duyệt',

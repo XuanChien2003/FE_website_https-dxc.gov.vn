@@ -37,27 +37,62 @@
   overflow: hidden;
 }
 
-/* Trống đồng quay chậm */
-.header-branding::after {
-  content: '';
+/* Globe Background Graphic */
+.header-globe-bg {
   position: absolute;
-  right: 3%;
+  right: 5%;
   top: 50%;
   transform: translateY(-50%);
-  width: 160px;
-  height: 160px;
-  background-image: url("https://upload.wikimedia.org/wikipedia/commons/2/23/Trong_dong.svg");
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-  opacity: 0.12;
-  animation: spinDrum 40s linear infinite;
+  font-size: 150px;
+  color: rgba(255, 255, 255, 0.12);
   pointer-events: none;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes spinDrum {
-  from { transform: translateY(-50%) rotate(0deg); }
-  to { transform: translateY(-50%) rotate(360deg); }
+.header-globe-bg svg {
+  animation: pulseGlobe 4s ease-in-out infinite;
+}
+
+@keyframes pulseGlobe {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* Custom Text Logo Styles */
+.text-logo-box {
+  text-decoration: none;
+}
+
+.brand-text-logo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 5px 0;
+}
+
+.logo-main {
+  font-size: 34px;
+  font-weight: 900;
+  color: var(--gov-yellow);
+  letter-spacing: 2px;
+  line-height: 1.1;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-main);
+}
+
+.logo-sub {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0.95;
+  margin-top: 2px;
 }
 
 .branding-container {

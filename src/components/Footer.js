@@ -10,33 +10,26 @@ const Footer = () => {
         {/* CỘT 1: THÔNG TIN LIÊN HỆ */}
         <div className="footer-col info-col">
           <div className="footer-brand-box">
-            <img
-              src="/logo footer.png"
-              alt="Logo Footer"
-              className="footer-logo-img"
-            />
+            <div className="footer-text-logo">
+              <span className="footer-logo-main">Tintuc News</span>
+              <span className="footer-logo-sub">CẬP NHẬT LIÊN TỤC & CHÍNH XÁC</span>
+            </div>
           </div>
 
           <div className="footer-contact-info">
             <p>
               <FaMapMarkerAlt className="footer-icon-gold" />
-              <strong>Địa chỉ: </strong> Số 20, ngõ 2 Hoa Lư, Hai Bà Trưng, Hà
-              Nội
+              <strong>Địa chỉ: </strong> Hà Nội, Việt Nam
             </p>
             <p className="footer-contact-row">
               <span className="contact-item">
                 <FaPhoneAlt className="footer-icon-gold" />
-                <strong>Điện thoại: </strong> 0243.9745845
-              </span>
-              <span className="footer-sep">|</span>
-              <span className="contact-item">
-                <FaFax className="footer-icon-gold" />
-                <strong>Fax: </strong> 0243.9745846
+                <strong>Hotline: </strong> 1900 xxxx
               </span>
             </p>
             <p>
               <FaEnvelope className="footer-icon-gold" />
-              <strong>Email: </strong> banbientap@bvhttdl.gov.vn
+              <strong>Email: </strong> nguyenxuanchienbkn@gmail.com
             </p>
           </div>
         </div>
@@ -55,18 +48,10 @@ const Footer = () => {
               <Link to="/documents">Văn bản chỉ đạo</Link>
             </li>
             <li>
-              <a
-                href="https://dichvucong.gov.vn"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Cổng Dịch vụ công Quốc gia
-              </a>
+              <Link to="#">Điều khoản sử dụng</Link>
             </li>
             <li>
-              <a href="https://bvhttdl.gov.vn" target="_blank" rel="noreferrer">
-                Cổng TTĐT Bộ VHTTDL
-              </a>
+              <Link to="#">Chính sách bảo mật</Link>
             </li>
           </ul>
         </div>
@@ -74,7 +59,7 @@ const Footer = () => {
 
       {/* Copyright Bar */}
       <div className="main-footer-bottom">
-        <p>© {new Date().getFullYear()} Trung tâm Công nghệ thông tin — Bộ Văn hóa, Thể thao và Du lịch. Bản quyền thuộc về BVHTTDL.</p>
+        <p>© {new Date().getFullYear()} Tintuc News. Nền tảng cập nhật tin tức đa chiều, nhanh chóng và chính xác.</p>
       </div>
     </footer>
   );

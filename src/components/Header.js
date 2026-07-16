@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom"; // <--- 1. Thêm useLocation, useNavigate
-import { FaSearch, FaBars, FaTimes, FaAngleDown, FaHome } from "react-icons/fa";
+import { FaSearch, FaBars, FaTimes, FaAngleDown, FaHome, FaGlobe } from "react-icons/fa";
 import "./Header.css";
 import { supabase } from "../supabaseClient";
 
@@ -112,13 +112,16 @@ const Header = () => {
     <header className="site-header">
       {/* 1. BRANDING */}
       <div className="header-branding">
+        {/* Quả cầu trái đất */}
+        <div className="header-globe-bg">
+          <FaGlobe />
+        </div>
         <div className="container branding-container">
-          <Link to="/" className="brand-box">
-            <img
-              src="/logo-header.png"
-              alt="Logo Header"
-              className="brand-logo"
-            />
+          <Link to="/" className="brand-box text-logo-box">
+            <div className="brand-text-logo">
+              <span className="logo-main">Tintuc News</span>
+              <span className="logo-sub">CẬP NHẬT LIÊN TỤC & CHÍNH XÁC</span>
+            </div>
           </Link>
 
           <button

@@ -19,25 +19,25 @@
   overflow: hidden;
 }
 
-/* Trống đồng pattern góc phải footer */
-.main-footer-wrapper::after {
-  content: '';
-  position: absolute;
-  right: -30px;
-  bottom: -30px;
-  width: 200px;
-  height: 200px;
-  background-image: url("https://upload.wikimedia.org/wikipedia/commons/2/23/Trong_dong.svg");
-  background-repeat: no-repeat;
-  background-size: contain;
-  opacity: 0.06;
-  pointer-events: none;
-  animation: spinDrum 60s linear infinite;
+/* Footer text logo styles */
+.footer-text-logo {
+  display: flex;
+  flex-direction: column;
 }
 
-@keyframes spinDrum {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.footer-logo-main {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--gov-yellow);
+  letter-spacing: 1px;
+}
+
+.footer-logo-sub {
+  font-size: 12px;
+  color: #fff;
+  letter-spacing: 2px;
+  opacity: 0.9;
+  text-transform: uppercase;
 }
 
 .footer-container {
